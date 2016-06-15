@@ -25,12 +25,18 @@ public class Pokemon {
         JYNX, ELECTABUZZ, MAGMAR, PINSIR, TAUROS, MAGIKARP, GYARADOS, LAPRAS, DITTO, EEVEE, VAPOREON, JOLTEON, FLAREON, PORYGON, OMANYTE,
         OMASTAR, KABUTO, KABUTOPS, AERODACTYL, SNORLAX, ARTICUNO, ZAPDOS, MOLTRES, DRATINI, DRAGONAIR, DRAGONITE, MEWTWO, MEW
     }
+    
+    public enum Gender {
+        BOTH, MALE, FEMALE, NONE
+    }
 
     public final Pkmn species;
     public Pkmn evolution = null;
     public final String name;
     public final Types.Type type1;
     public final Types.Type type2;
+    public final Gender possibleGender;
+    public final double maleRatio;
     public final int expGiven;
     public final int hp;
     public final int atk;
@@ -38,17 +44,24 @@ public class Pokemon {
     public final int spd;
     public final int spc;
 
-    public Pokemon(Pkmn species, String name, Types.Type type1, Types.Type type2, int expGiven, int hp, int atk, int def, int spd, int spc) {
+    public Pokemon(Pkmn species, String name, Types.Type type1, Types.Type type2, Gender possibleGender, double maleRatio, int expGiven, int hp, int atk, int def, int spd, int spc) {
         this.species = species;
         this.name = name;
         this.type1 = type1;
         this.type2 = type2;
+        this.possibleGender = (possibleGender == null?Gender.NONE:possibleGender);
+        this.maleRatio = maleRatio;
         this.expGiven = expGiven;
         this.hp = hp;
         this.atk = atk;
         this.def = def;
         this.spd = spd;
         this.spc = spc;
+    }
+
+    @Override
+    public String toString() {
+        return species + " [" + name + "]: " + hp + "," + atk + "," + def + "," + spd + "," + spc;
     }
 
 }

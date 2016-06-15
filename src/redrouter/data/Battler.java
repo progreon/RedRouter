@@ -5,6 +5,7 @@
  */
 package redrouter.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,7 +16,7 @@ public class Battler {
 
     private Pokemon pokemon;
     public int level;
-    public boolean isMale;
+    public Pokemon.Gender gender;
     public List<Move> moveset;
 //    public int totalXP = 0;
 
@@ -40,11 +41,14 @@ public class Battler {
         this.pokemon = pokemon;
         this.level = level;
         this.moveset = moveset;
+        if (this.moveset == null) {
+            this.moveset = new ArrayList<>();
+        }
     }
 
     public void evolve() {
         if (pokemon.evolution != null) {
-            pokemon = RouteFactory.getPokedexByName().get(pokemon.evolution);
+            pokemon = RouteFactory.getPokemonByName(pokemon.evolution);
         }
     }
 
@@ -75,6 +79,26 @@ public class Battler {
     public int getSpc(boolean withBoosts) {
         return getStat(pokemon.spc, spcDV, spcXP, withBoosts);
     }
+    
+    public int getHPStatIfDV(int DV) {
+        return (int) Math.floor(((pokemon.hp + DV) * 2 + Math.floor(Math.ceil(Math.sqrt(hpXP)) / 4)) * level / 100) + level + 10;
+    }
+
+    public int getAtkStatIfDV(int DV) {
+        return getStat(pokemon.atk, DV, atkXP, false);
+    }
+
+    public int getDefStatIfDV(int DV) {
+        return getStat(pokemon.def, DV, defXP, false);
+    }
+
+    public int getSpdStatIfDV(int DV) {
+        return getStat(pokemon.spd, DV, spdXP, false);
+    }
+
+    public int getSpcStatIfDV(int DV) {
+        return getStat(pokemon.spc, DV, spcXP, false);
+    }
 
     // TODO: calculation with badge boosts
     private int getStat(int base, int DV, int XP, boolean withBoosts) {
@@ -100,14 +124,14 @@ public class Battler {
     @Override
     public String toString() {
         String battler = pokemon.name + " Lv." + level;
-        String moves = "";
-        if (moveset.size() > 0) {
-            for (Move m : moveset) {
-                moves += "," + m.NAME;
-            }
-            moves = moves.substring(1);
-        }
-        battler += " (" + moves + ")";
+//        String moves = "";
+//        if (moveset.size() > 0) {
+//            for (Move m : moveset) {
+//                moves += "," + m.NAME;
+//            }
+//            moves = moves.substring(1);
+//        }
+//        battler += " (" + moves + ")";
 
         return battler;
     }

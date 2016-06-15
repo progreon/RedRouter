@@ -5,7 +5,6 @@
  */
 package redrouter.view;
 
-import java.awt.Dimension;
 import javax.swing.JFrame;
 
 /**
@@ -13,16 +12,18 @@ import javax.swing.JFrame;
  * @author marco
  */
 public class RouterFrame extends JFrame {
-    
+
     public static final String TITLE = "Red Router";
 
     public RouterFrame() {
         super(TITLE);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(new Dimension(400, 300));
-        setLocationRelativeTo(null);
-        setResizable(false);
-        
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        setSize(new Dimension(400, 300));
+        this.setContentPane(new DVCalculatorPanel(null));
+        this.pack();
+        this.setLocationRelativeTo(null);
+//        this.setResizable(false);
+
     }
-    
+
 }
