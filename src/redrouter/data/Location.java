@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 marco
+ * Copyright (C) 2016 Marco Willems
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@ package redrouter.data;
 
 /**
  *
- * @author marco
+ * @author Marco Willems
  */
 public class Location {
     
