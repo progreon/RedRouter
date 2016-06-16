@@ -77,8 +77,8 @@ public class Pokemon {
 
     @Override
     public String toString() {
-        return species + " [" + name + "]: " + hp + "," + atk + "," + def + "," + spd + "," + spc;
-//        return name;
+//        return species + " [" + name + "]: " + hp + "," + atk + "," + def + "," + spd + "," + spc;
+        return name;
     }
 
 }

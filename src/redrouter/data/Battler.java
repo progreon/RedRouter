@@ -87,7 +87,6 @@ public class Battler {
         }
         double statValue = Math.floor((((pokemon.hp + hpDV + 50) * 2 + extraStats) * level / 100) + 10);
         return (int) statValue;
-//        return (int) Math.floor(((pokemon.hp + hpDV) * 2 + Math.floor(Math.ceil(Math.sqrt(hpXP)) / 4)) * level / 100) + level + 10;
     }
 
     public int getAtk(boolean withBoosts) {
@@ -113,7 +112,6 @@ public class Battler {
         }
         double statValue = Math.floor((((pokemon.hp + DV + 50) * 2 + extraStats) * level / 100) + 10);
         return (int) statValue;
-//        return (int) Math.floor(((pokemon.hp + DV) * 2 + Math.floor(Math.ceil(Math.sqrt(hpXP)) / 4)) * level / 100) + level + 10;
     }
 
     public int getAtkStatIfDV(int DV) {
@@ -140,7 +138,6 @@ public class Battler {
         }
         double statValue = Math.floor((((base + DV) * 2 + extraStats) * level / 100) + 5);
         return (int) statValue;
-//        return (int) Math.floor(((base + DV) * 2 + Math.floor(Math.ceil(Math.sqrt(XP)) / 4)) * level / 100) + 5;
     }
 
     public Pokemon getPokemon() {

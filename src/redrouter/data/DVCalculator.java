@@ -199,8 +199,7 @@ public class DVCalculator {
                     removeOddOrEvenDV(stat + 1, true);
                 }
             }
-//        } else if (statClicked == 1) { // Attack was clicked // 2,3,4
-        } else { // Attack was clicked // 2,3,4
+        } else { // Other stat was clicked (statClicked == 1, 2, 3 or 4)
             boolean isEven = false;
             boolean isOdd = false;
             for (int dv = 0; dv < 16; dv++) {
@@ -214,7 +213,7 @@ public class DVCalculator {
             }
             if (!isEven) {
                 for (int dv = 0; dv < 16; dv++) {
-                    if ((dv >> (4 - statClicked)) % 2 == 0) { // >> 2,1,0
+                    if ((dv >> (4 - statClicked)) % 2 == 0) { // >> is bitwise shift operator ((4 - statClicked) == 3, 2, 1 or 0)
                         isPossibleDV[0][dv] = false;
                     }
                 }

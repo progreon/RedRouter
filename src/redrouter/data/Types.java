@@ -25,7 +25,6 @@ import java.util.HashMap;
  */
 public class Types {
 
-//    private static double[][] typeChart;
     private static TypeChart typeChart;
     private static HashMap<Type, Boolean> isPhysical;
 

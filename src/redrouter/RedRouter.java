@@ -42,17 +42,6 @@ public class RedRouter {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
-//        InputStream fis = ClassLoader.getSystemResourceAsStream("test.txt");
-//        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-//        String line = br.readLine();
-//        while (line != null) {
-//            System.out.println(line);
-//            line = br.readLine();
-//        }
-//        br.close();
-//        fis.close();
-        
         RedRouter r = new RedRouter();
     }
     

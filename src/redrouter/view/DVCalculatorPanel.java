@@ -342,7 +342,6 @@ public class DVCalculatorPanel extends JPanel {
 //    }
     private class DVPanel extends JPanel {
 
-//        private String[] ranges;
         public DVPanel(String[] ranges) {
             super(new GridLayout(0, 5));
             init(ranges);
