@@ -23,6 +23,11 @@ package redrouter.data;
  */
 public class Location {
     
+    public static int PALLET_TOWN = 0;
+    public static int ROUTE1 = 1;
+    public static int VIRIDIAN_CITY = 2;
+    // ...
+    
     // TODO move to a pokedex class?
     public final String name;
     // TODO type (grass, water, rod)

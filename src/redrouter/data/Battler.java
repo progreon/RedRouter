@@ -64,16 +64,30 @@ public class Battler {
         }
     }
 
-    public void addStatXP(int hp, int atk, int def, int spd, int spc) {
-        hpXP += hp;
-        atkXP += atk;
-        defXP += def;
-        spdXP += spd;
-        spcXP += spc;
+    public void addStatXP(int hp, int atk, int def, int spd, int spc, int nrOfPkmn) {
+        hpXP += hp / nrOfPkmn;
+        atkXP += atk / nrOfPkmn;
+        defXP += def / nrOfPkmn;
+        spdXP += spd / nrOfPkmn;
+        spcXP += spc / nrOfPkmn;
+    }
+
+    public void resetStatXP() {
+        hpXP = 0;
+        atkXP = 0;
+        defXP = 0;
+        spdXP = 0;
+        spcXP = 0;
     }
 
     public int getHP() {
-        return (int) Math.floor(((pokemon.hp + hpDV) * 2 + Math.floor(Math.ceil(Math.sqrt(hpXP)) / 4)) * level / 100) + level + 10;
+        double extraStats = 0;
+        if (hpXP - 1 >= 0) {
+            extraStats = Math.floor(Math.floor((Math.sqrt(hpXP - 1) + 1)) / 4);
+        }
+        double statValue = Math.floor((((pokemon.hp + hpDV + 50) * 2 + extraStats) * level / 100) + 10);
+        return (int) statValue;
+//        return (int) Math.floor(((pokemon.hp + hpDV) * 2 + Math.floor(Math.ceil(Math.sqrt(hpXP)) / 4)) * level / 100) + level + 10;
     }
 
     public int getAtk(boolean withBoosts) {
@@ -91,9 +105,15 @@ public class Battler {
     public int getSpc(boolean withBoosts) {
         return getStat(pokemon.spc, spcDV, spcXP, withBoosts);
     }
-    
+
     public int getHPStatIfDV(int DV) {
-        return (int) Math.floor(((pokemon.hp + DV) * 2 + Math.floor(Math.ceil(Math.sqrt(hpXP)) / 4)) * level / 100) + level + 10;
+        double extraStats = 0;
+        if (hpXP - 1 >= 0) {
+            extraStats = Math.floor(Math.floor((Math.sqrt(hpXP - 1) + 1)) / 4);
+        }
+        double statValue = Math.floor((((pokemon.hp + DV + 50) * 2 + extraStats) * level / 100) + 10);
+        return (int) statValue;
+//        return (int) Math.floor(((pokemon.hp + DV) * 2 + Math.floor(Math.ceil(Math.sqrt(hpXP)) / 4)) * level / 100) + level + 10;
     }
 
     public int getAtkStatIfDV(int DV) {
@@ -114,7 +134,13 @@ public class Battler {
 
     // TODO: calculation with badge boosts
     private int getStat(int base, int DV, int XP, boolean withBoosts) {
-        return (int) Math.floor(((base + DV) * 2 + Math.floor(Math.ceil(Math.sqrt(XP)) / 4)) * level / 100) + 5;
+        double extraStats = 0;
+        if (XP - 1 >= 0) {
+            extraStats = Math.floor(Math.floor((Math.sqrt(XP - 1) + 1)) / 4);
+        }
+        double statValue = Math.floor((((base + DV) * 2 + extraStats) * level / 100) + 5);
+        return (int) statValue;
+//        return (int) Math.floor(((base + DV) * 2 + Math.floor(Math.ceil(Math.sqrt(XP)) / 4)) * level / 100) + 5;
     }
 
     public Pokemon getPokemon() {

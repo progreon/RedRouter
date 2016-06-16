@@ -58,6 +58,10 @@ public class Pokemon {
 
     public Pokemon(Pkmn species, String name, Types.Type type1, Types.Type type2, Gender possibleGender, double maleRatio, int expGiven, int hp, int atk, int def, int spd, int spc) {
         this.species = species;
+        if (name == null) {
+            name = species.toString().substring(0, 1);
+            name += species.toString().substring(1).toLowerCase();
+        }
         this.name = name;
         this.type1 = type1;
         this.type2 = type2;
@@ -74,6 +78,7 @@ public class Pokemon {
     @Override
     public String toString() {
         return species + " [" + name + "]: " + hp + "," + atk + "," + def + "," + spd + "," + spc;
+//        return name;
     }
 
 }
