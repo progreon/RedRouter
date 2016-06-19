@@ -17,6 +17,11 @@
  */
 package redrouter.data;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  *
  * @author Marco Willems
@@ -37,11 +42,13 @@ public class Pokemon {
         JYNX, ELECTABUZZ, MAGMAR, PINSIR, TAUROS, MAGIKARP, GYARADOS, LAPRAS, DITTO, EEVEE, VAPOREON, JOLTEON, FLAREON, PORYGON, OMANYTE,
         OMASTAR, KABUTO, KABUTOPS, AERODACTYL, SNORLAX, ARTICUNO, ZAPDOS, MOLTRES, DRATINI, DRAGONAIR, DRAGONITE, MEWTWO, MEW
     }
-    
+
     public enum Gender {
+
         BOTH, MALE, FEMALE, NONE
     }
 
+    // TODO: id?
     public final Pkmn species;
     public Pkmn evolution = null;
     public final String name;
@@ -56,6 +63,10 @@ public class Pokemon {
     public final int spd;
     public final int spc;
 
+//    public List<Pair<Integer, Move>> learntMoves;
+    private final Map<Integer, List<Move>> learnedMoves = new HashMap<>();
+    private final List<Move> tmMoves = new ArrayList<>();
+
     public Pokemon(Pkmn species, String name, Types.Type type1, Types.Type type2, Gender possibleGender, double maleRatio, int expGiven, int hp, int atk, int def, int spd, int spc) {
         this.species = species;
         if (name == null) {
@@ -65,7 +76,7 @@ public class Pokemon {
         this.name = name;
         this.type1 = type1;
         this.type2 = type2;
-        this.possibleGender = (possibleGender == null?Gender.NONE:possibleGender);
+        this.possibleGender = (possibleGender == null ? Gender.NONE : possibleGender);
         this.maleRatio = maleRatio;
         this.expGiven = expGiven;
         this.hp = hp;
@@ -73,6 +84,31 @@ public class Pokemon {
         this.def = def;
         this.spd = spd;
         this.spc = spc;
+    }
+
+    public void addLearnedMove(int level, Move move) {
+        if (!this.learnedMoves.containsKey(level)) {
+            this.learnedMoves.put(level, new ArrayList<>());
+            move.pokemon.add(this);
+        }
+        this.learnedMoves.get(level).add(move);
+    }
+
+    public List<Move> getLearnedMoves(int level) {
+        return this.learnedMoves.get(level);
+    }
+
+    public Map<Integer, List<Move>> getLearnedMoves() {
+        return this.learnedMoves;
+    }
+
+    public void addTmMove(Move move) {
+        this.tmMoves.add(move);
+        move.pokemon.add(this);
+    }
+
+    public List<Move> getTmMoves() {
+        return this.tmMoves;
     }
 
     @Override

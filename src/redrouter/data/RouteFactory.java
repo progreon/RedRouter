@@ -132,7 +132,7 @@ public class RouteFactory {
     private List<Move> makeMoveSet(int num) {
         List<Move> moveset = new ArrayList<>();
         for (int i = 1; i <= 4; i++) {
-            moveset.add(new Move("Move" + (i + num), Types.Type.NORMAL, true, i * 20, 100));
+            moveset.add(Move.newMove("Move" + (i + num), Types.Type.NORMAL, true, i * 20, 100));
         }
         return moveset;
     }

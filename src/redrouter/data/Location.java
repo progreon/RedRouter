@@ -17,24 +17,56 @@
  */
 package redrouter.data;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 /**
  *
  * @author Marco Willems
  */
 public class Location {
     
-    public static int PALLET_TOWN = 0;
-    public static int ROUTE1 = 1;
-    public static int VIRIDIAN_CITY = 2;
+    // Dynamic!?
+//    public static String PALLET_TOWN = "Pallet Town";
+//    public static String ROUTE_1 = "Route 1";
+//    public static String VIRIDIAN_CITY = "Viridian City";
     // ...
+    public static final Map<String, Location> locations = new HashMap<>();
     
-    // TODO move to a pokedex class?
+    // TODO move to a world class?
     public final String name;
-    // TODO type (grass, water, rod)
-    // TODO encounters
+//    public final BufferedImage image;
+    public final List<EncounterArea> encounterAreas;
 
-    public Location(String name) {
+    private Location(String name) {
         this.name = name;
+        encounterAreas = new ArrayList<>();
+    }
+    
+    public static Location newLocation(String name) {
+        if (!locations.containsKey(toString(name).toUpperCase(Locale.ROOT))) {
+            Location location = new Location(name);
+            locations.put(toString(name).toUpperCase(Locale.ROOT), location);
+            return location;
+        } else {
+            return null;
+        }
+    }
+    
+    public static Location getLocation(String name) {
+        return locations.get(name.toUpperCase(Locale.ROOT));
+    }
+    
+    private static String toString(String name) {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return toString(this.name);
     }
     
 }

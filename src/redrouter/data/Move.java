@@ -17,6 +17,11 @@
  */
 package redrouter.data;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import javafx.util.Pair;
 
 /**
@@ -25,22 +30,41 @@ import javafx.util.Pair;
  */
 public class Move {
 
-    public final String NAME;
+    public final String name;
     public final Types.Type type;
     public final boolean isAttack;
     public final int power;
     public final int accuracy;
+    
+    private static final Map<String, Move> moves = new HashMap<>();
+    public final List<Pokemon> pokemon; // Pokemon that learn this move
 
     private boolean OITN = false; // OneInThirtyNine
 
-    public Move(String NAME, Types.Type type, boolean isAttack, int power, int accuracy) {
-        this.NAME = NAME;
+    private Move(String name, Types.Type type, boolean isAttack, int power, int accuracy) {
+        this.name = name;
         this.type = type;
         this.isAttack = isAttack;
         this.power = power;
         this.accuracy = accuracy;
+        this.pokemon = new ArrayList<>();
+    }
+    
+    public static Move newMove(String name, Types.Type type, boolean isAttack, int power, int accuracy) {
+        if (!moves.containsKey(toString(name).toUpperCase(Locale.ROOT))) {
+            Move move = new Move(name, type, isAttack, power, accuracy);
+            moves.put(toString(name).toUpperCase(Locale.ROOT), move);
+            return move;
+        } else {
+            return null;
+        }
+    }
+    
+    public static Move getMove(String name) {
+        return moves.get(toString(name).toUpperCase(Locale.ROOT));
     }
 
+    // Pair -> DamageRange
     public Pair<Integer, Integer> getDamageRange(Battler attacker, Battler defender, boolean isCrit) {
         int minDamage = 0;
         int maxDamage = 0;
@@ -87,7 +111,17 @@ public class Move {
         return new Pair<>(minDamage, maxDamage);
     }
 
+    // TODO
 //    public class DamageRange {
 //        
 //    }
+    
+    private static String toString(String name) {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }

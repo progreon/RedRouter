@@ -27,7 +27,7 @@ public class DVCalculator {
     public static final int defLevel = 3;
     private Battler battler;
     private Location catchLocation;
-    public final boolean[][] isPossibleDV; // [hp, atk, def, spd, spc] -> [0..15]
+    public final boolean[][] isPossibleDV; // [hp, atk, def, spd, spc][0..15] -> true/false
     public final int[][] stats;
 
     public DVCalculator(Battler battler) {
