@@ -17,10 +17,16 @@
  */
 package redrouter.data;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -28,20 +34,20 @@ import java.util.Map;
  */
 public class Pokemon {
 
-    public enum Pkmn {
-
-        BULBASAUR, IVYSAUR, VENUSAUR, CHARMANDER, CHARMELEON, CHARIZARD, SQUIRTLE, WARTORTLE, BLASTOISE, CATERPIE, METAPOD, BUTTERFREE,
-        WEEDLE, KAKUNA, BEEDRILL, PIDGEY, PIDGEOTTO, PIDGEOT, RATTATA, RATICATE, SPEAROW, FEAROW, EKANS, ARBOK, PIKACHU, RAICHU,
-        SANDSHREW, SANDSLASH, NIDORANF, NIDORINA, NIDOQUEEN, NIDORANM, NIDORINO, NIDOKING, CLEFAIRY, CLEFABLE, VULPIX, NINETALES,
-        JIGGLYPUFF, WIGGLYTUFF, ZUBAT, GOLBAT, ODDISH, GLOOM, VILEPLUME, PARAS, PARASECT, VENONAT, VENOMOTH, DIGLETT, DUGTRIO, MEOWTH,
-        PERSIAN, PSYDUCK, GOLDUCK, MANKEY, PRIMEAPE, GROWLITHE, ARCANINE, POLIWAG, POLIWHIRL, POLIWRATH, ABRA, KADABRA, ALAKAZAM, MACHOP,
-        MACHOKE, MACHAMP, BELLSPROUT, WEEPINBELL, VICTREEBEL, TENTACOOL, TENTACRUEL, GEODUDE, GRAVELER, GOLEM, PONYTA, RAPIDASH, SLOWPOKE,
-        SLOWBRO, MAGNEMITE, MAGNETON, FARFETCHD, DODUO, DODRIO, SEEL, DEWGONG, GRIMER, MUK, SHELLDER, CLOYSTER, GASTLY, HAUNTER, GENGAR,
-        ONIX, DROWZEE, HYPNO, KRABBY, KINGLER, VOLTORB, ELECTRODE, EXEGGCUTE, EXEGGUTOR, CUBONE, MAROWAK, HITMONLEE, HITMONCHAN, LICKITUNG,
-        KOFFING, WEEZING, RHYHORN, RHYDON, CHANSEY, TANGELA, KANGASKHAN, HORSEA, SEADRA, GOLDEEN, SEAKING, STARYU, STARMIE, MRMIME, SCYTHER,
-        JYNX, ELECTABUZZ, MAGMAR, PINSIR, TAUROS, MAGIKARP, GYARADOS, LAPRAS, DITTO, EEVEE, VAPOREON, JOLTEON, FLAREON, PORYGON, OMANYTE,
-        OMASTAR, KABUTO, KABUTOPS, AERODACTYL, SNORLAX, ARTICUNO, ZAPDOS, MOLTRES, DRATINI, DRAGONAIR, DRAGONITE, MEWTWO, MEW
-    }
+//    public enum Pkmn {
+//
+//        BULBASAUR, IVYSAUR, VENUSAUR, CHARMANDER, CHARMELEON, CHARIZARD, SQUIRTLE, WARTORTLE, BLASTOISE, CATERPIE, METAPOD, BUTTERFREE,
+//        WEEDLE, KAKUNA, BEEDRILL, PIDGEY, PIDGEOTTO, PIDGEOT, RATTATA, RATICATE, SPEAROW, FEAROW, EKANS, ARBOK, PIKACHU, RAICHU,
+//        SANDSHREW, SANDSLASH, NIDORANF, NIDORINA, NIDOQUEEN, NIDORANM, NIDORINO, NIDOKING, CLEFAIRY, CLEFABLE, VULPIX, NINETALES,
+//        JIGGLYPUFF, WIGGLYTUFF, ZUBAT, GOLBAT, ODDISH, GLOOM, VILEPLUME, PARAS, PARASECT, VENONAT, VENOMOTH, DIGLETT, DUGTRIO, MEOWTH,
+//        PERSIAN, PSYDUCK, GOLDUCK, MANKEY, PRIMEAPE, GROWLITHE, ARCANINE, POLIWAG, POLIWHIRL, POLIWRATH, ABRA, KADABRA, ALAKAZAM, MACHOP,
+//        MACHOKE, MACHAMP, BELLSPROUT, WEEPINBELL, VICTREEBEL, TENTACOOL, TENTACRUEL, GEODUDE, GRAVELER, GOLEM, PONYTA, RAPIDASH, SLOWPOKE,
+//        SLOWBRO, MAGNEMITE, MAGNETON, FARFETCHD, DODUO, DODRIO, SEEL, DEWGONG, GRIMER, MUK, SHELLDER, CLOYSTER, GASTLY, HAUNTER, GENGAR,
+//        ONIX, DROWZEE, HYPNO, KRABBY, KINGLER, VOLTORB, ELECTRODE, EXEGGCUTE, EXEGGUTOR, CUBONE, MAROWAK, HITMONLEE, HITMONCHAN, LICKITUNG,
+//        KOFFING, WEEZING, RHYHORN, RHYDON, CHANSEY, TANGELA, KANGASKHAN, HORSEA, SEADRA, GOLDEEN, SEAKING, STARYU, STARMIE, MRMIME, SCYTHER,
+//        JYNX, ELECTABUZZ, MAGMAR, PINSIR, TAUROS, MAGIKARP, GYARADOS, LAPRAS, DITTO, EEVEE, VAPOREON, JOLTEON, FLAREON, PORYGON, OMANYTE,
+//        OMASTAR, KABUTO, KABUTOPS, AERODACTYL, SNORLAX, ARTICUNO, ZAPDOS, MOLTRES, DRATINI, DRAGONAIR, DRAGONITE, MEWTWO, MEW
+//    }
 
     public enum Gender {
 
@@ -49,8 +55,8 @@ public class Pokemon {
     }
 
     // TODO: id?
-    public final Pkmn species;
-    public Pkmn evolution = null;
+    public final int ID;
+    public Pokemon evolution = null;
     public final String name;
     public final Types.Type type1;
     public final Types.Type type2;
@@ -63,16 +69,14 @@ public class Pokemon {
     public final int spd;
     public final int spc;
 
-//    public List<Pair<Integer, Move>> learntMoves;
+    private static final Map<String, Pokemon> pokemonByName = new HashMap<>();
+    private static final Map<Integer, Pokemon> pokemonByID = new HashMap<>();
+    
     private final Map<Integer, List<Move>> learnedMoves = new HashMap<>();
     private final List<Move> tmMoves = new ArrayList<>();
 
-    public Pokemon(Pkmn species, String name, Types.Type type1, Types.Type type2, Gender possibleGender, double maleRatio, int expGiven, int hp, int atk, int def, int spd, int spc) {
-        this.species = species;
-        if (name == null) {
-            name = species.toString().substring(0, 1);
-            name += species.toString().substring(1).toLowerCase();
-        }
+    private Pokemon(int ID, String name, Types.Type type1, Types.Type type2, Gender possibleGender, double maleRatio, int expGiven, int hp, int atk, int def, int spd, int spc) {
+        this.ID = ID;
         this.name = name;
         this.type1 = type1;
         this.type2 = type2;
@@ -85,13 +89,45 @@ public class Pokemon {
         this.spd = spd;
         this.spc = spc;
     }
+    
+    public static Pokemon add(int ID, String name, Types.Type type1, Types.Type type2, Gender possibleGender, double maleRatio, int expGiven, int hp, int atk, int def, int spd, int spc) {
+        if (!pokemonByName.containsKey(toString(name).toUpperCase(Locale.ROOT)) && !pokemonByID.containsKey(ID)) {
+            Pokemon pkmn = new Pokemon(ID, name, type1, type2, possibleGender, maleRatio, expGiven, hp, atk, def, spd, spc);
+            pokemonByName.put(toString(name).toUpperCase(Locale.ROOT), pkmn);
+            pokemonByID.put(ID, pkmn);
+            return pkmn;
+        } else {
+            return null;
+        }
+    }
+    
+    public static Pokemon get(String name) {
+        return pokemonByName.get(toString(name).toUpperCase(Locale.ROOT));
+    }
+    
+    public static Pokemon get(int ID) {
+        return pokemonByID.get(ID);
+    }
+    
+    public static Pokemon[] getAll() {
+        return pokemonByID.values().toArray(new Pokemon[0]);
+    }
+    
+    public static String[] getNames() {
+        return pokemonByName.keySet().toArray(new String[0]);
+    }
 
-    public void addLearnedMove(int level, Move move) {
+    public boolean addLearnedMove(int level, Move move) {
         if (!this.learnedMoves.containsKey(level)) {
             this.learnedMoves.put(level, new ArrayList<>());
             move.pokemon.add(this);
         }
-        this.learnedMoves.get(level).add(move);
+        if (!this.learnedMoves.get(level).contains(move)) {
+            this.learnedMoves.get(level).add(move);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public List<Move> getLearnedMoves(int level) {
@@ -102,19 +138,59 @@ public class Pokemon {
         return this.learnedMoves;
     }
 
-    public void addTmMove(Move move) {
-        this.tmMoves.add(move);
-        move.pokemon.add(this);
+    public boolean addTmMove(Move move) {
+        if (!this.tmMoves.contains(move)) {
+            this.tmMoves.add(move);
+            move.pokemon.add(this);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public List<Move> getTmMoves() {
         return this.tmMoves;
     }
+    
+    private static String toString(String name) {
+        return name;
+    }
 
     @Override
     public String toString() {
 //        return species + " [" + name + "]: " + hp + "," + atk + "," + def + "," + spd + "," + spc;
-        return name;
+        return toString(this.name);
+    }
+
+    public static void initPokemon(String pokemonFile) {
+        BufferedReader br = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream(pokemonFile)));
+        int lineNr = 0;
+        int pokedexEntry = 0;
+        try {
+            String line;
+            line = br.readLine();
+            while (line != null) {
+                lineNr++;
+                if (line.equals("") || line.substring(0, 2).equals("//")) {
+                    //nothing to do here
+                } else {
+                    String[] s = line.split(";");
+                    Pokemon poke = Pokemon.add(pokedexEntry, s[0], Types.Type.NORMAL, null, Pokemon.Gender.BOTH, 0.5, Integer.parseInt(s[1]), Integer.parseInt(s[2]), Integer.parseInt(s[3]), Integer.parseInt(s[4]), Integer.parseInt(s[5]), Integer.parseInt(s[6]));
+                    pokedexEntry++;
+                    System.out.println(pokedexEntry + " - " + poke.toString());
+                }
+                line = br.readLine();
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(RouteFactory.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Syntax error in pokemon.txt on line: " + lineNr);
+        } finally {
+            try {
+                br.close();
+            } catch (IOException ex) {
+                Logger.getLogger(RouteFactory.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
 }

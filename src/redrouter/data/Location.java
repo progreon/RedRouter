@@ -46,7 +46,7 @@ public class Location {
         encounterAreas = new ArrayList<>();
     }
     
-    public static Location newLocation(String name) {
+    public static Location add(String name) {
         if (!locations.containsKey(toString(name).toUpperCase(Locale.ROOT))) {
             Location location = new Location(name);
             locations.put(toString(name).toUpperCase(Locale.ROOT), location);
@@ -56,7 +56,7 @@ public class Location {
         }
     }
     
-    public static Location getLocation(String name) {
+    public static Location get(String name) {
         return locations.get(name.toUpperCase(Locale.ROOT));
     }
     

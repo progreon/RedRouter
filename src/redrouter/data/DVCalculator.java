@@ -17,14 +17,17 @@
  */
 package redrouter.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author Marco Willems
  */
 public class DVCalculator {
 
-    public static final Pokemon.Pkmn defPokemon = Pokemon.Pkmn.NIDORANM;
-    public static final int defLevel = 3;
+    public static final String defaultPokemon = "NidoranM";
+    public static final int defaultLevel = 3;
     private Battler battler;
     private Location catchLocation;
     public final boolean[][] isPossibleDV; // [hp, atk, def, spd, spc][0..15] -> true/false
@@ -46,7 +49,7 @@ public class DVCalculator {
     }
 
     private Battler getDefaultBattler() {
-        return new Battler(RouteFactory.getPokemonByName(defPokemon), defLevel, null);
+        return new Battler(Pokemon.get(defaultPokemon), defaultLevel, null);
     }
 
     private void init() {
@@ -127,25 +130,14 @@ public class DVCalculator {
         init();
     }
 
-    public String[] getStatRanges() {
-        String[] ranges = new String[5];
+    public StatRange[] getStatRanges() {
+        StatRange[] ranges = new StatRange[5];
 
         for (int s = 0; s < 5; s++) {
-            int min = 15;
-            int max = 0;
+            ranges[s] = new StatRange();
             for (int DV = 0; DV < 16; DV++) {
                 if (isPossibleDV[s][DV]) {
-                    if (min > DV) {
-                        min = DV;
-                    }
-                    if (max < DV) {
-                        max = DV;
-                    }
-                }
-                if (min == max) {
-                    ranges[s] = min + "";
-                } else {
-                    ranges[s] = min + "-" + max;
+                    ranges[s].add(DV);
                 }
             }
         }
@@ -234,6 +226,47 @@ public class DVCalculator {
         for (int dv = odd ? 1 : 0; dv < 16; dv += 2) {
             isPossibleDV[stat][dv] = false;
         }
+    }
+    
+    public class StatRange {
+        
+        private final List<Integer> dvs = new ArrayList<>();
+        
+        public void add(int dv) {
+            dvs.add(dv);
+        }
+        
+        private Integer getMin() {
+            int min = 15;
+            for (Integer dv : dvs) {
+                if (dv < min) {
+                    min = dv;
+                }
+            }
+            return min;
+        }
+        
+        private Integer getMax() {
+            int max = 0;
+            for (Integer dv : dvs) {
+                if (dv > max) {
+                    max = dv;
+                }
+            }
+            return max;
+        }
+
+        @Override
+        public String toString() {
+            if (dvs.size() == 1) {
+                return dvs.get(0).toString();
+            } else if (dvs.size() == 2) {
+                return getMin() + "/" + getMax();
+            } else {
+                return getMin() + "-" + getMax();
+            }
+        }
+        
     }
 
 }

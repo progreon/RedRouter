@@ -50,7 +50,7 @@ public class Move {
         this.pokemon = new ArrayList<>();
     }
     
-    public static Move newMove(String name, Types.Type type, boolean isAttack, int power, int accuracy) {
+    public static Move add(String name, Types.Type type, boolean isAttack, int power, int accuracy) {
         if (!moves.containsKey(toString(name).toUpperCase(Locale.ROOT))) {
             Move move = new Move(name, type, isAttack, power, accuracy);
             moves.put(toString(name).toUpperCase(Locale.ROOT), move);
@@ -60,7 +60,7 @@ public class Move {
         }
     }
     
-    public static Move getMove(String name) {
+    public static Move get(String name) {
         return moves.get(toString(name).toUpperCase(Locale.ROOT));
     }
 

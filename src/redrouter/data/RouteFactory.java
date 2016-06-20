@@ -17,14 +17,8 @@
  */
 package redrouter.data;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import redrouter.route.Route;
 import redrouter.route.RouteBattle;
 
@@ -34,47 +28,22 @@ import redrouter.route.RouteBattle;
  */
 public class RouteFactory {
 
-    private final static String pokemonFile = "pokemon.txt";
-
-    private static HashMap<Pokemon.Pkmn, Pokemon> pokedexByName;
+    private static boolean isInit = false;
     private static List<Trainer> trainers;
     private static Route exaNidoRoute;
 
     public RouteFactory() {
-        if (pokedexByName == null) {
-            initPokedex();
+        if (!isInit) {
             initTrainers();
         }
     }
 
     public Route getExaNidoRoute() {
         if (exaNidoRoute == null) {
-            initPokedex();
             initTrainers();
             initExaNidoRoute();
         }
         return exaNidoRoute;
-    }
-
-    public static Pokemon getPokemonByID(int id) {
-        if (pokedexByName == null) {
-            initPokedex();
-        }
-        return pokedexByName.get(Pokemon.Pkmn.values()[id]);
-    }
-
-    public static Pokemon getPokemonByName(Pokemon.Pkmn name) {
-        if (pokedexByName == null) {
-            initPokedex();
-        }
-        return pokedexByName.get(name);
-    }
-
-    public static HashMap<Pokemon.Pkmn, Pokemon> getPokedex() {
-        if (pokedexByName == null) {
-            initPokedex();
-        }
-        return pokedexByName;
     }
 
     public List<Trainer> getTrainers() {
@@ -84,55 +53,23 @@ public class RouteFactory {
         return trainers;
     }
 
-    private static void initPokedex() {
-        pokedexByName = new HashMap<>();
-        BufferedReader br = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream(pokemonFile)));
-        int lineNr = 0;
-        int pokedexEntry = 0;
-        try {
-            String line;
-            line = br.readLine();
-            while (line != null) {
-                lineNr++;
-                if (line.equals("") || line.substring(0, 2).equals("//")) {
-                    //nothing to do here
-                } else {
-                    String[] s = line.split(";");
-                    Pokemon poke = new Pokemon(Pokemon.Pkmn.values()[pokedexEntry], s[0], Types.Type.NORMAL, null, Pokemon.Gender.BOTH, 0.5, Integer.parseInt(s[1]), Integer.parseInt(s[2]), Integer.parseInt(s[3]), Integer.parseInt(s[4]), Integer.parseInt(s[5]), Integer.parseInt(s[6]));
-                    pokedexByName.put(poke.species, poke);
-                    pokedexEntry++;
-                    System.out.println(pokedexEntry + " - " + poke.toString());
-                }
-                line = br.readLine();
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(RouteFactory.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("Syntax error in pokemon.txt on line: " + lineNr);
-        } finally {
-            try {
-                br.close();
-            } catch (IOException ex) {
-                Logger.getLogger(RouteFactory.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
     private void initTrainers() {
         trainers = new ArrayList<>();
         // TODO: input file!
         List<Move> moveset = makeMoveSet(0);
         List<List<Move>> movesets = new ArrayList<>();
         movesets.add(moveset);
-        List<Battler> team = makeTeam(new Pokemon[]{pokedexByName.get(Pokemon.Pkmn.BULBASAUR)}, new int[]{5}, movesets);
+        List<Battler> team = makeTeam(new Pokemon[]{Pokemon.get("Bulbasaur")}, new int[]{5}, movesets);
         Trainer rival1 = new Trainer("Oak's Lab", "Rival 1", null, team);
         trainers.add(rival1);
+        isInit = true;
     }
 
     // TODO: TEMP
     private List<Move> makeMoveSet(int num) {
         List<Move> moveset = new ArrayList<>();
         for (int i = 1; i <= 4; i++) {
-            moveset.add(Move.newMove("Move" + (i + num), Types.Type.NORMAL, true, i * 20, 100));
+            moveset.add(Move.add("Move" + (i + num), Types.Type.NORMAL, true, i * 20, 100));
         }
         return moveset;
     }

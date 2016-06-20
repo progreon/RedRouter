@@ -29,7 +29,7 @@ public class EncounterArea {
 
     private final Location location;
     private final String subArea;
-//    private final 
+    // TODO: encounter slots
 
     public static final Map<String, EncounterArea> areas = new HashMap<>();
 
@@ -38,7 +38,7 @@ public class EncounterArea {
         this.subArea = subArea;
     }
 
-    public static EncounterArea newEncounterArea(Location location, String subArea) {
+    public static EncounterArea add(Location location, String subArea) {
         if (!areas.containsKey(toString(location, subArea).toUpperCase(Locale.ROOT))) {
             EncounterArea area = new EncounterArea(location, subArea);
             areas.put(area.toString().toUpperCase(Locale.ROOT), area);
@@ -49,7 +49,7 @@ public class EncounterArea {
         }
     }
 
-    public static EncounterArea getEncounterArea(Location location, String subArea) {
+    public static EncounterArea get(Location location, String subArea) {
         return areas.get(toString(location, subArea).toUpperCase(Locale.ROOT));
     }
 
@@ -65,9 +65,10 @@ public class EncounterArea {
     public String toString() {
         return toString(this.location, this.subArea);
     }
-    
+
     private class Slot {
-        
+
+        private final String ERROR_MESSAGE = "Could not parse ";
         final int level;
         final Pokemon pkmn;
 
@@ -75,14 +76,33 @@ public class EncounterArea {
             this.level = level;
             this.pkmn = pkmn;
         }
-        
-        public Slot(String slotString) {
+
+        public Slot(String slotString, String file, int line) throws ParserException {
             // "L4 PIKACHU"
-            // TODO
-            this.level = 4;
-            this.pkmn = RouteFactory.getPokemonByName(Pokemon.Pkmn.PIKACHU);
+            if (slotString == null || slotString.equals("")) {
+                throw new ParserException(file, line, "A slot cannot be empty!");
+            }
+            String str = slotString.toUpperCase(Locale.ROOT);
+            if (str.substring(0, 1).equals("L")) {
+                try {
+                    str = str.substring(1);
+                    int space = str.indexOf(' ');
+                    if (space < 0) {
+                        throw new ParserException(file, line, "Please seperate the level from the pokemon name with a space!");
+                    }
+                    this.level = Integer.parseInt(str.substring(0, space));
+                    this.pkmn = Pokemon.get(str.substring(space + 1));
+                    if (this.pkmn == null) {
+                        throw new ParserException(file, line, "Pokemon " + str.substring(space + 1) + " does not exist!");
+                    }
+                } catch (Exception e) {
+                    throw new ParserException(file, line, ERROR_MESSAGE + slotString);
+                }
+            } else {
+                throw new ParserException(file, line, ERROR_MESSAGE + slotString);
+            }
         }
-        
+
     }
 
 }

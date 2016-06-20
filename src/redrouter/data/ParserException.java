@@ -15,37 +15,26 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package redrouter;
-
-import redrouter.data.Pokemon;
-import redrouter.view.RouterFrame;
+package redrouter.data;
 
 /**
  *
  * @author Marco Willems
  */
-public class RedRouter {
-
-    private final static String pokemonFile = "pokemon.txt";
+public class ParserException extends Exception {
     
-    private final RouterFrame routerFrame;
-//    private RouteFactory routeFactory;
+    public final String file;
+    public final int line;
 
-    public RedRouter() {
-//        routeFactory = new RouteFactory();
-//        List<Pokemon> pokedex = routeFactory.getPokedexByID();
-        Pokemon.initPokemon(pokemonFile);
-        routerFrame = new RouterFrame();
-        routerFrame.setVisible(true);
-        
-//        System.out.println(routeFactory.getExaNidoRoute());
+    public ParserException(String file, int line, String message) {
+        super(message);
+        this.file = file;
+        this.line = line;
     }
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        RedRouter r = new RedRouter();
+    @Override
+    public String toString() {
+        return "Parser error at " + file + ":" + line + " " + super.getMessage();
     }
     
 }

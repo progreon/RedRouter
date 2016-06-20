@@ -60,7 +60,7 @@ public class Battler {
 
     public void evolve() {
         if (pokemon.evolution != null) {
-            pokemon = RouteFactory.getPokemonByName(pokemon.evolution);
+            pokemon = pokemon.evolution;
         }
     }
 

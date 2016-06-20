@@ -45,7 +45,6 @@ import javax.swing.event.ChangeEvent;
 import redrouter.data.Battler;
 import redrouter.data.DVCalculator;
 import redrouter.data.Pokemon;
-import redrouter.data.RouteFactory;
 
 /**
  *
@@ -116,8 +115,8 @@ public class DVCalculatorPanel extends JPanel {
 //        initButtons();
 //        initSettignsPanel();
 //    }
-    private void setPokemon(Pokemon.Pkmn poke) {
-        this.calc.setBattler(new Battler(RouteFactory.getPokemonByName(poke), (int) spnLevel.getValue(), null));
+    private void setPokemon(Pokemon poke) {
+        this.calc.setBattler(new Battler(poke, (int) spnLevel.getValue(), null));
         updateButtons();
     }
 
@@ -162,15 +161,15 @@ public class DVCalculatorPanel extends JPanel {
     private void calculateExperience() {
         calc.resetStatExp();
         for (DefeatedPkmn poke : pkmnDefeated) {
-            calc.defeatPokemon(RouteFactory.getPokemonByName(poke.pkmn), poke.isDivided ? 2 : 1);
+            calc.defeatPokemon(poke.pkmn, poke.isDivided ? 2 : 1);
         }
         calc.setLevel(calc.getBattler().level);
         updateButtons();
     }
 
-    private void defeatPokemon(Pokemon.Pkmn poke, boolean isDivided) {
+    private void defeatPokemon(Pokemon poke, boolean isDivided) {
         pkmnDefeated.add(new DefeatedPkmn(poke, isDivided));
-        calc.defeatPokemon(RouteFactory.getPokemonByName(poke), isDivided ? 2 : 1);
+        calc.defeatPokemon(poke, isDivided ? 2 : 1);
         refreshDefeatedPokemon();
     }
 
@@ -193,7 +192,7 @@ public class DVCalculatorPanel extends JPanel {
 
     private void resetAll() {
         resetDVs();
-        setLevel(DVCalculator.defLevel);
+        setLevel(DVCalculator.defaultLevel);
         calc.resetStatExp();
         pkmnDefeated.clear();
         refreshDefeatedPokemon();
@@ -233,14 +232,14 @@ public class DVCalculatorPanel extends JPanel {
         JLabel lblPokemon = new JLabel("Pokemon:");
         lblPokemon.setAlignmentX(Component.CENTER_ALIGNMENT);
         settingsPanel.add(lblPokemon);
-        cmbPokemon = new JComboBox(Pokemon.Pkmn.values());
+        cmbPokemon = new JComboBox(Pokemon.getAll());
         cmbPokemon.setMaximumSize(cmbPokemon.getMinimumSize());
-        cmbPokemon.setSelectedItem(calc.getBattler().getPokemon().species);
+        cmbPokemon.setSelectedItem(calc.getBattler().getPokemon());
         cmbPokemon.addItemListener(new ItemListener() {
 
             @Override
             public void itemStateChanged(ItemEvent e) {
-                setPokemon((Pokemon.Pkmn) e.getItem());
+                setPokemon((Pokemon) e.getItem());
             }
         });
         settingsPanel.add(cmbPokemon);
@@ -269,7 +268,7 @@ public class DVCalculatorPanel extends JPanel {
         JLabel lblDefeatedInfo = new JLabel("(before leveling up)");
         lblDefeatedInfo.setAlignmentX(Component.CENTER_ALIGNMENT);
         settingsPanel.add(lblDefeatedInfo);
-        JComboBox cmbPokemon2 = new JComboBox(Pokemon.Pkmn.values());
+        JComboBox cmbPokemon2 = new JComboBox(Pokemon.getAll());
         cmbPokemon2.setMaximumSize(cmbPokemon2.getMinimumSize());
         settingsPanel.add(cmbPokemon2);
         JPanel pnlAdd = new JPanel();
@@ -288,7 +287,7 @@ public class DVCalculatorPanel extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                Pokemon.Pkmn poke = (Pokemon.Pkmn) cmbPokemon2.getSelectedItem();
+                Pokemon poke = (Pokemon) cmbPokemon2.getSelectedItem();
                 defeatPokemon(poke, chkDiv.isSelected());
             }
         });
@@ -342,17 +341,17 @@ public class DVCalculatorPanel extends JPanel {
 //    }
     private class DVPanel extends JPanel {
 
-        public DVPanel(String[] ranges) {
+        public DVPanel(DVCalculator.StatRange[] ranges) {
             super(new GridLayout(0, 5));
             init(ranges);
             this.setPreferredSize(new Dimension(300, this.getPreferredSize().height));
         }
 
-        private void init(String[] ranges) {
+        private void init(DVCalculator.StatRange[] ranges) {
             setRanges(ranges);
         }
 
-        public void setRanges(String[] ranges) {
+        public void setRanges(DVCalculator.StatRange[] ranges) {
             this.removeAll();
             String[] statNames = new String[]{"HP", "ATK", "DEF", "SPD", "SPC"};
             for (int stat = 0; stat < 5; stat++) {
@@ -365,7 +364,7 @@ public class DVCalculatorPanel extends JPanel {
                 lblStatName.setAlignmentX(Component.CENTER_ALIGNMENT);
                 pnlVert.add(lblStatName);
 //                JLabel lblStat = new JLabel("<html><b>" + ranges[stat] + "</b></html>");
-                JLabel lblStat = new JLabel(ranges[stat]);
+                JLabel lblStat = new JLabel(ranges[stat].toString());
                 lblStat.setAlignmentX(Component.CENTER_ALIGNMENT);
                 pnlVert.add(lblStat);
                 this.add(pnlVert);
@@ -376,17 +375,17 @@ public class DVCalculatorPanel extends JPanel {
 
     private class DefeatedPkmn {
 
-        Pokemon.Pkmn pkmn;
+        Pokemon pkmn;
         boolean isDivided;
 
-        public DefeatedPkmn(Pokemon.Pkmn pkmn, boolean isDivided) {
+        public DefeatedPkmn(Pokemon pkmn, boolean isDivided) {
             this.pkmn = pkmn;
             this.isDivided = isDivided;
         }
 
         @Override
         public String toString() {
-            return pkmn + (isDivided ? "*" : "");
+            return pkmn.toString() + (isDivided ? "*" : "");
         }
 
     }

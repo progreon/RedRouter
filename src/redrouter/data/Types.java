@@ -20,7 +20,7 @@ package redrouter.data;
 import java.util.HashMap;
 
 /**
- *
+ * TODO: dynamic?
  * @author Marco Willems
  */
 public class Types {
