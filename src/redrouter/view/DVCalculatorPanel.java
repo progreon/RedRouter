@@ -257,7 +257,6 @@ public class DVCalculatorPanel extends JPanel {
         settingsPanel.add(spnLevel);
         settingsPanel.add(Box.createVerticalGlue());
 
-        // TODO Gender
         // TODO Location
         settingsPanel.add(Box.createVerticalGlue());
 

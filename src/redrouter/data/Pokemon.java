@@ -34,21 +34,6 @@ import java.util.logging.Logger;
  */
 public class Pokemon {
 
-    public static class Gender {
-
-        public static final String MALE = "M";
-        public static final String FEMALE = "F";
-        public static final String NONE = "NA";
-        public static final String MMMF = "7/1";
-        public static final String MMF = "3/1";
-        public static final String MF = "1/1";
-        public static final String MFF = "1/3";
-        public static final String MFFF = "1/7";
-
-        public static final String[] list = {MALE, FEMALE, NONE, MMMF, MMF, MF, MFF, MFFF};
-
-    }
-
     // TODO: growth rate
     public final int ID;
     // TODO: Eevee?
@@ -56,7 +41,6 @@ public class Pokemon {
     public final String name;
     public final Types.Type type1;
     public final Types.Type type2;
-    public final String genderRatio;
     public final int expGiven;
     public final int hp;
     public final int atk;
@@ -70,12 +54,11 @@ public class Pokemon {
     private final Map<Integer, List<Move>> learnedMoves = new HashMap<>();
     private final List<Move> tmMoves = new ArrayList<>();
 
-    private Pokemon(int ID, String name, Types.Type type1, Types.Type type2, String genderRatio, int expGiven, int hp, int atk, int def, int spd, int spc) {
+    private Pokemon(int ID, String name, Types.Type type1, Types.Type type2, int expGiven, int hp, int atk, int def, int spd, int spc) {
         this.ID = ID;
         this.name = name;
         this.type1 = type1;
         this.type2 = type2;
-        this.genderRatio = (genderRatio == null ? Gender.NONE : genderRatio);
         this.expGiven = expGiven;
         this.hp = hp;
         this.atk = atk;
@@ -84,9 +67,9 @@ public class Pokemon {
         this.spc = spc;
     }
 
-    public static Pokemon add(int ID, String name, Types.Type type1, Types.Type type2, String genderRatio, int expGiven, int hp, int atk, int def, int spd, int spc) {
+    public static Pokemon add(int ID, String name, Types.Type type1, Types.Type type2, int expGiven, int hp, int atk, int def, int spd, int spc) {
         if (!pokemonByName.containsKey(toString(name).toUpperCase(Locale.ROOT)) && !pokemonByID.containsKey(ID)) {
-            Pokemon pkmn = new Pokemon(ID, name, type1, type2, genderRatio, expGiven, hp, atk, def, spd, spc);
+            Pokemon pkmn = new Pokemon(ID, name, type1, type2, expGiven, hp, atk, def, spd, spc);
             pokemonByName.put(toString(name).toUpperCase(Locale.ROOT), pkmn);
             pokemonByID.put(ID, pkmn);
             return pkmn;
@@ -170,8 +153,7 @@ public class Pokemon {
                 } else {
                     String[] s = line.split("#");
                     // TODO: Types
-                    // TODO: Gender
-                    Pokemon poke = Pokemon.add(pokedexEntry, s[0], Types.Type.NORMAL, null, Pokemon.Gender.MF, Integer.parseInt(s[4]), Integer.parseInt(s[5]), Integer.parseInt(s[6]), Integer.parseInt(s[7]), Integer.parseInt(s[8]), Integer.parseInt(s[9]));
+                    Pokemon poke = Pokemon.add(pokedexEntry, s[0], Types.Type.NORMAL, null, Integer.parseInt(s[3]), Integer.parseInt(s[4]), Integer.parseInt(s[5]), Integer.parseInt(s[6]), Integer.parseInt(s[7]), Integer.parseInt(s[8]));
                     pokedexEntry++;
                     System.out.println(pokedexEntry + " - " + poke.toString());
                 }

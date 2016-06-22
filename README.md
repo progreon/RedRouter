@@ -17,7 +17,7 @@ Tested with NetBeans,
 - If you switched out during battle and the other pokemon still lives, check the "shared" box (for now this only works if there is only 1 other pokemon that entered the battle (that still lives), since this is mostly the case)
 
 ## Plans for the future
-- Include more calculations for impossible DV's, based on gender and encounter rate
+- Include more calculations for impossible DV's, based on encounter rate
 - Make DV calculator work for Pokemon Red, Blue and Yellow
 - Include DSUM generater (Yellow opt.)
 - Work on the router part

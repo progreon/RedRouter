@@ -28,7 +28,6 @@ public class Battler {
 
     private Pokemon pokemon;
     public int level;
-    public Pokemon.Gender gender;
     public List<Move> moveset;
 //    public int totalXP = 0;
     public EncounterArea catchLocation;
