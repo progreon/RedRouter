@@ -18,7 +18,9 @@
 package redrouter.data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -26,23 +28,26 @@ import java.util.List;
  */
 public class DVCalculator {
 
+    // Encounter rate -> Boolean[65536]
+    // atk = i >> 12
+    // def = (i >> 8) % 16
+    // spd = (i >> 4) % 16
+    // spc = i % 16
+    private static Map<Integer, boolean[]> possibleDVCombos = null;
+    private static final boolean isRed = true;
+
     public static final String defaultPokemon = "NidoranM";
     public static final int defaultLevel = 3;
     private Battler battler;
-    private Location catchLocation;
-    public final boolean[][] isPossibleDV; // [hp, atk, def, spd, spc][0..15] -> true/false
+    private final int maxEncounterRate = 25;
+    private boolean[][] isPossibleDV; // [hp, atk, def, spd, spc][0..15] -> true/false
     public final int[][] stats;
 
     public DVCalculator(Battler battler) {
-        this(battler, null);
-    }
-
-    public DVCalculator(Battler battler, Location catchLocation) {
         this.battler = battler;
         if (this.battler == null) {
             this.battler = getDefaultBattler();
         }
-        this.catchLocation = catchLocation;
         this.isPossibleDV = new boolean[5][16];
         this.stats = new int[5][16];
         init();
@@ -53,6 +58,7 @@ public class DVCalculator {
     }
 
     private void init() {
+        initPossibleDVCombos();
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 16; j++) {
                 this.isPossibleDV[i][j] = true;
@@ -97,7 +103,7 @@ public class DVCalculator {
                     isPossibleDV[stat][i] = false;
                 }
             }
-            handleHPDV(stat);
+            filterDVs(stat);
             return true;
         } else {
             return false;
@@ -111,7 +117,7 @@ public class DVCalculator {
                     isPossibleDV[stat][i] = false;
                 }
             }
-            handleHPDV(stat);
+            filterDVs(stat);
             return true;
         } else {
             return false;
@@ -145,6 +151,10 @@ public class DVCalculator {
         return ranges;
     }
 
+    public boolean isPossibleDV(int stat, int dv) {
+        return isPossibleDV[stat][dv];
+    }
+
     private void calculateStats() {
         for (int i = 0; i < stats[0].length; i++) {
             stats[0][i] = battler.getHPStatIfDV(i);
@@ -155,71 +165,44 @@ public class DVCalculator {
         }
     }
 
-    private void handleHPDV(int statClicked) {
-        if (statClicked == 0) { // HP was clicked
-            boolean[] statIsEven = new boolean[4];
-            boolean[] statIsOdd = new boolean[4];
-            for (int dv = 0; dv < 16; dv++) {
-                if (isPossibleDV[0][dv]) {
-                    if ((dv / 8) % 2 == 1) {
-                        statIsOdd[0] = true; // Odd attack possible
-                    } else {
-                        statIsEven[0] = true; // Even attack possible
-                    }
-                    if ((dv / 4) % 2 == 1) {
-                        statIsOdd[1] = true; // Odd defense possible
-                    } else {
-                        statIsEven[1] = true; // Even defense possible
-                    }
-                    if ((dv / 2) % 2 == 1) {
-                        statIsOdd[2] = true; // Odd speed possible
-                    } else {
-                        statIsEven[2] = true; // Even speed possible
-                    }
-                    if (dv % 2 == 1) {
-                        statIsOdd[3] = true; // Odd special possible
-                    } else {
-                        statIsEven[3] = true; // Even special possible
-                    }
-                }
-            }
-            for (int stat = 0; stat < 4; stat++) {
-                if (!statIsEven[stat]) {
-                    removeOddOrEvenDV(stat + 1, false);
-                }
-                if (!statIsOdd[stat]) {
-                    removeOddOrEvenDV(stat + 1, true);
-                }
-            }
-        } else { // Other stat was clicked (statClicked == 1, 2, 3 or 4)
-            boolean isEven = false;
-            boolean isOdd = false;
-            for (int dv = 0; dv < 16; dv++) {
-                if (isPossibleDV[statClicked][dv]) {
-                    if (dv % 2 == 0) { // Even is possible
-                        isEven = true;
-                    } else {
-                        isOdd = true;
-                    }
-                }
-            }
-            if (!isEven) {
-                for (int dv = 0; dv < 16; dv++) {
-                    if ((dv >> (4 - statClicked)) % 2 == 0) { // >> is bitwise shift operator ((4 - statClicked) == 3, 2, 1 or 0)
-                        isPossibleDV[0][dv] = false;
-                    }
-                }
-                handleHPDV(0);
-            }
-            if (!isOdd) {
-                for (int dv = 0; dv < 16; dv++) {
-                    if ((dv >> (4 - statClicked)) % 2 == 1) {
-                        isPossibleDV[0][dv] = false;
-                    }
-                }
-                handleHPDV(0);
-            }
-        }
+    private void filterDVs(int statClicked) {
+//        if (statClicked == 0) { // HP was clicked
+//            boolean[] statIsEven = new boolean[4];
+//            boolean[] statIsOdd = new boolean[4];
+//            for (int dv = 0; dv < 16; dv++) {
+//                if (isPossibleDV[0][dv]) {
+//                    if ((dv / 8) % 2 == 1) {
+//                        statIsOdd[0] = true; // Odd attack possible
+//                    } else {
+//                        statIsEven[0] = true; // Even attack possible
+//                    }
+//                    if ((dv / 4) % 2 == 1) {
+//                        statIsOdd[1] = true; // Odd defense possible
+//                    } else {
+//                        statIsEven[1] = true; // Even defense possible
+//                    }
+//                    if ((dv / 2) % 2 == 1) {
+//                        statIsOdd[2] = true; // Odd speed possible
+//                    } else {
+//                        statIsEven[2] = true; // Even speed possible
+//                    }
+//                    if (dv % 2 == 1) {
+//                        statIsOdd[3] = true; // Odd special possible
+//                    } else {
+//                        statIsEven[3] = true; // Even special possible
+//                    }
+//                }
+//            }
+//            for (int stat = 0; stat < 4; stat++) {
+//                if (!statIsEven[stat]) {
+//                    removeOddOrEvenDV(stat + 1, false);
+//                }
+//                if (!statIsOdd[stat]) {
+//                    removeOddOrEvenDV(stat + 1, true);
+//                }
+//            }
+//        }
+        checkPossibleDVs();
     }
 
     private void removeOddOrEvenDV(int stat, boolean odd) {
@@ -227,15 +210,94 @@ public class DVCalculator {
             isPossibleDV[stat][dv] = false;
         }
     }
-    
+
+    private void checkPossibleDVs() {
+        boolean[][] newPossibleDVs = new boolean[5][16];
+        for (int atk = 0; atk < 16; atk++) {
+            if (isPossibleDV[1][atk]) {
+                for (int def = 0; def < 16; def++) {
+                    if (isPossibleDV[2][def]) {
+                        for (int spd = 0; spd < 16; spd++) {
+                            if (isPossibleDV[3][spd]) {
+                                for (int spc = 0; spc < 16; spc++) {
+                                    if (isPossibleDV[4][spc]) {
+                                        int hp = 8 * (atk % 2) + 4 * (def % 2) + 2 * (spd % 2) + (spc % 2);
+                                        int i = (atk << 12) + (def << 8) + (spd << 4) + spc;
+                                        int encounterRate = battler.catchLocation == null ? maxEncounterRate : battler.catchLocation.encounterRate;
+                                        if (isPossibleDV[0][hp] && possibleDVCombos.get(encounterRate)[i]) {
+                                            newPossibleDVs[0][hp] = true;
+                                            newPossibleDVs[1][atk] = true;
+                                            newPossibleDVs[2][def] = true;
+                                            newPossibleDVs[3][spd] = true;
+                                            newPossibleDVs[4][spc] = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        isPossibleDV = newPossibleDVs;
+    }
+
+    public static void initPossibleDVCombos() {
+        if (possibleDVCombos == null) {
+            possibleDVCombos = new HashMap<>();
+            int[] encounterRates = new int[]{3, 5, 8, 10, 15, 20, 25, 30};
+            int rDiv2Max = 255;
+            int[] dDiv3s;
+            int[] dDiv4s = new int[]{1, 2, 3};
+            int[] c2s;
+            int c3 = 1;
+            int c4 = 1;
+            if (isRed) {
+                dDiv3s = new int[]{45, 46, 47};
+                c2s = new int[]{0};
+            } else {
+                dDiv3s = new int[]{47, 48, 49};
+                c2s = new int[]{0, 1};
+            }
+            for (int encRate : encounterRates) {
+                possibleDVCombos.put(encRate, new boolean[16 * 16 * 16 * 16]);
+                for (int hRandomAdd1 = 0; hRandomAdd1 < encRate; hRandomAdd1++) {
+                    for (int rDiv2 = 0; rDiv2 <= rDiv2Max; rDiv2++) {
+                        for (int dDiv3 : dDiv3s) {
+                            for (int dDiv4 : dDiv4s) {
+                                for (int c2 : c2s) {
+                                    int hRandomAdd2 = (hRandomAdd1 + rDiv2 + c2) % 256;
+                                    int rDiv3 = (rDiv2 + dDiv3) % 256;
+                                    int hRandomAdd3 = (hRandomAdd2 + rDiv3 + c3) % 256; // 16*spd + spc
+                                    int rDiv4 = (rDiv3 + dDiv4) % 256;
+                                    int hRandomAdd4 = (hRandomAdd3 + rDiv4 + c4) % 256; // 16*atk + def
+                                    possibleDVCombos.get(encRate)[(hRandomAdd4 << 8) + hRandomAdd3] = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+//            printPossibleDVCombos(25);
+        }
+    }
+
+    private static void printPossibleDVCombos(int encounterRate) {
+        for (int i = 0; i < possibleDVCombos.get(encounterRate).length; i++) {
+            if (possibleDVCombos.get(encounterRate)[i]) {
+                System.out.println((i >> 12) + "/" + ((i >> 8) % 16) + "/" + ((i >> 4) % 16) + "/" + (i % 16));
+            }
+        }
+    }
+
     public class StatRange {
-        
+
         private final List<Integer> dvs = new ArrayList<>();
-        
+
         public void add(int dv) {
             dvs.add(dv);
         }
-        
+
         private Integer getMin() {
             int min = 15;
             for (Integer dv : dvs) {
@@ -245,7 +307,7 @@ public class DVCalculator {
             }
             return min;
         }
-        
+
         private Integer getMax() {
             int max = 0;
             for (Integer dv : dvs) {
@@ -266,7 +328,7 @@ public class DVCalculator {
                 return getMin() + "-" + getMax();
             }
         }
-        
+
     }
 
 }

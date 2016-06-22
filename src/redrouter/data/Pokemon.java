@@ -34,34 +34,29 @@ import java.util.logging.Logger;
  */
 public class Pokemon {
 
-//    public enum Pkmn {
-//
-//        BULBASAUR, IVYSAUR, VENUSAUR, CHARMANDER, CHARMELEON, CHARIZARD, SQUIRTLE, WARTORTLE, BLASTOISE, CATERPIE, METAPOD, BUTTERFREE,
-//        WEEDLE, KAKUNA, BEEDRILL, PIDGEY, PIDGEOTTO, PIDGEOT, RATTATA, RATICATE, SPEAROW, FEAROW, EKANS, ARBOK, PIKACHU, RAICHU,
-//        SANDSHREW, SANDSLASH, NIDORANF, NIDORINA, NIDOQUEEN, NIDORANM, NIDORINO, NIDOKING, CLEFAIRY, CLEFABLE, VULPIX, NINETALES,
-//        JIGGLYPUFF, WIGGLYTUFF, ZUBAT, GOLBAT, ODDISH, GLOOM, VILEPLUME, PARAS, PARASECT, VENONAT, VENOMOTH, DIGLETT, DUGTRIO, MEOWTH,
-//        PERSIAN, PSYDUCK, GOLDUCK, MANKEY, PRIMEAPE, GROWLITHE, ARCANINE, POLIWAG, POLIWHIRL, POLIWRATH, ABRA, KADABRA, ALAKAZAM, MACHOP,
-//        MACHOKE, MACHAMP, BELLSPROUT, WEEPINBELL, VICTREEBEL, TENTACOOL, TENTACRUEL, GEODUDE, GRAVELER, GOLEM, PONYTA, RAPIDASH, SLOWPOKE,
-//        SLOWBRO, MAGNEMITE, MAGNETON, FARFETCHD, DODUO, DODRIO, SEEL, DEWGONG, GRIMER, MUK, SHELLDER, CLOYSTER, GASTLY, HAUNTER, GENGAR,
-//        ONIX, DROWZEE, HYPNO, KRABBY, KINGLER, VOLTORB, ELECTRODE, EXEGGCUTE, EXEGGUTOR, CUBONE, MAROWAK, HITMONLEE, HITMONCHAN, LICKITUNG,
-//        KOFFING, WEEZING, RHYHORN, RHYDON, CHANSEY, TANGELA, KANGASKHAN, HORSEA, SEADRA, GOLDEEN, SEAKING, STARYU, STARMIE, MRMIME, SCYTHER,
-//        JYNX, ELECTABUZZ, MAGMAR, PINSIR, TAUROS, MAGIKARP, GYARADOS, LAPRAS, DITTO, EEVEE, VAPOREON, JOLTEON, FLAREON, PORYGON, OMANYTE,
-//        OMASTAR, KABUTO, KABUTOPS, AERODACTYL, SNORLAX, ARTICUNO, ZAPDOS, MOLTRES, DRATINI, DRAGONAIR, DRAGONITE, MEWTWO, MEW
-//    }
+    public static class Gender {
 
-    public enum Gender {
+        public static final String MALE = "M";
+        public static final String FEMALE = "F";
+        public static final String NONE = "NA";
+        public static final String MMMF = "7/1";
+        public static final String MMF = "3/1";
+        public static final String MF = "1/1";
+        public static final String MFF = "1/3";
+        public static final String MFFF = "1/7";
 
-        BOTH, MALE, FEMALE, NONE
+        public static final String[] list = {MALE, FEMALE, NONE, MMMF, MMF, MF, MFF, MFFF};
+
     }
 
-    // TODO: id?
+    // TODO: growth rate
     public final int ID;
+    // TODO: Eevee?
     public Pokemon evolution = null;
     public final String name;
     public final Types.Type type1;
     public final Types.Type type2;
-    public final Gender possibleGender;
-    public final double maleRatio;
+    public final String genderRatio;
     public final int expGiven;
     public final int hp;
     public final int atk;
@@ -71,17 +66,16 @@ public class Pokemon {
 
     private static final Map<String, Pokemon> pokemonByName = new HashMap<>();
     private static final Map<Integer, Pokemon> pokemonByID = new HashMap<>();
-    
+
     private final Map<Integer, List<Move>> learnedMoves = new HashMap<>();
     private final List<Move> tmMoves = new ArrayList<>();
 
-    private Pokemon(int ID, String name, Types.Type type1, Types.Type type2, Gender possibleGender, double maleRatio, int expGiven, int hp, int atk, int def, int spd, int spc) {
+    private Pokemon(int ID, String name, Types.Type type1, Types.Type type2, String genderRatio, int expGiven, int hp, int atk, int def, int spd, int spc) {
         this.ID = ID;
         this.name = name;
         this.type1 = type1;
         this.type2 = type2;
-        this.possibleGender = (possibleGender == null ? Gender.NONE : possibleGender);
-        this.maleRatio = maleRatio;
+        this.genderRatio = (genderRatio == null ? Gender.NONE : genderRatio);
         this.expGiven = expGiven;
         this.hp = hp;
         this.atk = atk;
@@ -89,10 +83,10 @@ public class Pokemon {
         this.spd = spd;
         this.spc = spc;
     }
-    
-    public static Pokemon add(int ID, String name, Types.Type type1, Types.Type type2, Gender possibleGender, double maleRatio, int expGiven, int hp, int atk, int def, int spd, int spc) {
+
+    public static Pokemon add(int ID, String name, Types.Type type1, Types.Type type2, String genderRatio, int expGiven, int hp, int atk, int def, int spd, int spc) {
         if (!pokemonByName.containsKey(toString(name).toUpperCase(Locale.ROOT)) && !pokemonByID.containsKey(ID)) {
-            Pokemon pkmn = new Pokemon(ID, name, type1, type2, possibleGender, maleRatio, expGiven, hp, atk, def, spd, spc);
+            Pokemon pkmn = new Pokemon(ID, name, type1, type2, genderRatio, expGiven, hp, atk, def, spd, spc);
             pokemonByName.put(toString(name).toUpperCase(Locale.ROOT), pkmn);
             pokemonByID.put(ID, pkmn);
             return pkmn;
@@ -100,19 +94,19 @@ public class Pokemon {
             return null;
         }
     }
-    
+
     public static Pokemon get(String name) {
         return pokemonByName.get(toString(name).toUpperCase(Locale.ROOT));
     }
-    
+
     public static Pokemon get(int ID) {
         return pokemonByID.get(ID);
     }
-    
+
     public static Pokemon[] getAll() {
         return pokemonByID.values().toArray(new Pokemon[0]);
     }
-    
+
     public static String[] getNames() {
         return pokemonByName.keySet().toArray(new String[0]);
     }
@@ -151,7 +145,7 @@ public class Pokemon {
     public List<Move> getTmMoves() {
         return this.tmMoves;
     }
-    
+
     private static String toString(String name) {
         return name;
     }
@@ -174,8 +168,10 @@ public class Pokemon {
                 if (line.equals("") || line.substring(0, 2).equals("//")) {
                     //nothing to do here
                 } else {
-                    String[] s = line.split(";");
-                    Pokemon poke = Pokemon.add(pokedexEntry, s[0], Types.Type.NORMAL, null, Pokemon.Gender.BOTH, 0.5, Integer.parseInt(s[1]), Integer.parseInt(s[2]), Integer.parseInt(s[3]), Integer.parseInt(s[4]), Integer.parseInt(s[5]), Integer.parseInt(s[6]));
+                    String[] s = line.split("#");
+                    // TODO: Types
+                    // TODO: Gender
+                    Pokemon poke = Pokemon.add(pokedexEntry, s[0], Types.Type.NORMAL, null, Pokemon.Gender.MF, Integer.parseInt(s[4]), Integer.parseInt(s[5]), Integer.parseInt(s[6]), Integer.parseInt(s[7]), Integer.parseInt(s[8]), Integer.parseInt(s[9]));
                     pokedexEntry++;
                     System.out.println(pokedexEntry + " - " + poke.toString());
                 }

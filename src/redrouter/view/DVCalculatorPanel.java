@@ -101,12 +101,12 @@ public class DVCalculatorPanel extends JPanel {
         this.settingsPanel.setLayout(new BoxLayout(this.settingsPanel, BoxLayout.Y_AXIS));
         initSettignsPanel();
         this.add(settingsPanel, BorderLayout.EAST);
-        
+
         JPanel pnlSouth = new JPanel(new FlowLayout(FlowLayout.LEFT));
         this.dvPanel = new DVPanel(this.calc.getStatRanges());
         pnlSouth.add(this.dvPanel, BorderLayout.SOUTH);
         this.add(pnlSouth, BorderLayout.SOUTH);
-        
+
         initButtons();
     }
 
@@ -142,7 +142,7 @@ public class DVCalculatorPanel extends JPanel {
     private void enableButtons() {
         for (int DV = 0; DV < 16; DV++) {
             for (int stat = 0; stat < 5; stat++) {
-                btnsDVs[stat][DV].setEnabled(calc.isPossibleDV[stat][DV]);
+                btnsDVs[stat][DV].setEnabled(calc.isPossibleDV(stat, DV));
             }
         }
         dvPanel.setRanges(this.calc.getStatRanges());

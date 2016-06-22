@@ -27,20 +27,22 @@ import java.util.Map;
  */
 public class EncounterArea {
 
-    private final Location location;
-    private final String subArea;
+    public final Location location;
+    public final String subArea;
+    public final int encounterRate;
     // TODO: encounter slots
 
     public static final Map<String, EncounterArea> areas = new HashMap<>();
 
-    private EncounterArea(Location location, String subArea) {
+    private EncounterArea(Location location, String subArea, int encounterRate) {
         this.location = location;
         this.subArea = subArea;
+        this.encounterRate = encounterRate;
     }
 
-    public static EncounterArea add(Location location, String subArea) {
+    public static EncounterArea add(Location location, String subArea, int encounterRate) {
         if (!areas.containsKey(toString(location, subArea).toUpperCase(Locale.ROOT))) {
-            EncounterArea area = new EncounterArea(location, subArea);
+            EncounterArea area = new EncounterArea(location, subArea, encounterRate);
             areas.put(area.toString().toUpperCase(Locale.ROOT), area);
             location.encounterAreas.add(area);
             return area;

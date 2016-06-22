@@ -17,6 +17,7 @@
  */
 package redrouter.data;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,11 +39,16 @@ public class Location {
     
     // TODO move to a world class?
     public final String name;
-//    public final BufferedImage image;
+    public final BufferedImage image;
     public final List<EncounterArea> encounterAreas;
 
     private Location(String name) {
+        this(name, null);
+    }
+
+    private Location(String name, BufferedImage image) {
         this.name = name;
+        this.image = image;
         encounterAreas = new ArrayList<>();
     }
     

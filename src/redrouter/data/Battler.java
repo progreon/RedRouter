@@ -31,6 +31,7 @@ public class Battler {
     public Pokemon.Gender gender;
     public List<Move> moveset;
 //    public int totalXP = 0;
+    public EncounterArea catchLocation;
 
     public int hpXP = 0;
     public int atkXP = 0;
@@ -58,6 +59,7 @@ public class Battler {
         }
     }
 
+    // TODO: Eevee?
     public void evolve() {
         if (pokemon.evolution != null) {
             pokemon = pokemon.evolution;

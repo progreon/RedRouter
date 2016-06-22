@@ -27,7 +27,7 @@ import redrouter.view.RouterFrame;
 public class RedRouter {
 
     private final static String pokemonFile = "pokemon.txt";
-    
+
     private final RouterFrame routerFrame;
 //    private RouteFactory routeFactory;
 
@@ -37,7 +37,6 @@ public class RedRouter {
         Pokemon.initPokemon(pokemonFile);
         routerFrame = new RouterFrame();
         routerFrame.setVisible(true);
-        
 //        System.out.println(routeFactory.getExaNidoRoute());
     }
 
@@ -47,5 +46,5 @@ public class RedRouter {
     public static void main(String[] args) {
         RedRouter r = new RedRouter();
     }
-    
+
 }
