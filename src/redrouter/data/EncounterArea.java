@@ -17,60 +17,76 @@
  */
 package redrouter.data;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  *
  * @author Marco Willems
  */
 public class EncounterArea {
+    
+    private final RouterData rd;
 
     public final Location location;
     public final String subArea;
     public final int encounterRate;
-    // TODO: encounter slots
+    public final Slot[] slots;
 
-    public static final Map<String, EncounterArea> areas = new HashMap<>();
-
-    private EncounterArea(Location location, String subArea, int encounterRate) {
+    public EncounterArea(RouterData rd, Location location, String subArea, int encounterRate, Slot[] slots) {
+        this.rd = rd;
         this.location = location;
         this.subArea = subArea;
         this.encounterRate = encounterRate;
+        this.slots = slots;
     }
 
-    public static EncounterArea add(Location location, String subArea, int encounterRate) {
-        if (!areas.containsKey(toString(location, subArea).toUpperCase(Locale.ROOT))) {
-            EncounterArea area = new EncounterArea(location, subArea, encounterRate);
-            areas.put(area.toString().toUpperCase(Locale.ROOT), area);
-            location.encounterAreas.add(area);
-            return area;
+    public EncounterArea(RouterData rd, String areaString, String file, int line) throws ParserException {
+        this.rd = rd;
+        // MT.MOON#1F#10#L8 ZUBAT#L7 ZUBAT#L9 ZUBAT#L8 GEODUDE#L6 ZUBAT#L10 ZUBAT#L10 GEODUDE#L8 PARAS#L11 ZUBAT#L8 CLEFAIRY
+        String[] s = areaString.split("#");
+        if (s.length == 13) {
+            this.location = rd.getLocation(s[0]);
+            if (this.location == null) {
+                throw new ParserException(file, line, "Could not find the specified location!");
+            }
+            this.subArea = s[1];
+            try {
+                this.encounterRate = Integer.parseInt(s[2]);
+                this.slots = new Slot[10];
+                for (int i = 0; i < 10; i++) {
+                    this.slots[i] = new Slot(s[i + 3], file, line);
+                }
+            } catch (NumberFormatException ex) {
+                throw new ParserException(file, line, "Could not parse the encounter rate!");
+            }
         } else {
-            return null;
+            throw new ParserException(file, line, "There must be 13 arguments for each entry!");
         }
     }
 
-    public static EncounterArea get(Location location, String subArea) {
-        return areas.get(toString(location, subArea).toUpperCase(Locale.ROOT));
-    }
-
-    private static String toString(Location location, String subArea) {
+    @Override
+    public String toString() {
         String str = location.name;
         if (subArea != null && !subArea.equals("")) {
             str += " (" + subArea + ")";
         }
         return str;
     }
-
-    @Override
-    public String toString() {
-        return toString(this.location, this.subArea);
+    
+    public String getIndexString() {
+        return getIndexString(location, subArea);
     }
 
-    private class Slot {
+    public static String getIndexString(Location location, String subArea) {
+        String str = location.name;
+        if (subArea != null && !subArea.equals("")) {
+            str += " (" + subArea + ")";
+        }
+        return str.toUpperCase(Locale.ROOT);
+    }
 
-        private final String ERROR_MESSAGE = "Could not parse ";
+    public class Slot {
+
         final int level;
         final Pokemon pkmn;
 
@@ -93,16 +109,21 @@ public class EncounterArea {
                         throw new ParserException(file, line, "Please seperate the level from the pokemon name with a space!");
                     }
                     this.level = Integer.parseInt(str.substring(0, space));
-                    this.pkmn = Pokemon.get(str.substring(space + 1));
+                    this.pkmn = rd.getPokemon(str.substring(space + 1));
                     if (this.pkmn == null) {
                         throw new ParserException(file, line, "Pokemon " + str.substring(space + 1) + " does not exist!");
                     }
-                } catch (Exception e) {
-                    throw new ParserException(file, line, ERROR_MESSAGE + slotString);
+                } catch (NumberFormatException e) {
+                    throw new ParserException(file, line, "Could not parse " + slotString);
                 }
             } else {
-                throw new ParserException(file, line, ERROR_MESSAGE + slotString);
+                throw new ParserException(file, line, "Could not parse " + slotString);
             }
+        }
+
+        @Override
+        public String toString() {
+            return this.pkmn + "(" + this.level + ")";
         }
 
     }

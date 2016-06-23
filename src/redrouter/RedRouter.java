@@ -17,7 +17,15 @@
  */
 package redrouter;
 
-import redrouter.data.Pokemon;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 import redrouter.view.RouterFrame;
 
 /**
@@ -26,17 +34,17 @@ import redrouter.view.RouterFrame;
  */
 public class RedRouter {
 
-    private final static String pokemonFile = "pokemon.txt";
-
-    private final RouterFrame routerFrame;
 //    private RouteFactory routeFactory;
 
     public RedRouter() {
 //        routeFactory = new RouteFactory();
 //        List<Pokemon> pokedex = routeFactory.getPokedexByID();
-        Pokemon.initPokemon(pokemonFile);
-        routerFrame = new RouterFrame();
-        routerFrame.setVisible(true);
+        GameChooserDialog gcd = new GameChooserDialog(null);
+        gcd.setVisible(true);
+        if (gcd.settings != null) {
+            RouterFrame routerFrame = new RouterFrame(gcd.settings);
+            routerFrame.setVisible(true);
+        }
 //        System.out.println(routeFactory.getExaNidoRoute());
     }
 
@@ -45,6 +53,72 @@ public class RedRouter {
      */
     public static void main(String[] args) {
         RedRouter r = new RedRouter();
+    }
+
+    private class GameChooserDialog extends JDialog {
+
+        Settings settings;
+
+        public GameChooserDialog(JFrame owner) {
+            super(owner, "Choose your game", true);
+            init();
+//            pack();
+            setSize(400, 300);
+            setResizable(false);
+            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            setLocationRelativeTo(owner);
+        }
+
+        private void init() {
+            JPanel buttonPanel = new JPanel(new GridLayout(0, 1));
+            JButton btnRed = new JButton(Settings.GAME_RED);
+            JButton btnBlue = new JButton(Settings.GAME_BLUE);
+            JButton btnYellow = new JButton(Settings.GAME_YELLOW);
+            btnRed.setBackground(new Color(200, 30, 20));
+            btnBlue.setBackground(new Color(20, 30, 200));
+            btnYellow.setBackground(new Color(210, 210, 20));
+            btnRed.setForeground(new Color(240, 50, 40));
+            btnBlue.setForeground(new Color(40, 100, 250));
+            btnYellow.setForeground(new Color(240, 240, 50));
+            Font currFont = btnRed.getFont();
+            Font newFont = new Font(currFont.getFontName(), currFont.getStyle(), 24);
+            btnRed.setFont(newFont);
+            btnBlue.setFont(newFont);
+            btnYellow.setFont(newFont);
+            btnRed.setFocusable(false);
+            btnBlue.setFocusable(false);
+            btnYellow.setFocusable(false);
+            btnRed.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    selectGame(Settings.GAME_RED);
+                }
+            });
+            btnBlue.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    selectGame(Settings.GAME_BLUE);
+                }
+            });
+            btnYellow.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    selectGame(Settings.GAME_YELLOW);
+                }
+            });
+            buttonPanel.add(btnRed);
+            buttonPanel.add(btnBlue);
+            buttonPanel.add(btnYellow);
+            setContentPane(buttonPanel);
+        }
+
+        private void selectGame(String game) {
+            this.settings = new Settings(game);
+            this.setVisible(false);
+        }
     }
 
 }

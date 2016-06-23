@@ -18,6 +18,9 @@
 package redrouter.view;
 
 import javax.swing.JFrame;
+import redrouter.Settings;
+import redrouter.data.DVCalculator;
+import redrouter.data.RouterData;
 
 /**
  *
@@ -27,11 +30,14 @@ public class RouterFrame extends JFrame {
 
     public static final String TITLE = "Red Router";
 
-    public RouterFrame() {
+    public RouterFrame(Settings settings) {
         super(TITLE);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 //        setSize(new Dimension(400, 300));
-        this.setContentPane(new DVCalculatorPanel(null));
+        RouterData rd = new RouterData(settings);
+        this.setTitle(TITLE + ": " + settings.game);
+        DVCalculator calc = new DVCalculator(rd, null);
+        this.setContentPane(new DVCalculatorPanel(calc));
         this.pack();
         this.setLocationRelativeTo(null);
 //        this.setResizable(false);

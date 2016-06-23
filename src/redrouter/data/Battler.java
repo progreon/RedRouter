@@ -58,6 +58,13 @@ public class Battler {
         }
     }
 
+    public Battler(Pokemon pokemon, EncounterArea catchLocation, int level) {
+        this.pokemon = pokemon;
+        this.level = level;
+        this.moveset = new ArrayList<>();
+        this.catchLocation = catchLocation;
+    }
+
     // TODO: Eevee?
     public void evolve() {
         if (pokemon.evolution != null) {

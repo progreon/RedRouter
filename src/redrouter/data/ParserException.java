@@ -22,7 +22,7 @@ package redrouter.data;
  * @author Marco Willems
  */
 public class ParserException extends Exception {
-    
+
     public final String file;
     public final int line;
 
@@ -34,7 +34,7 @@ public class ParserException extends Exception {
 
     @Override
     public String toString() {
-        return "Parser error at " + file + ":" + line + " " + super.getMessage();
+        return "Syntax error at " + file + ":" + (line + 1) + " " + super.getMessage();
     }
-    
+
 }

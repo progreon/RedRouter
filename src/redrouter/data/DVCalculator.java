@@ -27,23 +27,26 @@ import java.util.Map;
  * @author Marco Willems
  */
 public class DVCalculator {
+    
+    private final RouterData rd;
 
     // Encounter rate -> Boolean[65536]
     // atk = i >> 12
     // def = (i >> 8) % 16
     // spd = (i >> 4) % 16
     // spc = i % 16
-    private static Map<Integer, boolean[]> possibleDVCombos = null;
-    private static final boolean isRed = true;
+    private Map<Integer, boolean[]> possibleDVCombos = null;
+//    private static final boolean isRed = true;
 
-    public static final String defaultPokemon = "NidoranM";
-    public static final int defaultLevel = 3;
+    public final String defaultPokemon = "NidoranM";
+    public final int defaultLevel = 3;
     private Battler battler;
-    private final int maxEncounterRate = 25;
+    public final int maxEncounterRate = 255;
     private boolean[][] isPossibleDV; // [hp, atk, def, spd, spc][0..15] -> true/false
     public final int[][] stats;
 
-    public DVCalculator(Battler battler) {
+    public DVCalculator(RouterData rd, Battler battler) {
+        this.rd = rd;
         this.battler = battler;
         if (this.battler == null) {
             this.battler = getDefaultBattler();
@@ -54,7 +57,7 @@ public class DVCalculator {
     }
 
     private Battler getDefaultBattler() {
-        return new Battler(Pokemon.get(defaultPokemon), defaultLevel, null);
+        return new Battler(rd.getPokemon(defaultPokemon), defaultLevel, null);
     }
 
     private void init() {
@@ -202,16 +205,6 @@ public class DVCalculator {
 //                }
 //            }
 //        }
-        checkPossibleDVs();
-    }
-
-    private void removeOddOrEvenDV(int stat, boolean odd) {
-        for (int dv = odd ? 1 : 0; dv < 16; dv += 2) {
-            isPossibleDV[stat][dv] = false;
-        }
-    }
-
-    private void checkPossibleDVs() {
         boolean[][] newPossibleDVs = new boolean[5][16];
         for (int atk = 0; atk < 16; atk++) {
             if (isPossibleDV[1][atk]) {
@@ -224,7 +217,7 @@ public class DVCalculator {
                                         int hp = 8 * (atk % 2) + 4 * (def % 2) + 2 * (spd % 2) + (spc % 2);
                                         int i = (atk << 12) + (def << 8) + (spd << 4) + spc;
                                         int encounterRate = battler.catchLocation == null ? maxEncounterRate : battler.catchLocation.encounterRate;
-                                        if (isPossibleDV[0][hp] && possibleDVCombos.get(encounterRate)[i]) {
+                                        if (isPossibleDV[0][hp] && (!possibleDVCombos.containsKey(encounterRate) || possibleDVCombos.get(encounterRate)[i])) {
                                             newPossibleDVs[0][hp] = true;
                                             newPossibleDVs[1][atk] = true;
                                             newPossibleDVs[2][def] = true;
@@ -242,7 +235,13 @@ public class DVCalculator {
         isPossibleDV = newPossibleDVs;
     }
 
-    public static void initPossibleDVCombos() {
+//    private void removeOddOrEvenDV(int stat, boolean odd) {
+//        for (int dv = odd ? 1 : 0; dv < 16; dv += 2) {
+//            isPossibleDV[stat][dv] = false;
+//        }
+//    }
+
+    public void initPossibleDVCombos() {
         if (possibleDVCombos == null) {
             possibleDVCombos = new HashMap<>();
             int[] encounterRates = new int[]{3, 5, 8, 10, 15, 20, 25, 30};
@@ -252,7 +251,7 @@ public class DVCalculator {
             int[] c2s;
             int c3 = 1;
             int c4 = 1;
-            if (isRed) {
+            if (rd.settings.isRedBlue()) {
                 dDiv3s = new int[]{45, 46, 47};
                 c2s = new int[]{0};
             } else {
@@ -282,12 +281,16 @@ public class DVCalculator {
         }
     }
 
-    private static void printPossibleDVCombos(int encounterRate) {
-        for (int i = 0; i < possibleDVCombos.get(encounterRate).length; i++) {
-            if (possibleDVCombos.get(encounterRate)[i]) {
-                System.out.println((i >> 12) + "/" + ((i >> 8) % 16) + "/" + ((i >> 4) % 16) + "/" + (i % 16));
-            }
-        }
+//    private static void printPossibleDVCombos(int encounterRate) {
+//        for (int i = 0; i < possibleDVCombos.get(encounterRate).length; i++) {
+//            if (possibleDVCombos.get(encounterRate)[i]) {
+//                System.out.println((i >> 12) + "/" + ((i >> 8) % 16) + "/" + ((i >> 4) % 16) + "/" + (i % 16));
+//            }
+//        }
+//    }
+
+    public RouterData getRd() {
+        return rd;
     }
 
     public class StatRange {

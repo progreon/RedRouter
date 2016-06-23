@@ -36,32 +36,17 @@ public class Move {
     public final int power;
     public final int accuracy;
     
-    private static final Map<String, Move> moves = new HashMap<>();
     public final List<Pokemon> pokemon; // Pokemon that learn this move
 
     private boolean OITN = false; // OneInThirtyNine
 
-    private Move(String name, Types.Type type, boolean isAttack, int power, int accuracy) {
+    public Move(String name, Types.Type type, boolean isAttack, int power, int accuracy) {
         this.name = name;
         this.type = type;
         this.isAttack = isAttack;
         this.power = power;
         this.accuracy = accuracy;
         this.pokemon = new ArrayList<>();
-    }
-    
-    public static Move add(String name, Types.Type type, boolean isAttack, int power, int accuracy) {
-        if (!moves.containsKey(toString(name).toUpperCase(Locale.ROOT))) {
-            Move move = new Move(name, type, isAttack, power, accuracy);
-            moves.put(toString(name).toUpperCase(Locale.ROOT), move);
-            return move;
-        } else {
-            return null;
-        }
-    }
-    
-    public static Move get(String name) {
-        return moves.get(toString(name).toUpperCase(Locale.ROOT));
     }
 
     // Pair -> DamageRange
@@ -110,18 +95,22 @@ public class Move {
 
         return new Pair<>(minDamage, maxDamage);
     }
-
-    // TODO
-//    public class DamageRange {
-//        
-//    }
     
-    private static String toString(String name) {
-        return name;
+    public static String getIndexString(String name) {
+        return name.toUpperCase(Locale.ROOT);
+    }
+    
+    public String getIndexString() {
+        return getIndexString(name);
     }
 
     @Override
     public String toString() {
         return this.name;
     }
+
+    // TODO
+//    public class DamageRange {
+//        
+//    }
 }

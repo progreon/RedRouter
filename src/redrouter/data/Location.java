@@ -19,60 +19,51 @@ package redrouter.data;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 /**
+ * Overworld location
  *
  * @author Marco Willems
  */
 public class Location {
     
-    // Dynamic!?
-//    public static String PALLET_TOWN = "Pallet Town";
-//    public static String ROUTE_1 = "Route 1";
-//    public static String VIRIDIAN_CITY = "Viridian City";
-    // ...
-    public static final Map<String, Location> locations = new HashMap<>();
-    
+    private final RouterData rd;
+
     // TODO move to a world class?
     public final String name;
     public final BufferedImage image;
-    public final List<EncounterArea> encounterAreas;
+    public final List<EncounterArea> encounterAreas = new ArrayList<>();
 
-    private Location(String name) {
-        this(name, null);
+    private Location(RouterData rd, String name) {
+        this(rd, name, null);
     }
 
-    private Location(String name, BufferedImage image) {
+    public Location(RouterData rd, String name, BufferedImage image) {
+        this.rd = rd;
         this.name = name;
         this.image = image;
-        encounterAreas = new ArrayList<>();
     }
-    
-    public static Location add(String name) {
-        if (!locations.containsKey(toString(name).toUpperCase(Locale.ROOT))) {
-            Location location = new Location(name);
-            locations.put(toString(name).toUpperCase(Locale.ROOT), location);
-            return location;
-        } else {
-            return null;
-        }
+
+    public Location(RouterData rd, String locationString, String file, int line) throws ParserException {
+        this.rd = rd;
+        String[] s = locationString.split("#");
+        this.name = s[0];
+        this.image = null;
     }
-    
-    public static Location get(String name) {
-        return locations.get(name.toUpperCase(Locale.ROOT));
+
+    public String getIndexString() {
+        return getIndexString(name);
     }
-    
-    private static String toString(String name) {
-        return name;
+
+    public static String getIndexString(String name) {
+        return name.toUpperCase(Locale.ROOT);
     }
 
     @Override
     public String toString() {
-        return toString(this.name);
+        return name;
     }
-    
+
 }

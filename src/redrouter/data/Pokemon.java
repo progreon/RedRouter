@@ -17,22 +17,19 @@
  */
 package redrouter.data;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Marco Willems
  */
 public class Pokemon {
+
+    private final RouterData rd;
 
     // TODO: growth rate
     public final int ID;
@@ -48,13 +45,11 @@ public class Pokemon {
     public final int spd;
     public final int spc;
 
-    private static final Map<String, Pokemon> pokemonByName = new HashMap<>();
-    private static final Map<Integer, Pokemon> pokemonByID = new HashMap<>();
-
     private final Map<Integer, List<Move>> learnedMoves = new HashMap<>();
     private final List<Move> tmMoves = new ArrayList<>();
 
-    private Pokemon(int ID, String name, Types.Type type1, Types.Type type2, int expGiven, int hp, int atk, int def, int spd, int spc) {
+    public Pokemon(RouterData rd, int ID, String name, Types.Type type1, Types.Type type2, int expGiven, int hp, int atk, int def, int spd, int spc) {
+        this.rd = rd;
         this.ID = ID;
         this.name = name;
         this.type1 = type1;
@@ -67,31 +62,28 @@ public class Pokemon {
         this.spc = spc;
     }
 
-    public static Pokemon add(int ID, String name, Types.Type type1, Types.Type type2, int expGiven, int hp, int atk, int def, int spd, int spc) {
-        if (!pokemonByName.containsKey(toString(name).toUpperCase(Locale.ROOT)) && !pokemonByID.containsKey(ID)) {
-            Pokemon pkmn = new Pokemon(ID, name, type1, type2, expGiven, hp, atk, def, spd, spc);
-            pokemonByName.put(toString(name).toUpperCase(Locale.ROOT), pkmn);
-            pokemonByID.put(ID, pkmn);
-            return pkmn;
+    public Pokemon(RouterData rd, int ID, String pokemonString, String file, int line) throws ParserException {
+        this.rd = rd;
+        String[] s = pokemonString.split("#");
+        if (s.length != 9) {
+            throw new ParserException(file, line, "Entry must have 9 parameters!");
         } else {
-            return null;
+            try {
+                this.ID = ID;
+                this.name = s[0];
+                this.type1 = Types.Type.NORMAL; // TODO
+                this.type2 = null; // TODO
+                this.expGiven = Integer.parseInt(s[3]);
+                this.hp = Integer.parseInt(s[4]);
+                this.atk = Integer.parseInt(s[5]);
+                this.def = Integer.parseInt(s[6]);
+                this.spd = Integer.parseInt(s[7]);
+                this.spc = Integer.parseInt(s[8]);
+            } catch (NumberFormatException nex) {
+                throw new ParserException(file, line, "Could not parse stat exp parameters!");
+            }
         }
-    }
 
-    public static Pokemon get(String name) {
-        return pokemonByName.get(toString(name).toUpperCase(Locale.ROOT));
-    }
-
-    public static Pokemon get(int ID) {
-        return pokemonByID.get(ID);
-    }
-
-    public static Pokemon[] getAll() {
-        return pokemonByID.values().toArray(new Pokemon[0]);
-    }
-
-    public static String[] getNames() {
-        return pokemonByName.keySet().toArray(new String[0]);
     }
 
     public boolean addLearnedMove(int level, Move move) {
@@ -129,46 +121,18 @@ public class Pokemon {
         return this.tmMoves;
     }
 
-    private static String toString(String name) {
-        return name;
+    public String getIndexString() {
+        return getIndexString(name);
+    }
+
+    public static String getIndexString(String name) {
+        return name.toUpperCase(Locale.ROOT);
     }
 
     @Override
     public String toString() {
 //        return species + " [" + name + "]: " + hp + "," + atk + "," + def + "," + spd + "," + spc;
-        return toString(this.name);
-    }
-
-    public static void initPokemon(String pokemonFile) {
-        BufferedReader br = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream(pokemonFile)));
-        int lineNr = 0;
-        int pokedexEntry = 0;
-        try {
-            String line;
-            line = br.readLine();
-            while (line != null) {
-                lineNr++;
-                if (line.equals("") || line.substring(0, 2).equals("//")) {
-                    //nothing to do here
-                } else {
-                    String[] s = line.split("#");
-                    // TODO: Types
-                    Pokemon poke = Pokemon.add(pokedexEntry, s[0], Types.Type.NORMAL, null, Integer.parseInt(s[3]), Integer.parseInt(s[4]), Integer.parseInt(s[5]), Integer.parseInt(s[6]), Integer.parseInt(s[7]), Integer.parseInt(s[8]));
-                    pokedexEntry++;
-                    System.out.println(pokedexEntry + " - " + poke.toString());
-                }
-                line = br.readLine();
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(RouteFactory.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("Syntax error in pokemon.txt on line: " + lineNr);
-        } finally {
-            try {
-                br.close();
-            } catch (IOException ex) {
-                Logger.getLogger(RouteFactory.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        return name;
     }
 
 }
