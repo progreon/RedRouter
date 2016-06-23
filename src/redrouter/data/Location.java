@@ -28,7 +28,7 @@ import java.util.Locale;
  * @author Marco Willems
  */
 public class Location {
-    
+
     private final RouterData rd;
 
     // TODO move to a world class?

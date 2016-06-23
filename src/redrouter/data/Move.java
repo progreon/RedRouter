@@ -18,10 +18,8 @@
 package redrouter.data;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import javafx.util.Pair;
 
 /**
@@ -35,7 +33,7 @@ public class Move {
     public final boolean isAttack;
     public final int power;
     public final int accuracy;
-    
+
     public final List<Pokemon> pokemon; // Pokemon that learn this move
 
     private boolean OITN = false; // OneInThirtyNine
@@ -95,11 +93,11 @@ public class Move {
 
         return new Pair<>(minDamage, maxDamage);
     }
-    
+
     public static String getIndexString(String name) {
         return name.toUpperCase(Locale.ROOT);
     }
-    
+
     public String getIndexString() {
         return getIndexString(name);
     }

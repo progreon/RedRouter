@@ -24,7 +24,7 @@ import java.util.Locale;
  * @author Marco Willems
  */
 public class EncounterArea {
-    
+
     private final RouterData rd;
 
     public final Location location;
@@ -72,7 +72,7 @@ public class EncounterArea {
         }
         return str;
     }
-    
+
     public String getIndexString() {
         return getIndexString(location, subArea);
     }

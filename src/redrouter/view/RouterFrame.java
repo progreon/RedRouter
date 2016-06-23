@@ -28,19 +28,18 @@ import redrouter.data.RouterData;
  */
 public class RouterFrame extends JFrame {
 
-    public static final String TITLE = "Red Router";
-
     public RouterFrame(Settings settings) {
-        super(TITLE);
+        super(Settings.TITLE + ": " + settings.game);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 //        setSize(new Dimension(400, 300));
         RouterData rd = new RouterData(settings);
-        this.setTitle(TITLE + ": " + settings.game);
         DVCalculator calc = new DVCalculator(rd, null);
         this.setContentPane(new DVCalculatorPanel(calc));
         this.pack();
+        // To fit the button text when stat >= 100
+        this.setSize(this.getWidth() + 50, this.getHeight());
         this.setLocationRelativeTo(null);
-//        this.setResizable(false);
+        this.setResizable(false);
 
     }
 

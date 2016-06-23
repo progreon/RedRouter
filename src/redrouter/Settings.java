@@ -22,7 +22,8 @@ package redrouter;
  * @author Marco Willems
  */
 public class Settings {
-    
+
+    // TODO from settings file?
     public static final String TITLE = "Red Router";
 
     public static final String GAME_RED = "Pokemon Red";
@@ -34,7 +35,7 @@ public class Settings {
     private final String encountersFileYellow = "encounters_yellow.txt";
     private final String locationsFile = "locations.txt";
     private final String pokemonFile = "pokemon.txt";
-    
+
     public final String game;
 
     public Settings() {
@@ -44,19 +45,19 @@ public class Settings {
     public Settings(String game) {
         this.game = game;
     }
-    
+
     public boolean isRed() {
         return game.equals(GAME_RED);
     }
-    
+
     public boolean isBlue() {
         return game.equals(GAME_BLUE);
     }
-    
+
     public boolean isRedBlue() {
         return game.equals(GAME_RED) || game.equals(GAME_BLUE);
     }
-    
+
     public boolean isYellow() {
         return game.equals(GAME_YELLOW);
     }

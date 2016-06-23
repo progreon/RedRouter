@@ -34,11 +34,7 @@ import redrouter.view.RouterFrame;
  */
 public class RedRouter {
 
-//    private RouteFactory routeFactory;
-
     public RedRouter() {
-//        routeFactory = new RouteFactory();
-//        List<Pokemon> pokedex = routeFactory.getPokedexByID();
         GameChooserDialog gcd = new GameChooserDialog(null);
         gcd.setVisible(true);
         if (gcd.settings != null) {
@@ -62,7 +58,6 @@ public class RedRouter {
         public GameChooserDialog(JFrame owner) {
             super(owner, "Choose your game", true);
             init();
-//            pack();
             setSize(400, 300);
             setResizable(false);
             setDefaultCloseOperation(DISPOSE_ON_CLOSE);

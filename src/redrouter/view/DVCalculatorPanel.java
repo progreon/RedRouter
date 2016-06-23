@@ -28,7 +28,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -78,7 +77,6 @@ public class DVCalculatorPanel extends JPanel {
 //        if (this.calc == null) {
 //            this.calc = new DVCalculator(null);
 //        }
-//        this.add(new JLabel(this.calc.getBattler().getPokemon().name), BorderLayout.NORTH);
 
         // Grid Panel
         gridDVs = new GridLayout(17, 5, 5, 5);
@@ -114,7 +112,7 @@ public class DVCalculatorPanel extends JPanel {
 
         initButtons();
     }
-    
+
     private void setPokemon(Pokemon poke) {
         this.calc.setBattler(new Battler(poke, null, (int) spnLevel.getValue()));
         fillEncounterAreas();

@@ -37,8 +37,6 @@ import redrouter.route.RouteBattle;
  */
 public class RouterData {
 
-    // From settings file?
-//    public final String game;
     public final Settings settings;
 
     private final Map<String, EncounterArea> areas = new HashMap<>();
@@ -73,7 +71,6 @@ public class RouterData {
     public List<EncounterArea> getEncounterAreas(Pokemon pkmn) {
         List<EncounterArea> l = new ArrayList<>();
         for (EncounterArea ea : areasByID) {
-//            EncounterArea ea = areasByID[i];
             boolean contains = false;
             for (EncounterArea.Slot s : ea.slots) {
                 if (s.pkmn == pkmn) {

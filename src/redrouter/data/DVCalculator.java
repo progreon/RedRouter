@@ -27,7 +27,7 @@ import java.util.Map;
  * @author Marco Willems
  */
 public class DVCalculator {
-    
+
     private final RouterData rd;
 
     // Encounter rate -> Boolean[65536]
@@ -36,7 +36,6 @@ public class DVCalculator {
     // spd = (i >> 4) % 16
     // spc = i % 16
     private Map<Integer, boolean[]> possibleDVCombos = null;
-//    private static final boolean isRed = true;
 
     public final String defaultPokemon = "NidoranM";
     public final int defaultLevel = 3;
@@ -106,7 +105,7 @@ public class DVCalculator {
                     isPossibleDV[stat][i] = false;
                 }
             }
-            filterDVs(stat);
+            filterDVs();
             return true;
         } else {
             return false;
@@ -120,7 +119,7 @@ public class DVCalculator {
                     isPossibleDV[stat][i] = false;
                 }
             }
-            filterDVs(stat);
+            filterDVs();
             return true;
         } else {
             return false;
@@ -168,43 +167,7 @@ public class DVCalculator {
         }
     }
 
-    private void filterDVs(int statClicked) {
-//        if (statClicked == 0) { // HP was clicked
-//            boolean[] statIsEven = new boolean[4];
-//            boolean[] statIsOdd = new boolean[4];
-//            for (int dv = 0; dv < 16; dv++) {
-//                if (isPossibleDV[0][dv]) {
-//                    if ((dv / 8) % 2 == 1) {
-//                        statIsOdd[0] = true; // Odd attack possible
-//                    } else {
-//                        statIsEven[0] = true; // Even attack possible
-//                    }
-//                    if ((dv / 4) % 2 == 1) {
-//                        statIsOdd[1] = true; // Odd defense possible
-//                    } else {
-//                        statIsEven[1] = true; // Even defense possible
-//                    }
-//                    if ((dv / 2) % 2 == 1) {
-//                        statIsOdd[2] = true; // Odd speed possible
-//                    } else {
-//                        statIsEven[2] = true; // Even speed possible
-//                    }
-//                    if (dv % 2 == 1) {
-//                        statIsOdd[3] = true; // Odd special possible
-//                    } else {
-//                        statIsEven[3] = true; // Even special possible
-//                    }
-//                }
-//            }
-//            for (int stat = 0; stat < 4; stat++) {
-//                if (!statIsEven[stat]) {
-//                    removeOddOrEvenDV(stat + 1, false);
-//                }
-//                if (!statIsOdd[stat]) {
-//                    removeOddOrEvenDV(stat + 1, true);
-//                }
-//            }
-//        }
+    private void filterDVs() {
         boolean[][] newPossibleDVs = new boolean[5][16];
         for (int atk = 0; atk < 16; atk++) {
             if (isPossibleDV[1][atk]) {
@@ -234,12 +197,6 @@ public class DVCalculator {
         }
         isPossibleDV = newPossibleDVs;
     }
-
-//    private void removeOddOrEvenDV(int stat, boolean odd) {
-//        for (int dv = odd ? 1 : 0; dv < 16; dv += 2) {
-//            isPossibleDV[stat][dv] = false;
-//        }
-//    }
 
     public void initPossibleDVCombos() {
         if (possibleDVCombos == null) {
@@ -288,7 +245,7 @@ public class DVCalculator {
 //            }
 //        }
 //    }
-
+    
     public RouterData getRd() {
         return rd;
     }
