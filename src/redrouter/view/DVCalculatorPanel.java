@@ -40,6 +40,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import redrouter.data.Battler;
@@ -126,19 +127,19 @@ public class DVCalculatorPanel extends JPanel {
 
     private void initButtons() {
         gridPanel.removeAll();
-        gridPanel.add(new JLabel("    HP"));
-        gridPanel.add(new JLabel("    Atk"));
-        gridPanel.add(new JLabel("    Def"));
-        gridPanel.add(new JLabel("    Spd"));
-        gridPanel.add(new JLabel("    Spc"));
+        gridPanel.add(new JLabel("HP", SwingConstants.CENTER));
+        gridPanel.add(new JLabel("Atk", SwingConstants.CENTER));
+        gridPanel.add(new JLabel("Def", SwingConstants.CENTER));
+        gridPanel.add(new JLabel("Spd", SwingConstants.CENTER));
+        gridPanel.add(new JLabel("Spc", SwingConstants.CENTER));
         for (int DV = 0; DV < 16; DV++) {
             for (int stat = 0; stat < 5; stat++) {
                 DVButton b = new DVButton(stat, DV);
                 b.addActionListener(dvBtnClick);
                 b.setFocusable(false);
                 btnsDVs[stat][DV] = b;
-                gridPanel.add(b);
-//                gridPanel.add(new DVButtonPanel(b));
+//                gridPanel.add(b);
+                gridPanel.add(new DVButtonPanel(b));
             }
         }
         enableButtons();
@@ -348,29 +349,35 @@ public class DVCalculatorPanel extends JPanel {
         }
 
         final void update() {
-            this.setText(DV + ": " + calc.stats[stat][DV]);
-//            this.setText(calc.stats[stat][DV] + "");
+//            this.setText(DV + ": " + calc.stats[stat][DV]);
+            this.setText(calc.stats[stat][DV] + "");
         }
 
     }
 
     // Meh ...
-//    private class DVButtonPanel extends JPanel {
-//
-//        DVButton dvButton;
-//
-//        public DVButtonPanel(DVButton dvButton) {
-//            super();
+    private class DVButtonPanel extends JPanel {
+
+        DVButton dvButton;
+
+        public DVButtonPanel(DVButton dvButton) {
+            super();
+            this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 //            this.setLayout(new GridLayout(1, 0, 0, 0));
-//            this.dvButton = dvButton;
-//            Dimension preferredSize = this.dvButton.getPreferredSize();
-//            preferredSize.width += 10;
-//            this.dvButton.setPreferredSize(preferredSize);
+            this.dvButton = dvButton;
+            Dimension preferredSize = this.dvButton.getPreferredSize();
+            preferredSize.width = 60;
+            this.dvButton.setPreferredSize(preferredSize);
 //            this.add(new JLabel("    " + dvButton.DV));
-//            this.add(dvButton);
-//        }
-//
-//    }
+            JLabel lblDV = new JLabel("" + dvButton.DV, SwingConstants.RIGHT);
+            lblDV.setPreferredSize(new Dimension(20, lblDV.getPreferredSize().height));
+            this.add(lblDV);
+            this.add(Box.createHorizontalStrut(3));
+            this.add(dvButton);
+        }
+
+    }
+
     private class DVPanel extends JPanel {
 
         public DVPanel(DVCalculator.StatRange[] ranges) {

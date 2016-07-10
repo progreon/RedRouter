@@ -19,6 +19,7 @@ package redrouter;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -65,16 +66,19 @@ public class RedRouter {
         }
 
         private void init() {
+            Color redDefault = new Color(200, 30, 20);
+            Color blueDefault = new Color(20, 30, 200);
+            Color yellowDefault = new Color(210, 210, 20);
+            Color redPressed = new Color(250, 130, 100);
+            Color bluePressed = new Color(130, 170, 250);
+            Color yellowPressed = new Color(250, 250, 120);
             JPanel buttonPanel = new JPanel(new GridLayout(0, 1));
-            JButton btnRed = new JButton(Settings.GAME_RED);
-            JButton btnBlue = new JButton(Settings.GAME_BLUE);
-            JButton btnYellow = new JButton(Settings.GAME_YELLOW);
-            btnRed.setBackground(new Color(200, 30, 20));
-            btnBlue.setBackground(new Color(20, 30, 200));
-            btnYellow.setBackground(new Color(210, 210, 20));
+            JButton btnRed = new MyButton(redDefault, redPressed, Settings.GAME_RED);
+            JButton btnBlue = new MyButton(blueDefault, bluePressed, Settings.GAME_BLUE);
+            JButton btnYellow = new MyButton(yellowDefault, yellowPressed, Settings.GAME_YELLOW);
             btnRed.setForeground(new Color(240, 50, 40));
             btnBlue.setForeground(new Color(40, 100, 250));
-            btnYellow.setForeground(new Color(240, 240, 50));
+            btnYellow.setForeground(new Color(230, 230, 50));
             Font currFont = btnRed.getFont();
             Font newFont = new Font(currFont.getFontName(), currFont.getStyle(), 24);
             btnRed.setFont(newFont);
@@ -113,6 +117,30 @@ public class RedRouter {
         private void selectGame(String game) {
             this.settings = new Settings(game);
             this.setVisible(false);
+        }
+
+        private class MyButton extends JButton {
+
+            private final Color defaultColor;
+            private final Color pressedColor;
+
+            public MyButton(Color defaultColor, Color pressedColor, String text) {
+                super(text);
+                super.setContentAreaFilled(false);
+                this.defaultColor = defaultColor;
+                this.pressedColor = pressedColor;
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                if (getModel().isPressed()) {
+                    g.setColor(pressedColor);
+                } else {
+                    g.setColor(defaultColor);
+                }
+                g.fillRect(0, 0, getWidth(), getHeight());
+                super.paintComponent(g); //To change body of generated methods, choose Tools | Templates.
+            }
         }
     }
 
