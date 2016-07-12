@@ -18,9 +18,11 @@
 package redrouter.view;
 
 import javax.swing.JFrame;
+import javax.swing.JTabbedPane;
 import redrouter.Settings;
 import redrouter.data.DVCalculator;
 import redrouter.data.RouterData;
+import redrouter.route.RouteFactory;
 
 /**
  *
@@ -31,15 +33,20 @@ public class RouterFrame extends JFrame {
     public RouterFrame(Settings settings) {
         super(Settings.TITLE + ": " + settings.game);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        setSize(new Dimension(400, 300));
         RouterData rd = new RouterData(settings);
         DVCalculator calc = new DVCalculator(rd, null);
-        this.setContentPane(new DVCalculatorPanel(calc));
+        RouteFactory rf = new RouteFactory(rd);
+        DVCalculatorPanel dvPanel = new DVCalculatorPanel(calc);
+        RouteView routeView = new RouteView(rf.getExaNidoRoute());
+        routeView.setPreferredSize(dvPanel.getPreferredSize());
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.addTab("DV Calculator", dvPanel);
+        tabbedPane.addTab("Route", routeView);
+        this.setContentPane(tabbedPane);
+        tabbedPane.setSelectedIndex(1);
         this.pack();
-        // To fit the button text when stat >= 100
-        this.setSize(this.getWidth() + 50, this.getHeight());
         this.setLocationRelativeTo(null);
-        this.setResizable(false);
+//        this.setResizable(false);
 
     }
 

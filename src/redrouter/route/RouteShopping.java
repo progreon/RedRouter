@@ -17,30 +17,27 @@
  */
 package redrouter.route;
 
-import redrouter.data.Location;
 import redrouter.data.Protagonist;
-import redrouter.data.RouterData;
 
 /**
+ * TODO
  *
  * @author Marco Willems
  */
-public class Route extends RouteSection {
+public class RouteShopping extends RouteEntry {
 
-    public final Protagonist player;
+    public RouteShopping(RouteSection parentSection, RouteEntryInfo info) {
+        super(parentSection, info);
+    }
 
-    public Route(RouterData rd, String title) {
-        super(null, title);
-        player = new Protagonist(new Location(rd, "Pallet Town"), "Red", "The playable character", null);
+    @Override
+    public Protagonist apply(Protagonist p) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public String toString() {
-        String route = "";
-        for (RouteEntry entry : super.children) {
-            route += entry + "\n\n";
-        }
-        return route;
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

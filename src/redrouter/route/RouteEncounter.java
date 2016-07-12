@@ -17,20 +17,37 @@
  */
 package redrouter.route;
 
+import java.util.ArrayList;
+import java.util.List;
+import redrouter.data.Battler;
 import redrouter.data.Protagonist;
-import redrouter.data.Trainer;
 
 /**
  *
  * @author Marco Willems
  */
-public class RouteBattle extends RouteEntry {
+public class RouteEncounter extends RouteEntry {
 
-    public final Trainer opponent;
+    public final List<Battler> choices;
+    public final int preference;
 
-    public RouteBattle(RouteSection parentSection, RouteEntryInfo info, Trainer opponent) {
+    public RouteEncounter(RouteSection parentSection, RouteEntryInfo info, List<Battler> choices) {
+        this(parentSection, info, choices, 0);
+    }
+
+    public RouteEncounter(RouteSection parentSection, RouteEntryInfo info, List<Battler> choices, int preference) {
         super(parentSection, info);
-        this.opponent = opponent;
+        if (choices == null) {
+            this.choices = new ArrayList<>();
+            this.preference = -1;
+        } else {
+            this.choices = choices;
+            if (preference >= choices.size()) {
+                this.preference = 0;
+            } else {
+                this.preference = preference;
+            }
+        }
     }
 
     @Override
@@ -40,12 +57,16 @@ public class RouteBattle extends RouteEntry {
 
     @Override
     public String toString() {
-        String s = info.toString() + "\n";
-        s += opponent.toString();
-//        if (info != null) {
-//            s += "\n\n\t" + info;
-//        }
-        return s;
+        String str = info + " Choices: ";
+
+        for (int i = 0; i < choices.size(); i++) {
+            str += choices.get(i).toString() + ", ";
+        }
+        if (choices.size() > 0) {
+            str = str.substring(0, str.length() - 2);
+        }
+
+        return str;
     }
 
 }

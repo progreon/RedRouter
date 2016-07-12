@@ -22,16 +22,27 @@ package redrouter.route;
  * @author Marco Willems
  */
 public class RouteEntryInfo {
-    
-    private String info;
 
-    public RouteEntryInfo(String info) {
-        this.info = info;
+    public final String title;
+    public final String description;
+
+    public RouteEntryInfo(String title) {
+        this.title = title;
+        this.description = null;
     }
-    
+
+    public RouteEntryInfo(String title, String description) {
+        this.title = title;
+        this.description = description;
+    }
+
     @Override
     public String toString() {
-        return info;
+        String str = "";
+        str += title == null ? "" : title;
+        str += title == null || description == null ? "" : ": ";
+        str += description == null ? "" : description;
+        return str;
     }
-    
+
 }

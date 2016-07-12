@@ -15,32 +15,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package redrouter.route;
+package redrouter.data;
 
-import redrouter.data.Location;
-import redrouter.data.Protagonist;
-import redrouter.data.RouterData;
+import java.util.List;
 
 /**
+ * Temporary placeholder
  *
  * @author Marco Willems
  */
-public class Route extends RouteSection {
+public class Protagonist extends Trainer {
 
-    public final Protagonist player;
-
-    public Route(RouterData rd, String title) {
-        super(null, title);
-        player = new Protagonist(new Location(rd, "Pallet Town"), "Red", "The playable character", null);
-    }
-
-    @Override
-    public String toString() {
-        String route = "";
-        for (RouteEntry entry : super.children) {
-            route += entry + "\n\n";
-        }
-        return route;
+    public Protagonist(Location location, String name, String info, List<Battler> team) {
+        super(location, name, info, team);
     }
 
 }

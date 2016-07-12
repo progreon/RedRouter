@@ -17,25 +17,30 @@
  */
 package redrouter.route;
 
+import redrouter.data.Protagonist;
+
 /**
  *
  * @author Marco Willems
  */
 public class RouteDirections extends RouteEntry {
-    
-    public final String summary;
 
-    public RouteDirections(String summary) {
-        this.summary = summary;
+    public RouteDirections(RouteSection parentSection, RouteEntryInfo info) {
+        super(parentSection, info);
+    }
+
+    public RouteDirections(RouteSection parentSection, String description) {
+        this(parentSection, new RouteEntryInfo(null, description));
+    }
+
+    @Override
+    public Protagonist apply(Protagonist p) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public String toString() {
-        String s = summary;
-        if (info != null) {
-            s += "\n\t" + info;
-        }
-        return s;
+        return info.toString();
     }
-    
+
 }

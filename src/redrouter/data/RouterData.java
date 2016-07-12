@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import redrouter.Settings;
-import redrouter.route.Route;
-import redrouter.route.RouteBattle;
 
 /**
  * The main factory class for the application
@@ -42,9 +40,11 @@ public class RouterData {
     private final Map<String, EncounterArea> areas = new HashMap<>();
     private final List<EncounterArea> areasByID = new ArrayList<>();
     private final Map<String, Location> locations = new HashMap<>();
-    private final Map<String, Move> moves = new HashMap<>();
     private final Map<String, Pokemon> pokemonByName = new HashMap<>();
     private final Map<Integer, Pokemon> pokemonByID = new HashMap<>();
+    // TODO hoe indexeren?
+    private final Map<String, Move> moves = new HashMap<>();
+    private final Map<String, Trainer> trainers = new HashMap<>();
 
     public RouterData() {
         this(new Settings());
@@ -58,6 +58,7 @@ public class RouterData {
 
         // For dummy data
         initTrainers();
+        initMoves();
     }
 
     public EncounterArea getEncounterArea(Location location, String subArea) {
@@ -90,6 +91,10 @@ public class RouterData {
 
     public Move getMove(String name) {
         return moves.get(Move.getIndexString(name));
+    }
+
+    public Trainer getTrainer(String name) {
+        return trainers.get(Trainer.getIndexString(name));
     }
 
     public Pokemon getPokemon(String name) {
@@ -162,7 +167,14 @@ public class RouterData {
         }
     }
 
-    // TODO initMoves()
+    // TODO dynamic
+    private void initMoves() {
+        for (int i = 0; i <= 5; i++) {
+            addMove("Move" + (i + 1), Types.Type.NORMAL, true, i * 20, 100);
+        }
+    }
+
+    // TODO TEMP with moveString?
     private Move addMove(String name, Types.Type type, boolean isAttack, int power, int accuracy) {
         Move move = new Move(name, type, isAttack, power, accuracy);
         if (!moves.containsKey(move.getIndexString())) {
@@ -170,6 +182,40 @@ public class RouterData {
             return move;
         } else {
             return null;
+        }
+    }
+
+    // TODO: TEMP
+    private void initTrainers() {
+        // TODO: input file!
+        List<Move> moveset = makeMoveSet(0);
+        List<List<Move>> movesets = new ArrayList<>();
+        movesets.add(moveset);
+        List<Battler> team = makeTeam(new Pokemon[]{getPokemon("Bulbasaur")}, new int[]{5}, movesets);
+        Trainer rival1 = new Trainer(new Location(this, "Oak's Lab"), "Rival 1", null, team);
+        trainers.put(rival1.getIndexString(), rival1);
+    }
+
+    // TODO: TEMP
+    private List<Move> makeMoveSet(int num) {
+        List<Move> moveset = new ArrayList<>();
+        for (int i = 1; i <= 4; i++) {
+            moveset.add(addMove("Move" + (i + num), Types.Type.NORMAL, true, i * 20, 100));
+        }
+        return moveset;
+    }
+
+    // TODO: TEMP
+    private List<Battler> makeTeam(Pokemon[] pokemon, int[] levels, List<List<Move>> movesets) {
+        if (pokemon.length != levels.length || pokemon.length != movesets.size()) {
+            return null;
+        } else {
+            List<Battler> team = new ArrayList<>();
+            for (int i = 0; i < pokemon.length; i++) {
+                Battler b = new Battler(pokemon[i], levels[i], movesets.get(i));
+                team.add(b);
+            }
+            return team;
         }
     }
 
@@ -224,67 +270,4 @@ public class RouterData {
     }
 
     // Dummy space
-    private List<Trainer> trainers = new ArrayList<>();
-    private Route exaNidoRoute;
-
-    public Route getExaNidoRoute() {
-        if (exaNidoRoute == null) {
-            initTrainers();
-            initExaNidoRoute();
-        }
-        return exaNidoRoute;
-    }
-
-    public List<Trainer> getTrainers() {
-        if (trainers == null) {
-            initTrainers();
-        }
-        return trainers;
-    }
-
-    private void initTrainers() {
-        // TODO: input file!
-        List<Move> moveset = makeMoveSet(0);
-        List<List<Move>> movesets = new ArrayList<>();
-        movesets.add(moveset);
-        List<Battler> team = makeTeam(new Pokemon[]{getPokemon("Bulbasaur")}, new int[]{5}, movesets);
-        Trainer rival1 = new Trainer("Oak's Lab", "Rival 1", null, team);
-        trainers.add(rival1);
-    }
-
-    // TODO: TEMP
-    private List<Move> makeMoveSet(int num) {
-        List<Move> moveset = new ArrayList<>();
-        for (int i = 1; i <= 4; i++) {
-            moveset.add(addMove("Move" + (i + num), Types.Type.NORMAL, true, i * 20, 100));
-        }
-        return moveset;
-    }
-
-    private List<Battler> makeTeam(Pokemon[] pokemon, int[] levels, List<List<Move>> movesets) {
-        if (pokemon.length != levels.length || pokemon.length != movesets.size()) {
-            return null;
-        } else {
-            List<Battler> team = new ArrayList<>();
-            for (int i = 0; i < pokemon.length; i++) {
-                Battler b = new Battler(pokemon[i], levels[i], movesets.get(i));
-                team.add(b);
-            }
-            return team;
-        }
-    }
-
-    private void initExaNidoRoute() {
-        Route r = new Route();
-
-        r.addDirections("Clear any existing save file by pressing Up + B + Select on the game title screen");
-        r.addDirections("New game: text speed fast, animations off, style shift");
-        r.addDirections("Start a new game, and name yourself and your rival a one character name.");
-
-        r.addDirections("Exit out of your home, and head north towards Route 1. Prof. Oak will stop you and lead you back to his lab. After he and your rival are done talking, select the middle Pokeball on the table to get Squirtle. Name it a one character name, and go to head out of the lab. Your rival will stop you for a battle.");
-        r.addRouteEntry(new RouteBattle(trainers.get(0)));
-
-        exaNidoRoute = r;
-    }
-
 }

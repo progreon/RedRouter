@@ -29,14 +29,14 @@ import javax.imageio.ImageIO;
  * @author Marco Willems
  */
 public class RouteImage extends RouteEntryInfo {
-    
-    private String URI;
 
-    public RouteImage(String title, String URI) {
-        super(title);
+    private final String URI;
+
+    public RouteImage(String title, String description, String URI) {
+        super(title, description);
         this.URI = URI;
     }
-    
+
     public BufferedImage getImage() {
         try {
             return ImageIO.read(new File(URI));
@@ -48,7 +48,7 @@ public class RouteImage extends RouteEntryInfo {
 
     @Override
     public String toString() {
-        return super.toString();
+        return "Image: " + super.toString();
     }
-    
+
 }

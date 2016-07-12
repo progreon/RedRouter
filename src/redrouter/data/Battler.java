@@ -166,7 +166,7 @@ public class Battler {
 
     @Override
     public String toString() {
-        String battler = pokemon.name + " Lv." + level;
+        String battler = (pokemon == null ? "-----" : pokemon.name + " Lv." + level);
 //        String moves = "";
 //        if (moveset.size() > 0) {
 //            for (Move m : moveset) {

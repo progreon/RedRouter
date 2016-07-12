@@ -19,6 +19,7 @@ package redrouter.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  *
@@ -26,12 +27,12 @@ import java.util.List;
  */
 public class Trainer {
 
-    public final String location;
+    public final Location location;
     public final String name;
     public final String info;
     public final List<Battler> team;
 
-    public Trainer(String location, String name, String info, List<Battler> team) {
+    public Trainer(Location location, String name, String info, List<Battler> team) {
         this.location = location;
         this.name = name;
         this.info = info;
@@ -42,9 +43,18 @@ public class Trainer {
         }
     }
 
+    // TODO: TEMP
+    public static String getIndexString(String name) {
+        return name.toUpperCase(Locale.ROOT);
+    }
+
+    public String getIndexString() {
+        return getIndexString(name);
+    }
+
     @Override
     public String toString() {
-        String trainer = name + "\nLocation: " + location + "\nInfo: " + (info == null ? "" : info) + "\nTeam: ";
+        String trainer = name + "\nLocation: " + location.name + "\nInfo: " + (info == null ? "" : info) + "\nTeam: ";
         for (Battler b : team) {
             trainer += "\t" + b.toString();
         }

@@ -36,10 +36,14 @@ public class Location {
     public final BufferedImage image;
     public final List<EncounterArea> encounterAreas = new ArrayList<>();
 
-    private Location(RouterData rd, String name) {
+    // TODO private because dynamic?
+//    private Location(RouterData rd, String name) {
+    public Location(RouterData rd, String name) {
         this(rd, name, null);
     }
 
+    // TODO private because dynamic?
+//    private Location(RouterData rd, String name, BufferedImage image) {
     public Location(RouterData rd, String name, BufferedImage image) {
         this.rd = rd;
         this.name = name;

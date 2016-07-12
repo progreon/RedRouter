@@ -18,44 +18,43 @@
 package redrouter.route;
 
 import java.util.HashMap;
+import redrouter.data.Protagonist;
 
 /**
  *
  * @author Marco Willems
  */
 public class RouteOr extends RouteEntry {
-    
-    private final Route parentRoute;
-    private final HashMap<String, Route> subRoutes; // name -> subroute
+
+    private final HashMap<String, RouteSection> subRoutes; // name (ID) -> subroute
     private String selectedSubRouteName;
 
-    public RouteOr(Route parentRoute, RouteEntryInfo info) {
-        super(info);
-        this.parentRoute = parentRoute;
+    public RouteOr(RouteSection parentSection, RouteEntryInfo info) {
+        super(parentSection, info);
         this.subRoutes = new HashMap<>();
         this.selectedSubRouteName = null;
     }
-    
-    public boolean addSubRoute(String subRouteName, Route subRoute) {
+
+    public boolean addSubRoute(String subRouteName, RouteSection subRoute) {
         boolean contains = subRoutes.containsKey(subRouteName);
         if (!contains) {
             subRoutes.put(subRouteName, subRoute);
         }
         return !contains;
     }
-    
-    public Route getSelectedSubRoute() {
+
+    public RouteSection getSelectedSubRoute() {
         return subRoutes.get(selectedSubRouteName);
     }
-    
+
     public String getSelectedSubRouteName() {
         return this.selectedSubRouteName;
     }
-    
-    public HashMap<String, Route> getSubRoutes() {
+
+    public HashMap<String, RouteSection> getSubRoutes() {
         return this.subRoutes;
     }
-    
+
     public boolean selectSubRoute(String subRouteName) {
         boolean available = subRoutes.containsKey(subRouteName);
         if (available) {
@@ -65,8 +64,12 @@ public class RouteOr extends RouteEntry {
     }
 
     @Override
+    public Protagonist apply(Protagonist p) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
     public String toString() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
 }

@@ -24,7 +24,8 @@ package redrouter;
 public class Settings {
 
     // TODO from settings file?
-    public static final String TITLE = "Red Router";
+//    public static final String TITLE = "Gen I DV Calculator";
+    public static final String TITLE = "Gen I Router";
 
     public static final String GAME_RED = "Pokemon Red";
     public static final String GAME_BLUE = "Pokemon Blue";

@@ -27,6 +27,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import redrouter.view.RouterFrame;
 
 /**
@@ -37,11 +38,13 @@ public class RedRouter {
 
     public RedRouter() {
         GameChooserDialog gcd = new GameChooserDialog(null);
-        gcd.setVisible(true);
-        if (gcd.settings != null) {
-            RouterFrame routerFrame = new RouterFrame(gcd.settings);
-            routerFrame.setVisible(true);
-        }
+//        gcd.setVisible(true);
+//        if (gcd.settings != null) {
+//            RouterFrame routerFrame = new RouterFrame(gcd.settings);
+//            routerFrame.setVisible(true);
+//        }
+        RouterFrame rf = new RouterFrame(new Settings(Settings.GAME_RED));
+        rf.setVisible(true);
 //        System.out.println(routeFactory.getExaNidoRoute());
     }
 
@@ -49,7 +52,13 @@ public class RedRouter {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        RedRouter r = new RedRouter();
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                RedRouter r = new RedRouter();
+            }
+        });
     }
 
     private class GameChooserDialog extends JDialog {

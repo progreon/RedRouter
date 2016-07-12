@@ -17,22 +17,38 @@
  */
 package redrouter.route;
 
+import java.util.List;
+import redrouter.data.Protagonist;
+
 /**
  *
  * @author Marco Willems
  */
 public abstract class RouteEntry {
-    
-    public RouteEntryInfo info;
 
-    public RouteEntry() {
+    public RouteEntryInfo info;
+    public RouteSection parent;
+    public final List<RouteEntry> children;
+
+//    public RouteEntry() {
+//    }
+    public RouteEntry(RouteSection parentSection, RouteEntryInfo info) {
+        this(parentSection, info, null);
     }
 
-    public RouteEntry(RouteEntryInfo info) {
+    public RouteEntry(RouteSection parentSection, RouteEntryInfo info, List<RouteEntry> children) {
+        this.parent = parentSection;
         this.info = info;
+        this.children = children;
+    }
+
+    public abstract Protagonist apply(Protagonist p);
+
+    public boolean hasChildren() {
+        return children != null && !children.isEmpty();
     }
 
     @Override
     public abstract String toString();
-    
+
 }
