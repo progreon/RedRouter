@@ -38,14 +38,11 @@ import redrouter.route.RouteEntry;
 public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
 
     protected final RouteTree tree;
-    public RouteEntry routeEntry;
+    protected RouteEntry routeEntry;
 
     protected JPanel view;
-    protected final Border border;
-
-    protected JLabel lblInfo;
-    protected String labelText;
-    protected final int initAvailableWidth = 400;
+    private final Border border;
+    private final int initAvailableWidth = 400;
 
     public RouteEntryTreeNode(RouteTree tree, RouteEntry routeEntry) {
         this.tree = tree;
@@ -58,42 +55,19 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         initRender_();
     }
 
-    public JComponent getRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        if (selected) {
-            view.setBackground(tree.nodeSelectedColor);
-        } else {
-            view.setBackground(tree.nodeBackgroundColor);
-        }
-        setLabelText(lblInfo, labelText, availableWidth - getBorderWidth() - 2);
-        int preferredHeight = 0;
-        BorderLayout layout = (BorderLayout) view.getLayout();
-        if (layout.getLayoutComponent(BorderLayout.NORTH) != null) {
-            preferredHeight += layout.getLayoutComponent(BorderLayout.NORTH).getPreferredSize().height;
-        }
-        if (layout.getLayoutComponent(BorderLayout.NORTH) != null && layout.getLayoutComponent(BorderLayout.CENTER) != null) {
-            preferredHeight += layout.getVgap();
-        }
-        if (layout.getLayoutComponent(BorderLayout.CENTER) != null) {
-            preferredHeight += layout.getLayoutComponent(BorderLayout.CENTER).getPreferredSize().height;
-        }
-        if (layout.getLayoutComponent(BorderLayout.CENTER) != null && layout.getLayoutComponent(BorderLayout.SOUTH) != null) {
-            preferredHeight += layout.getVgap();
-        }
-        if (layout.getLayoutComponent(BorderLayout.SOUTH) != null) {
-            preferredHeight += layout.getLayoutComponent(BorderLayout.SOUTH).getPreferredSize().height;
-        }
-
-        view.setPreferredSize(new Dimension(availableWidth, preferredHeight + getBorderHeight()));
-        return view;
+    private int getBorderWidth() {
+        return view.getInsets().left + view.getInsets().right;
     }
 
-    protected abstract JComponent getSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus);
+    private int getBorderHeight() {
+        return view.getInsets().top + view.getInsets().bottom;
+    }
 
     private void initRender_() {
         view = new JPanel(new BorderLayout());
         view.setBorder(border);
 
-        initRender();
+        initRender(initAvailableWidth - getBorderWidth());
         view.addMouseListener(new MouseAdapter() {
 
             @Override
@@ -116,18 +90,41 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         view.setPreferredSize(new Dimension(initAvailableWidth, view.getPreferredSize().height));
     }
 
-    protected abstract void initRender();
+    protected abstract void initRender(int availableWidth);
 
-    protected int getBorderWidth() {
-        return view.getInsets().left + view.getInsets().right;
+    public JComponent getRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+        if (selected) {
+            view.setBackground(tree.nodeSelectedColor);
+        } else {
+            view.setBackground(tree.nodeBackgroundColor);
+        }
+        doSizedRender(availableWidth - getBorderWidth() - 2, selected, expanded, leaf, row, hasFocus);
+        int preferredHeight = 0;
+        BorderLayout layout = (BorderLayout) view.getLayout();
+        if (layout.getLayoutComponent(BorderLayout.NORTH) != null) {
+            preferredHeight += layout.getLayoutComponent(BorderLayout.NORTH).getPreferredSize().height;
+        }
+        if (layout.getLayoutComponent(BorderLayout.NORTH) != null && layout.getLayoutComponent(BorderLayout.CENTER) != null) {
+            preferredHeight += layout.getVgap();
+        }
+        if (layout.getLayoutComponent(BorderLayout.CENTER) != null) {
+            preferredHeight += layout.getLayoutComponent(BorderLayout.CENTER).getPreferredSize().height;
+        }
+        if (layout.getLayoutComponent(BorderLayout.CENTER) != null && layout.getLayoutComponent(BorderLayout.SOUTH) != null) {
+            preferredHeight += layout.getVgap();
+        }
+        if (layout.getLayoutComponent(BorderLayout.SOUTH) != null) {
+            preferredHeight += layout.getLayoutComponent(BorderLayout.SOUTH).getPreferredSize().height;
+        }
+
+        view.setPreferredSize(new Dimension(availableWidth, preferredHeight + getBorderHeight()));
+        return view;
     }
 
-    protected int getBorderHeight() {
-        return view.getInsets().top + view.getInsets().bottom;
-    }
+    protected abstract void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus);
 
     protected void setLabelText(JLabel label, String text, int labelWidth) {
-        label.setText("<html><body>" + wrappedHTMLText(text, 8, label.getFontMetrics(label.getFont()), labelWidth) + "</body></html>");
+        label.setText(wrappedHTMLText(text, 8, label.getFontMetrics(label.getFont()), labelWidth));
     }
 
     protected String wrappedHTMLText(String text, int tabSize, FontMetrics fm, int width) {
@@ -155,6 +152,7 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         }
         wrapped = wrapped.substring(0, wrapped.length() - 1);
         wrapped = wrapped.replaceAll(" ", "&nbsp;");
+        wrapped = "<html><body>" + wrapped + "</body></html>";
 
         return wrapped;
     }

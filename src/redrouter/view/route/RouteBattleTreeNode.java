@@ -18,7 +18,6 @@
 package redrouter.view.route;
 
 import java.awt.BorderLayout;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import redrouter.data.Battler;
 import redrouter.data.Move;
@@ -30,42 +29,43 @@ import redrouter.route.RouteBattle;
  */
 public class RouteBattleTreeNode extends RouteEntryTreeNode {
 
+    private JLabel lblInfo;
+    private String labelText;
+
     public RouteBattleTreeNode(RouteTree tree, RouteBattle routeBattle) {
         super(tree, routeBattle);
     }
 
     @Override
-    protected JComponent getSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        return view;
+    protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+        setLabelText(lblInfo, labelText, availableWidth);
     }
 
     @Override
-    protected void initRender() {
-        int leftoverWidth = initAvailableWidth - getBorderWidth();
-
+    protected void initRender(int availableWidth) {
         String text;
         JLabel lbl;
         RouteBattle rb = (RouteBattle) routeEntry;
         text = rb.info.toString() + "\n";
         text += (rb.opponent.info == null ? "" : "\tInfo: " + rb.opponent.info + "\n");
-        text += "Team:\n";
+//        text += "Team:\n";
 //        for (Battler b : rb.opponent.team) {
 //            text += "\t" + b.toString();
 //        }
         lbl = new JLabel();
-        setLabelText(lbl, text, leftoverWidth);
-//                lbl.setText("<html><body>" + wrappedText(text, 8, lbl.getFontMetrics(lbl.getFont()), leftoverWidth - 0) + "</body></html>");
+        setLabelText(lbl, text, availableWidth);
         view.add(lbl);
         JLabel lblTeam = new JLabel();
         String teamTable = "<html><body><table border=\"1\">";
+        teamTable += "<tr><th>Party Pkmn</th><th>Moveset</th></tr>";
         for (Battler b : rb.opponent.team) {
             teamTable += "<tr>";
-            teamTable += "<th>" + b.toString() + "</th>";
-            teamTable += "<th>";
+            teamTable += "<td>" + b.toString() + " (" + b.getHP() + "hp)" + "</td>";
+            teamTable += "<td>";
             for (Move m : b.moveset) {
                 teamTable += m.toString() + "<br>";
             }
-            teamTable += "</th>";
+            teamTable += "</td>";
             teamTable += "</tr>";
         }
         teamTable += "</table></body></html>";

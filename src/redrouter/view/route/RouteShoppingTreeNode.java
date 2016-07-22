@@ -17,7 +17,6 @@
  */
 package redrouter.view.route;
 
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import redrouter.route.RouteShopping;
 
@@ -27,29 +26,29 @@ import redrouter.route.RouteShopping;
  */
 public class RouteShoppingTreeNode extends RouteEntryTreeNode {
 
+    protected JLabel lblInfo;
+    protected String labelText;
+
     public RouteShoppingTreeNode(RouteTree tree, RouteShopping routeOr) {
         super(tree, routeOr);
     }
 
     @Override
-    protected JComponent getSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        return view;
-    }
-
-    @Override
-    protected void initRender() {
-        int leftoverWidth = initAvailableWidth - getBorderWidth();
-
+    protected void initRender(int availableWidth) {
         String text;
         JLabel lbl;
         text = routeEntry.toString();
         lbl = new JLabel();
-        setLabelText(lbl, text, leftoverWidth);
-//                lbl.setText("<html><body>" + wrappedText(text, 8, lbl.getFontMetrics(lbl.getFont()), leftoverWidth - 0) + "</body></html>");
+        setLabelText(lbl, text, availableWidth);
         view.add(lbl);
 
         labelText = text;
         lblInfo = lbl;
+    }
+
+    @Override
+    protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+        setLabelText(lblInfo, labelText, availableWidth);
     }
 
 }

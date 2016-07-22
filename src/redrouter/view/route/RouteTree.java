@@ -27,7 +27,6 @@ import javax.swing.tree.DefaultTreeCellEditor;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import redrouter.route.*;
 
@@ -37,7 +36,7 @@ import redrouter.route.*;
  */
 public class RouteTree extends JTree {
 
-    private Route route;
+    private final Route route;
 
     protected boolean isEditMode = false;
     public final Color backgroundColor = new Color(225, 225, 175);
@@ -168,20 +167,21 @@ public class RouteTree extends JTree {
         @Override
         public boolean isCellEditable(EventObject event) {
             boolean editable = false;
-            if (event != null) {
-                if (event.getSource() instanceof RouteTree && event instanceof MouseEvent) {
-                    setTree((RouteTree) event.getSource());
-                    TreePath path = tree.getPathForLocation(
-                            ((MouseEvent) event).getX(),
-                            ((MouseEvent) event).getY());
-                    lastRow = tree.getLeadSelectionRow();
-                    if (!tree.getSelectionModel().isPathSelected(path)) {
-                        tree.setSelectionPath(path);
-                    }
-                    if (tree.getSelectionModel().isPathSelected(path)) {
-                        editable = true;
-                    }
+            if (event != null && event.getSource() instanceof RouteTree && event instanceof MouseEvent) {
+                setTree((RouteTree) event.getSource());
+                int row = tree.getRowForLocation(
+                        ((MouseEvent) event).getX(),
+                        ((MouseEvent) event).getY());
+                if (!tree.getSelectionModel().isRowSelected(row)) {
+                    tree.setSelectionRow(row);
                 }
+                lastRow = tree.getLeadSelectionRow();
+                if (tree.getSelectionModel().isRowSelected(row)) {
+                    editable = true;
+                }
+            }
+            if (event == null) {
+                editable = true;
             }
             if (!realEditor.isCellEditable(event)) {
                 return false;

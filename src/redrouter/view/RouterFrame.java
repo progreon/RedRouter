@@ -17,6 +17,7 @@
  */
 package redrouter.view;
 
+import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import redrouter.Settings;
@@ -45,6 +46,7 @@ public class RouterFrame extends JFrame {
         this.setContentPane(tabbedPane);
         tabbedPane.setSelectedIndex(1);
         this.pack();
+        this.setMinimumSize(new Dimension(this.getPreferredSize().width * 3 / 4, this.getPreferredSize().height * 3 / 4));
         this.setLocationRelativeTo(null);
 //        this.setResizable(false);
 

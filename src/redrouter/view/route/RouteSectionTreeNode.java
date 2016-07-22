@@ -18,7 +18,6 @@
 package redrouter.view.route;
 
 import java.awt.Font;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import redrouter.route.RouteEntry;
 import redrouter.route.RouteSection;
@@ -29,19 +28,15 @@ import redrouter.route.RouteSection;
  */
 public class RouteSectionTreeNode extends RouteEntryTreeNode {
 
+    protected JLabel lblInfo;
+    protected String labelText;
+
     public RouteSectionTreeNode(RouteTree tree, RouteSection routeSection) {
         super(tree, routeSection);
     }
 
     @Override
-    protected JComponent getSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        return view;
-    }
-
-    @Override
-    protected void initRender() {
-        int leftoverWidth = initAvailableWidth - getBorderWidth();
-
+    protected void initRender(int availableWidth) {
         String text;
         JLabel lbl;
         text = ((RouteSection) routeEntry).info.toString();
@@ -57,12 +52,16 @@ public class RouteSectionTreeNode extends RouteEntryTreeNode {
         }
         float thisFontSize = Math.max(minFontSize, maxFontSize - level * 2);
         lbl.setFont(font.deriveFont(thisFontSize));
-        setLabelText(lbl, text, leftoverWidth);
-//                lbl.setText("<html><body>" + wrappedText(text, 8, lbl.getFontMetrics(lbl.getFont()), leftoverWidth - 0) + "</body></html>");
+        setLabelText(lbl, text, availableWidth);
         view.add(lbl);
 
         labelText = text;
         lblInfo = lbl;
+    }
+
+    @Override
+    protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+        setLabelText(lblInfo, labelText, availableWidth);
     }
 
 }

@@ -17,7 +17,6 @@
  */
 package redrouter.view.route;
 
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import redrouter.route.RouteDirections;
 
@@ -27,25 +26,25 @@ import redrouter.route.RouteDirections;
  */
 public class RouteDirectionsTreeNode extends RouteEntryTreeNode {
 
+    private JLabel lblInfo;
+    private String labelText;
+
     public RouteDirectionsTreeNode(RouteTree tree, RouteDirections routeDirections) {
         super(tree, routeDirections);
     }
 
     @Override
-    protected JComponent getSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        return view;
+    protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+        setLabelText(lblInfo, labelText, availableWidth);
     }
 
     @Override
-    protected void initRender() {
-        int leftoverWidth = initAvailableWidth - getBorderWidth();
-
+    protected void initRender(int availableWidth) {
         String text;
         JLabel lbl;
         text = routeEntry.toString();
         lbl = new JLabel();
-        setLabelText(lbl, text, leftoverWidth);
-//                lbl.setText("<html><body>" + wrappedText(text, 8, lbl.getFontMetrics(lbl.getFont()), leftoverWidth - 0) + "</body></html>");
+        setLabelText(lbl, text, availableWidth);
         view.add(lbl);
 
         labelText = text;

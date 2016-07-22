@@ -22,7 +22,6 @@ import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import redrouter.data.Battler;
@@ -34,40 +33,41 @@ import redrouter.route.RouteEncounter;
  */
 public class RouteEncounterTreeNode extends RouteEntryTreeNode {
 
+    private JLabel lblInfo;
+    private String labelText;
+
     public RouteEncounterTreeNode(RouteTree tree, RouteEncounter routeEncounter) {
         super(tree, routeEncounter);
     }
 
     @Override
-    protected JComponent getSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        return view;
-    }
-
-    @Override
-    protected void initRender() {
-        int leftoverWidth = initAvailableWidth - getBorderWidth();
-
+    protected void initRender(int availableWidth) {
         String text;
         JLabel lbl;
         RouteEncounter re = (RouteEncounter) routeEntry;
         text = re.info + "\n";
         lbl = new JLabel();
-        setLabelText(lbl, text, leftoverWidth);
-//                lbl.setText("<html><body>" + wrappedText(text, 8, lbl.getFontMetrics(lbl.getFont()), leftoverWidth - 0) + "</body></html>");
+        setLabelText(lbl, text, availableWidth);
         view.add(lbl);
         JPanel southPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         southPanel.setOpaque(false);
         southPanel.add(new JLabel("Defeated pokemon:"));
         List<Battler> choices = new ArrayList<>();
-        choices.add(new Battler(null, 0, null));
-        choices.addAll(re.choices);
+//        choices.add(Battler.NULL);
+        choices.add(null);
+        choices.addAll(re.getChoices());
         JComboBox<Battler> cmbChoices = new JComboBox<>(choices.toArray(new Battler[0]));
-        cmbChoices.setSelectedIndex(0);
+        cmbChoices.setSelectedIndex(re.getPreference() + 1);
         southPanel.add(cmbChoices);
         view.add(southPanel, BorderLayout.SOUTH);
 
         labelText = text;
         lblInfo = lbl;
+    }
+
+    @Override
+    protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+        setLabelText(lblInfo, labelText, availableWidth);
     }
 
 }
