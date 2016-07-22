@@ -28,8 +28,8 @@ import redrouter.route.RouteSection;
  */
 public class RouteSectionTreeNode extends RouteEntryTreeNode {
 
-    protected JLabel lblInfo;
-    protected String labelText;
+    private JLabel lblInfo;
+    private String labelText;
 
     public RouteSectionTreeNode(RouteTree tree, RouteSection routeSection) {
         super(tree, routeSection);

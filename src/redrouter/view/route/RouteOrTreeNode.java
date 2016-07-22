@@ -26,8 +26,8 @@ import redrouter.route.RouteOr;
  */
 public class RouteOrTreeNode extends RouteEntryTreeNode {
 
-    protected JLabel lblInfo;
-    protected String labelText;
+    private JLabel lblInfo;
+    private String labelText;
 
     public RouteOrTreeNode(RouteTree tree, RouteOr routeOr) {
         super(tree, routeOr);

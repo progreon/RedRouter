@@ -26,8 +26,8 @@ import redrouter.route.RouteShopping;
  */
 public class RouteShoppingTreeNode extends RouteEntryTreeNode {
 
-    protected JLabel lblInfo;
-    protected String labelText;
+    private JLabel lblInfo;
+    private String labelText;
 
     public RouteShoppingTreeNode(RouteTree tree, RouteShopping routeOr) {
         super(tree, routeOr);
