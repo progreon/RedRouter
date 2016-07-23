@@ -168,15 +168,25 @@ public class RouterData {
     }
 
     // TODO dynamic
-    private void initMoves() {
-        for (int i = 0; i <= 5; i++) {
-            addMove("Move" + (i + 1), Types.Type.NORMAL, true, i * 20, 100);
+    private void initMoves()  {
+        List<String> lMoveList = getLinesFromFile(settings.getMoveFile());
+        try {
+            for (int i=0;i<lMoveList.size();i++){
+                String lMove = lMoveList.get(i);
+                if (!lMove.equals("") && !lMove.substring(0, 2).equals("//")) {
+                    if (addMove(lMove, settings.getPokemonFile(), i) == null) {
+                            throw new ParserException(settings.getMoveFile(), i, "This move already exists!");
+                    }
+                }
+            }
+        } catch (ParserException pE) {
+            Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, pE);
         }
     }
 
     // TODO TEMP with moveString?
-    private Move addMove(String name, Types.Type type, boolean isAttack, int power, int accuracy) {
-        Move move = new Move(name, type, isAttack, power, accuracy);
+    private Move addMove(String pokemonString, String file, int line) throws ParserException{
+        Move move = new Move(pokemonString,file,line);
         if (!moves.containsKey(move.getIndexString())) {
             moves.put(move.getIndexString(), move);
             return move;
@@ -200,7 +210,7 @@ public class RouterData {
     private List<Move> makeMoveSet(int num) {
         List<Move> moveset = new ArrayList<>();
         for (int i = 1; i <= 4; i++) {
-            moveset.add(addMove("Move" + (i + num), Types.Type.NORMAL, true, i * 20, 100));
+           // moveset.add(addMove("Move" + (i + num), Types.Type.NORMAL, true, i * 20, 100,35));
         }
         return moveset;
     }

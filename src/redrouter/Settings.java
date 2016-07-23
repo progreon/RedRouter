@@ -36,6 +36,7 @@ public class Settings {
     private final String encountersFileYellow = "encounters_yellow.txt";
     private final String locationsFile = "locations.txt";
     private final String pokemonFile = "pokemon.txt";
+    private final String mMoveFile = "moves.txt";
 
     public final String game;
 
@@ -81,4 +82,7 @@ public class Settings {
         return pokemonFile;
     }
 
+    public String getMoveFile() {
+        return mMoveFile;
+    }
 }
