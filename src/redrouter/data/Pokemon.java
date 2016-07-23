@@ -44,6 +44,7 @@ public class Pokemon {
     public final int spd;
     public final int spc;
     // TODO: growth rate
+//    private ExperienceGroup expGroup;
 
     private final List<Move> defaultMoves = new ArrayList<>();
     private final Map<Integer, List<Move>> learnedMoves = new HashMap<>();
@@ -124,6 +125,7 @@ public class Pokemon {
         return moveset;
     }
 
+    // TODO: fix move.pokemon.add(this)
     public boolean addLearnedMove(int level, Move move) {
         if (level == 0) {
             if (!this.defaultMoves.contains(move)) {
@@ -150,6 +152,7 @@ public class Pokemon {
         return this.learnedMoves;
     }
 
+    // TODO: fix move.pokemon.add(this)
     public boolean addTmMove(Move move) {
         if (!this.tmMoves.contains(move)) {
             this.tmMoves.add(move);

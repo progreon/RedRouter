@@ -17,34 +17,32 @@
  */
 package redrouter.data;
 
-import java.util.List;
-
 /**
- * Temporary placeholder
  *
  * @author Marco Willems
  */
-public class Player extends Trainer {
-
-    private boolean atkBadge = false;
-    private boolean defBadge = false;
-    private boolean spdBadge = false;
-    private boolean spcBadge = false;
-
-    public Player(Location location, String name, String info, List<Battler> team) {
-        super(location, name, info, team);
+public class ExperienceGroup {
+    
+    public enum Group {
+        FAST, MEDIUM_FAST, MEDIUM_SLOW, SLOW
     }
+    
+    private Group group;
 
-    public void swapToFront(Battler battler) {
-        int index = super.team.indexOf(battler);
-        if (index != -1) {
-            super.team.set(index, super.team.get(0));
-            super.team.set(0, battler);
-        }
+    public ExperienceGroup(Group group) {
+        this.group = group;
     }
-
-    public Battler getLead() {
-        return super.team.get(0);
+    
+    public int getLevel(int totalExp) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
+    
+    public int getDeltaExp(int fromLevel, int toLevel) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    public int getTotalExp(int level) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
 }

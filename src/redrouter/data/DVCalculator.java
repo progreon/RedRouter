@@ -17,9 +17,7 @@
  */
 package redrouter.data;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,7 +39,6 @@ public class DVCalculator {
     public final int defaultLevel = 3;
     private Battler battler;
     public final int maxEncounterRate = 255;
-    private boolean[][] isPossibleDV; // [hp, atk, def, spd, spc][0..15] -> true/false
     public final int[][] stats;
 
     public DVCalculator(RouterData rd, Battler battler) {
@@ -50,22 +47,16 @@ public class DVCalculator {
         if (this.battler == null) {
             this.battler = getDefaultBattler();
         }
-        this.isPossibleDV = new boolean[5][16];
         this.stats = new int[5][16];
         init();
     }
 
     private Battler getDefaultBattler() {
-        return new Battler(rd.getPokemon(defaultPokemon), defaultLevel, null);
+        return new Battler(rd.getPokemon(defaultPokemon), null, defaultLevel);
     }
 
     private void init() {
         initPossibleDVCombos();
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 16; j++) {
-                this.isPossibleDV[i][j] = true;
-            }
-        }
         calculateStats();
     }
 
@@ -75,7 +66,7 @@ public class DVCalculator {
     }
 
     public void levelUp() {
-        battler.level++;
+        battler.level++; // TODO: method Battler::levelUp() or sth
         calculateStats();
     }
 
@@ -87,7 +78,7 @@ public class DVCalculator {
     public void resetSelected() {
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 16; j++) {
-                this.isPossibleDV[i][j] = true;
+                battler.possibleDVs[i][j] = true;
             }
         }
     }
@@ -97,12 +88,12 @@ public class DVCalculator {
         calculateStats();
     }
 
-    public boolean setStat(int stat, int dv) {
-        if (isPossibleDV[stat][dv]) {
+    public boolean setDV(int stat, int dv) {
+        if (battler.possibleDVs[stat][dv]) {
             int val = stats[stat][dv];
-            for (int i = 0; i < isPossibleDV[stat].length; i++) {
+            for (int i = 0; i < battler.possibleDVs[stat].length; i++) {
                 if (stats[stat][i] != val) {
-                    isPossibleDV[stat][i] = false;
+                    battler.possibleDVs[stat][i] = false;
                 }
             }
             filterDVs();
@@ -113,10 +104,10 @@ public class DVCalculator {
     }
 
     public boolean setStatExact(int stat, int dv) {
-        if (isPossibleDV[stat][dv]) {
-            for (int i = 0; i < isPossibleDV[stat].length; i++) {
+        if (battler.possibleDVs[stat][dv]) {
+            for (int i = 0; i < battler.possibleDVs[stat].length; i++) {
                 if (i != dv) {
-                    isPossibleDV[stat][i] = false;
+                    battler.possibleDVs[stat][i] = false;
                 }
             }
             filterDVs();
@@ -138,23 +129,12 @@ public class DVCalculator {
         init();
     }
 
-    public StatRange[] getStatRanges() {
-        StatRange[] ranges = new StatRange[5];
-
-        for (int s = 0; s < 5; s++) {
-            ranges[s] = new StatRange();
-            for (int DV = 0; DV < 16; DV++) {
-                if (isPossibleDV[s][DV]) {
-                    ranges[s].add(DV);
-                }
-            }
-        }
-
-        return ranges;
+    public Battler.DVRange[] getDVRanges() {
+        return battler.getDVRanges();
     }
 
     public boolean isPossibleDV(int stat, int dv) {
-        return isPossibleDV[stat][dv];
+        return battler.possibleDVs[stat][dv];
     }
 
     private void calculateStats() {
@@ -170,17 +150,17 @@ public class DVCalculator {
     private void filterDVs() {
         boolean[][] newPossibleDVs = new boolean[5][16];
         for (int atk = 0; atk < 16; atk++) {
-            if (isPossibleDV[1][atk]) {
+            if (battler.possibleDVs[1][atk]) {
                 for (int def = 0; def < 16; def++) {
-                    if (isPossibleDV[2][def]) {
+                    if (battler.possibleDVs[2][def]) {
                         for (int spd = 0; spd < 16; spd++) {
-                            if (isPossibleDV[3][spd]) {
+                            if (battler.possibleDVs[3][spd]) {
                                 for (int spc = 0; spc < 16; spc++) {
-                                    if (isPossibleDV[4][spc]) {
+                                    if (battler.possibleDVs[4][spc]) {
                                         int hp = 8 * (atk % 2) + 4 * (def % 2) + 2 * (spd % 2) + (spc % 2);
                                         int i = (atk << 12) + (def << 8) + (spd << 4) + spc;
                                         int encounterRate = battler.catchLocation == null ? maxEncounterRate : battler.catchLocation.encounterRate;
-                                        if (isPossibleDV[0][hp] && (!possibleDVCombos.containsKey(encounterRate) || possibleDVCombos.get(encounterRate)[i])) {
+                                        if (battler.possibleDVs[0][hp] && (!possibleDVCombos.containsKey(encounterRate) || possibleDVCombos.get(encounterRate)[i])) {
                                             newPossibleDVs[0][hp] = true;
                                             newPossibleDVs[1][atk] = true;
                                             newPossibleDVs[2][def] = true;
@@ -195,10 +175,10 @@ public class DVCalculator {
                 }
             }
         }
-        isPossibleDV = newPossibleDVs;
+        battler.possibleDVs = newPossibleDVs;
     }
 
-    public void initPossibleDVCombos() {
+    private void initPossibleDVCombos() {
         if (possibleDVCombos == null) {
             possibleDVCombos = new HashMap<>();
             int[] encounterRates = new int[]{3, 5, 8, 10, 15, 20, 25, 30};
@@ -238,6 +218,10 @@ public class DVCalculator {
         }
     }
 
+    public RouterData getRd() {
+        return rd;
+    }
+
 //    private static void printPossibleDVCombos(int encounterRate) {
 //        for (int i = 0; i < possibleDVCombos.get(encounterRate).length; i++) {
 //            if (possibleDVCombos.get(encounterRate)[i]) {
@@ -245,50 +229,4 @@ public class DVCalculator {
 //            }
 //        }
 //    }
-    
-    public RouterData getRd() {
-        return rd;
-    }
-
-    public class StatRange {
-
-        private final List<Integer> dvs = new ArrayList<>();
-
-        public void add(int dv) {
-            dvs.add(dv);
-        }
-
-        private Integer getMin() {
-            int min = 15;
-            for (Integer dv : dvs) {
-                if (dv < min) {
-                    min = dv;
-                }
-            }
-            return min;
-        }
-
-        private Integer getMax() {
-            int max = 0;
-            for (Integer dv : dvs) {
-                if (dv > max) {
-                    max = dv;
-                }
-            }
-            return max;
-        }
-
-        @Override
-        public String toString() {
-            if (dvs.size() == 1) {
-                return dvs.get(0).toString();
-            } else if (dvs.size() == 2) {
-                return getMin() + "/" + getMax();
-            } else {
-                return getMin() + "-" + getMax();
-            }
-        }
-
-    }
-
 }

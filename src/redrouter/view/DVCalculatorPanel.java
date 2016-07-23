@@ -92,7 +92,7 @@ public class DVCalculatorPanel extends JPanel {
                 if ((e.getModifiers() & ActionEvent.CTRL_MASK) > 0) {
                     DVCalculatorPanel.this.calc.setStatExact(b.stat, b.DV);
                 } else {
-                    DVCalculatorPanel.this.calc.setStat(b.stat, b.DV);
+                    DVCalculatorPanel.this.calc.setDV(b.stat, b.DV);
                 }
 //                System.out.println("Clicked stat:" + b.stat + " DV:" + b.DV);
                 enableButtons();
@@ -108,7 +108,7 @@ public class DVCalculatorPanel extends JPanel {
         this.add(settingsPanel, BorderLayout.EAST);
 
         JPanel pnlSouth = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        this.dvPanel = new DVPanel(this.calc.getStatRanges());
+        this.dvPanel = new DVPanel(this.calc.getDVRanges());
         pnlSouth.add(this.dvPanel, BorderLayout.SOUTH);
         this.add(pnlSouth, BorderLayout.SOUTH);
 
@@ -151,7 +151,7 @@ public class DVCalculatorPanel extends JPanel {
                 btnsDVs[stat][DV].setEnabled(calc.isPossibleDV(stat, DV));
             }
         }
-        dvPanel.setRanges(this.calc.getStatRanges());
+        dvPanel.setRanges(this.calc.getDVRanges());
         dvPanel.revalidate();
     }
 
@@ -373,17 +373,17 @@ public class DVCalculatorPanel extends JPanel {
 
     private class DVPanel extends JPanel {
 
-        public DVPanel(DVCalculator.StatRange[] ranges) {
+        public DVPanel(Battler.DVRange[] ranges) {
             super(new GridLayout(0, 5));
             init(ranges);
             this.setPreferredSize(new Dimension(300, this.getPreferredSize().height));
         }
 
-        private void init(DVCalculator.StatRange[] ranges) {
+        private void init(Battler.DVRange[] ranges) {
             setRanges(ranges);
         }
 
-        public void setRanges(DVCalculator.StatRange[] ranges) {
+        public void setRanges(Battler.DVRange[] ranges) {
             this.removeAll();
             String[] statNames = new String[]{"HP", "ATK", "DEF", "SPD", "SPC"};
             for (int stat = 0; stat < 5; stat++) {
@@ -402,7 +402,6 @@ public class DVCalculatorPanel extends JPanel {
                 this.add(pnlVert);
             }
         }
-
     }
 
     private class DefeatedPkmn {
@@ -419,7 +418,5 @@ public class DVCalculatorPanel extends JPanel {
         public String toString() {
             return pkmn.toString() + (isDivided ? "*" : "");
         }
-
     }
-
 }
