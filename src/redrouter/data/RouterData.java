@@ -167,14 +167,14 @@ public class RouterData {
         }
     }
 
-    // TODO dynamic
+
     private void initMoves()  {
         List<String> lMoveList = getLinesFromFile(settings.getMoveFile());
         try {
             for (int i=0;i<lMoveList.size();i++){
                 String lMove = lMoveList.get(i);
                 if (!lMove.equals("") && !lMove.substring(0, 2).equals("//")) {
-                    if (addMove(lMove, settings.getPokemonFile(), i) == null) {
+                    if (addMove(lMove, settings.getMoveFile(), i) == null) {
                             throw new ParserException(settings.getMoveFile(), i, "This move already exists!");
                     }
                 }

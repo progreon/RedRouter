@@ -17,7 +17,9 @@
  */
 package redrouter.data;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * TODO: dynamic?
@@ -69,6 +71,25 @@ public class Types {
     public static TypeChart getTypeChart() {
         init();
         return typeChart;
+    }
+
+    /**
+     * Get a type from its string
+     * @param pString
+     * @return
+     */
+    //TODO It's bad but it works cause Reflection API ftw => Replace
+    public static Type getTypeFromString(String pString, String pFile, int pLine) throws ParserException{
+        if(pString.isEmpty()) return null;
+        Class lClass = Type.class;
+        List<Object> lTypeList = Arrays.asList(lClass.getEnumConstants());
+        for (Object lObject:  lTypeList) {
+            Type lType = (Type) lObject;
+            if(lType.name().equalsIgnoreCase(pString)){
+                return lType;
+            }
+        }
+        throw new ParserException(pFile, pLine, "Could not find type :"+pString);
     }
 
     public static class TypeChart {
