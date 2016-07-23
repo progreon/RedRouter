@@ -23,12 +23,14 @@ import java.awt.FontMetrics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
+import redrouter.data.Battler;
 import redrouter.route.RouteEntry;
 
 /**
@@ -53,14 +55,6 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         Border outsideBorder = BorderFactory.createCompoundBorder(emptyBorder, lineBorder);
         border = BorderFactory.createCompoundBorder(outsideBorder, marginBorder);
         initRender_();
-    }
-
-    private int getBorderWidth() {
-        return view.getInsets().left + view.getInsets().right;
-    }
-
-    private int getBorderHeight() {
-        return view.getInsets().top + view.getInsets().bottom;
     }
 
     private void initRender_() {
@@ -123,6 +117,14 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
 
     protected abstract void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus);
 
+    private int getBorderWidth() {
+        return view.getInsets().left + view.getInsets().right;
+    }
+
+    private int getBorderHeight() {
+        return view.getInsets().top + view.getInsets().bottom;
+    }
+
     protected void setLabelText(JLabel label, String text, int labelWidth) {
         label.setText(wrappedHTMLText(text, 8, label.getFontMetrics(label.getFont()), labelWidth));
     }
@@ -155,6 +157,34 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         wrapped = "<html><body>" + wrapped + "</body></html>";
 
         return wrapped;
+    }
+
+    protected JButton makeBattlerInfoButton(Battler battler) {
+
+        JButton btn = new JButton("B");
+        btn.addMouseListener(new MouseAdapter() {
+
+            BattlerInfoDialog bif = null;
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (bif != null) {
+                    bif.dispose();
+                }
+                bif = new BattlerInfoDialog(battler, e.getLocationOnScreen());
+                bif.setVisible(true);
+                tree.requestFocus();
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (bif != null) {
+                    bif.dispose();
+                    bif = null;
+                }
+            }
+        });
+        return btn;
     }
 
 }

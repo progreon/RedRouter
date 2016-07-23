@@ -21,58 +21,109 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * TODO: cleanup!
  *
  * @author Marco Willems
  */
 public class Battler {
 
+    public final static Battler NULL = new Battler(null, 0, null);
+    public final static Battler DUMMY = new Battler(new Pokemon(null, 0, "Dummy Poke", Types.Type.NORMAL, null, 100, 100, 100, 100, 100, 100), 5, null);
+
     private Pokemon pokemon;
-    public int level;
     public List<Move> moveset;
 //    public int totalXP = 0;
     public EncounterArea catchLocation;
 
-    public int hpXP = 0;
-    public int atkXP = 0;
-    public int defXP = 0;
-    public int spdXP = 0;
-    public int spcXP = 0;
+    public int level;
+    private int levelXP = 0;
 
-    public int hpDV = 8;
-    public int atkDV = 9;
-    public int defDV = 8;
-    public int spdDV = 8;
-    public int spcDV = 8;
+//    private int[] statXP = new int[5]; // hpXP, atkXP, defXP, spdXP, spcXP
+    private int hpXP = 0;
+    private int atkXP = 0;
+    private int defXP = 0;
+    private int spdXP = 0;
+    private int spcXP = 0;
 
-    public boolean atkBadge = false;
-    public boolean defBadge = false;
-    public boolean spdBadge = false;
-    public boolean spcBadge = false;
+//    private int[] DVs = new int[5]; // hp, atk, def, spd, spc
+    private int hpDV = 8;
+    private int atkDV = 9;
+    private int defDV = 8;
+    private int spdDV = 8;
+    private int spcDV = 8;
 
+    private boolean atkBadge = false;
+    private boolean defBadge = false;
+    private boolean spdBadge = false;
+    private boolean spcBadge = false;
+
+    /**
+     * Use this constructor if it's a trainer pokemon.
+     *
+     * @param pokemon
+     * @param level
+     * @param moveset
+     */
     public Battler(Pokemon pokemon, int level, List<Move> moveset) {
         this.pokemon = pokemon;
         this.level = level;
         this.moveset = moveset;
         if (this.moveset == null) {
-            this.moveset = new ArrayList<>();
+            initDefaultMoveSet(pokemon, level);
         }
     }
 
+    /**
+     * Use this constructor if it's a caught pokemon.
+     *
+     * @param pokemon
+     * @param catchLocation
+     * @param level
+     */
     public Battler(Pokemon pokemon, EncounterArea catchLocation, int level) {
         this.pokemon = pokemon;
         this.level = level;
-        this.moveset = new ArrayList<>();
         this.catchLocation = catchLocation;
+        initDefaultMoveSet(pokemon, level);
+        this.hpDV = -1;
+        this.atkDV = -1;
+        this.defDV = -1;
+        this.spdDV = -1;
+        this.spcDV = -1;
+    }
+
+    /**
+     * Use this constructor if it's a caught pokemon.
+     *
+     * @param catchLocation
+     * @param slot
+     */
+    public Battler(EncounterArea catchLocation, int slot) {
+        this.pokemon = catchLocation.slots[slot].pkmn;
+        this.level = catchLocation.slots[slot].level;
+        this.catchLocation = catchLocation;
+        initDefaultMoveSet(pokemon, level);
+        this.hpDV = -1;
+        this.atkDV = -1;
+        this.defDV = -1;
+        this.spdDV = -1;
+        this.spcDV = -1;
+    }
+
+    private void initDefaultMoveSet(Pokemon pokemon, int level) {
+        moveset = new ArrayList<>();
+        // TODO
     }
 
     // TODO: Eevee?
     public void evolve() {
-        if (pokemon.evolution != null) {
+        if (this != NULL && pokemon.evolution != null) {
             pokemon = pokemon.evolution;
         }
     }
 
     public void addStatXP(int hp, int atk, int def, int spd, int spc, int nrOfPkmn) {
+
         hpXP += hp / nrOfPkmn;
         atkXP += atk / nrOfPkmn;
         defXP += def / nrOfPkmn;
@@ -94,6 +145,7 @@ public class Battler {
             extraStats = Math.floor(Math.floor((Math.sqrt(hpXP - 1) + 1)) / 4);
         }
         double statValue = Math.floor((((pokemon.hp + hpDV + 50) * 2 + extraStats) * level / 100) + 10);
+//        double statValue = Math.floor((((pokemon.hp + DVs[0] + 50) * 2 + extraStats) * level / 100) + 10);
         return (int) statValue;
     }
 
@@ -157,16 +209,16 @@ public class Battler {
     }
 
     public void setDVs(int hp, int atk, int def, int spd, int spc) {
-        hpDV += hp;
-        atkDV += atk;
-        defDV += def;
-        spdDV += spd;
-        spcDV += spc;
+        hpDV = hp;
+        atkDV = atk;
+        defDV = def;
+        spdDV = spd;
+        spcDV = spc;
     }
 
     @Override
     public String toString() {
-        String battler = (pokemon == null ? "-----" : pokemon.name + " Lv." + level);
+        String battler = (this == NULL ? "-----" : pokemon.name + " Lv." + level);
 //        String moves = "";
 //        if (moveset.size() > 0) {
 //            for (Move m : moveset) {

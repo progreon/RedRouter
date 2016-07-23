@@ -20,7 +20,8 @@ package redrouter.route;
 import java.util.ArrayList;
 import java.util.List;
 import redrouter.data.Battler;
-import redrouter.data.Protagonist;
+import redrouter.data.EncounterArea;
+import redrouter.data.Player;
 import redrouter.data.Trainer;
 
 /**
@@ -75,8 +76,14 @@ public class RouteSection extends RouteEntry {
         return r;
     }
 
-    public RouteEncounter addNewEncounter(String description, List<Battler> choices, int preference) {
-        RouteEncounter r = new RouteEncounter(this, new RouteEntryInfo(null, description), choices, preference);
+    public RouteEncounter addNewEncounter(String description, EncounterArea area, List<Battler> choices, int preference) {
+        RouteEncounter r = new RouteEncounter(this, new RouteEntryInfo(null, description), area, choices, preference);
+        addEntry(r);
+        return r;
+    }
+
+    public RouteEncounter addNewEncounter(String description, EncounterArea area, int[] choices, int preference) {
+        RouteEncounter r = new RouteEncounter(this, new RouteEntryInfo(null, description), area, choices, preference);
         addEntry(r);
         return r;
     }
@@ -100,7 +107,7 @@ public class RouteSection extends RouteEntry {
     }
 
     @Override
-    public Protagonist apply(Protagonist p) {
+    protected void apply(Player p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

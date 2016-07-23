@@ -18,7 +18,7 @@
 package redrouter.route;
 
 import java.util.List;
-import redrouter.data.Protagonist;
+import redrouter.data.Player;
 
 /**
  *
@@ -30,6 +30,8 @@ public abstract class RouteEntry {
     public RouteSection parent;
     public final List<RouteEntry> children;
 
+    private Player player = null; // current instance of the player
+
 //    public RouteEntry() {
 //    }
     public RouteEntry(RouteSection parentSection, RouteEntryInfo info) {
@@ -40,12 +42,67 @@ public abstract class RouteEntry {
         this.parent = parentSection;
         this.info = info;
         this.children = children;
+//        refreshData(null);
     }
 
-    public abstract Protagonist apply(Protagonist p);
+    public final void refreshData(Player previousPlayer) {
+        RouteEntry previous = getPrevious();
+        if (previousPlayer == null && previous != null) {
+            previousPlayer = previous.player;
+        }
+        if (previousPlayer == null) {
+            previousPlayer = new Player(null, "The player", "", null);
+        }
+        apply(previousPlayer);
+        getNext().refreshData(player); // TODO: not optimal to use getNext!
+    }
+
+    protected abstract void apply(Player previousPlayer);
 
     public boolean hasChildren() {
         return children != null && !children.isEmpty();
+    }
+
+    private RouteEntry getPrevious() {
+        if (parent != null) {
+            int thisIndex = parent.children.indexOf(this);
+            if (thisIndex > 0) {
+                return parent.children.get(thisIndex - 1).getLastChild();
+            } else { // This is the first child
+                return ((RouteEntry) parent).getPrevious();
+            }
+        } else { // This is the root
+            return null;
+        }
+    }
+
+    private RouteEntry getNext() {
+        if (parent != null) {
+            int thisIndex = parent.children.indexOf(this);
+            if (thisIndex < parent.children.size() - 1) {
+                return parent.children.get(thisIndex + 1).getFirstChild();
+            } else { // This is the last child
+                return ((RouteEntry) parent).getNext();
+            }
+        } else { // This is the root
+            return null;
+        }
+    }
+
+    private RouteEntry getFirstChild() {
+        if (!hasChildren()) {
+            return this;
+        } else {
+            return children.get(0).getFirstChild();
+        }
+    }
+
+    private RouteEntry getLastChild() {
+        if (!hasChildren()) {
+            return this;
+        } else {
+            return children.get(children.size() - 1).getLastChild();
+        }
     }
 
     @Override

@@ -35,15 +35,15 @@ public class RouteFactory {
         this.rd = rd;
     }
 
-    public Route getExaNidoRoute() {
+    public Route getRedExaNidoRoute() {
         if (exaNidoRoute == null) {
-            initExaNidoRoute();
+            initRedExaNidoRoute();
         }
         System.out.println(exaNidoRoute);
         return exaNidoRoute;
     }
 
-    private void initExaNidoRoute() {
+    private void initRedExaNidoRoute() {
         Route route = new Route(rd, "Red Any% Glitchless - Exarion Route");
 
         RouteSection rsStart = new RouteSection(null, "New Game");
@@ -55,7 +55,7 @@ public class RouteFactory {
 
         RouteSection rsPalletA = new RouteSection(null, "Pallet Town");
         rsPalletA.addNewDirections("Exit out of your home, and head north towards Route 1. Prof. Oak will stop you and lead you back to his lab. After he and your rival are done talking, select the middle Pokeball on the table to get Squirtle. Name it a one character name, and go to head out of the lab. Your rival will stop you for a battle.");
-        // TODO: Catching entry!
+        // TODO: Acquire entry!
         rsPalletA.addNewBattle(new RouteEntryInfo(rd.getTrainer("Rival 1").name, "Tail Whip x1-2, then Tackle until it faints."), rd.getTrainer("Rival 1"));
         rsPalletA.addNewDirections("Head out of the lab, and north to Route 1");
         route.addSection(rsPalletA);
@@ -68,7 +68,7 @@ public class RouteFactory {
         r1Choices.add(new Battler(rd.getPokemon("Rattata"), 3, null));
         r1Choices.add(new Battler(rd.getPokemon("Pidgey"), 2, null));
         r1Choices.add(new Battler(rd.getPokemon("Pidgey"), 3, null));
-        rsRoute1A.addNewEncounter("You want to defeat an encounter here so that you have enough experience to get Lvl.8 at the Bug Catcher fight later. Only attempt to kill low level pokemon as higher levels take longer to kill.", r1Choices, 0);
+        rsRoute1A.addNewEncounter("You want to defeat an encounter here so that you have enough experience to get Lvl.8 at the Bug Catcher fight later. Only attempt to kill low level pokemon as higher levels take longer to kill.", rd.getEncounterArea(rd.getLocation("Route 1"), null), r1Choices, 0);
         rsRoute1A.addNewDirections("Head north through the route to Viridian City.");
         rsParcel.addSection(rsRoute1A);
 

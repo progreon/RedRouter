@@ -38,7 +38,7 @@ public class RouterFrame extends JFrame {
         DVCalculator calc = new DVCalculator(rd, null);
         RouteFactory rf = new RouteFactory(rd);
         DVCalculatorPanel dvPanel = new DVCalculatorPanel(calc);
-        RouteView routeView = new RouteView(rf.getExaNidoRoute());
+        RouteView routeView = new RouteView(rf.getRedExaNidoRoute());
         routeView.setPreferredSize(dvPanel.getPreferredSize());
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("DV Calculator", dvPanel);

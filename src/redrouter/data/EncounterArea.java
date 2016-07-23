@@ -17,7 +17,10 @@
  */
 package redrouter.data;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  *
@@ -62,6 +65,70 @@ public class EncounterArea {
         } else {
             throw new ParserException(file, line, "There must be 13 arguments for each entry!");
         }
+    }
+
+    public Battler getBattler(int slot) {
+        return new Battler(this, slot);
+    }
+
+    public List<Battler> getBattlers(int[] slots) {
+        List<Integer> uniqueSlots = new ArrayList<>();
+        for (int i = 0; i < slots.length; i++) {
+            boolean contains = false;
+            for (int j = 0; j < uniqueSlots.size(); j++) {
+                if (this.slots[uniqueSlots.get(j)].equals(this.slots[slots[i]])) {
+                    contains = true;
+                }
+            }
+            if (!contains) {
+                uniqueSlots.add(slots[i]);
+            }
+        }
+        List<Battler> uniqueBattlers = new ArrayList<>();
+        for (int i = 0; i < uniqueSlots.size(); i++) {
+            uniqueBattlers.add(new Battler(this, uniqueSlots.get(i)));
+        }
+        return uniqueBattlers;
+    }
+
+    public int[] getSlots(Battler battler) {
+        List<Integer> slotIDs = new ArrayList<>();
+        Slot dummy = new Slot(battler.level, battler.getPokemon());
+        for (int i = 0; i < slots.length; i++) {
+            if (dummy.equals(slots[i])) {
+                slotIDs.add(i);
+            }
+        }
+        int[] ids = new int[slotIDs.size()];
+        for (int i = 0; i < slotIDs.size(); i++) {
+            ids[i] = slotIDs.get(i);
+        }
+        return ids;
+    }
+
+    public int[] getSlots(List<Battler> battlers) {
+        List<Integer> slotIDs = new ArrayList<>();
+        for (int i = 0; i < battlers.size(); i++) {
+            Slot dummy = new Slot(battlers.get(i).level, battlers.get(i).getPokemon());
+            for (int j = 0; j < slots.length; j++) {
+                if (dummy.equals(slots[j])) {
+                    slotIDs.add(j);
+                }
+            }
+        }
+        int[] ids = new int[slotIDs.size()];
+        for (int i = 0; i < slotIDs.size(); i++) {
+            ids[i] = slotIDs.get(i);
+        }
+        return ids;
+    }
+
+    public List<Battler> getUniqueBattlers() {
+        int[] slotIDs = new int[slots.length];
+        for (int i = 0; i < slotIDs.length; i++) {
+            slotIDs[i] = i;
+        }
+        return getBattlers(slotIDs);
     }
 
     @Override
@@ -119,6 +186,23 @@ public class EncounterArea {
             } else {
                 throw new ParserException(file, line, "Could not parse " + slotString);
             }
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof Slot)) {
+                return false;
+            } else {
+                return hashCode() == ((Slot) obj).hashCode();
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 37 * hash + this.level;
+            hash = 37 * hash + Objects.hashCode(this.pkmn);
+            return hash;
         }
 
         @Override

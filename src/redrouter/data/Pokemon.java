@@ -31,9 +31,8 @@ public class Pokemon {
 
     private final RouterData rd;
 
-    // TODO: growth rate
     public final int ID;
-    // TODO: Eevee?
+    // TODO: Map: EV_Action (level/trade/stone, level) => Evolution
     public Pokemon evolution = null;
     public final String name;
     public final Types.Type type1;
@@ -44,7 +43,9 @@ public class Pokemon {
     public final int def;
     public final int spd;
     public final int spc;
+    // TODO: growth rate
 
+    private final List<Move> defaultMoves = new ArrayList<>();
     private final Map<Integer, List<Move>> learnedMoves = new HashMap<>();
     private final List<Move> tmMoves = new ArrayList<>();
 
@@ -83,10 +84,52 @@ public class Pokemon {
                 throw new ParserException(file, line, "Could not parse stat exp parameters!");
             }
         }
+    }
 
+    public Move[] getDefaultMoveset(int level) {
+        Move[] moveset = new Move[4];
+
+        List<Move> moves = new ArrayList<>();
+        for (Move m : this.defaultMoves) {
+            if (moves.contains(m)) {
+                moves.remove(m);
+            }
+            moves.add(m);
+        }
+        for (int i = 0; i <= level; i++) {
+            if (this.learnedMoves.containsKey(i)) {
+                for (Move m : this.learnedMoves.get(i)) {
+                    if (moves.contains(m)) {
+                        moves.remove(m);
+                    }
+                    moves.add(m);
+                }
+            }
+        }
+        if (moves.size() >= 4) {
+            for (int i = 0; i < 4; i++) {
+                moveset[i] = moves.get(moves.size() - 4 + i);
+            }
+        } else {
+            int i = 0;
+            while (i < moves.size()) {
+                moveset[i] = moves.get(i);
+                i++;
+            }
+            while (i < 4) {
+                moveset[i] = null;
+            }
+        }
+
+        return moveset;
     }
 
     public boolean addLearnedMove(int level, Move move) {
+        if (level == 0) {
+            if (!this.defaultMoves.contains(move)) {
+                this.defaultMoves.add(move);
+            }
+        }
         if (!this.learnedMoves.containsKey(level)) {
             this.learnedMoves.put(level, new ArrayList<>());
             move.pokemon.add(this);

@@ -24,10 +24,22 @@ import java.util.List;
  *
  * @author Marco Willems
  */
-public class Protagonist extends Trainer {
+public class Player extends Trainer {
 
-    public Protagonist(Location location, String name, String info, List<Battler> team) {
+    public Player(Location location, String name, String info, List<Battler> team) {
         super(location, name, info, team);
+    }
+
+    public void swapToFront(Battler battler) {
+        int index = super.team.indexOf(battler);
+        if (index != -1) {
+            super.team.set(index, super.team.get(0));
+            super.team.set(0, battler);
+        }
+    }
+
+    public Battler getLead() {
+        return super.team.get(0);
     }
 
 }

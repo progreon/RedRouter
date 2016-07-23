@@ -17,35 +17,11 @@
  */
 package redrouter.route;
 
-import redrouter.data.Player;
-import redrouter.data.Trainer;
-
 /**
+ * TODO
  *
  * @author Marco Willems
  */
-public class RouteBattle extends RouteEntry {
-
-    public final Trainer opponent;
-
-    public RouteBattle(RouteSection parentSection, RouteEntryInfo info, Trainer opponent) {
-        super(parentSection, info);
-        this.opponent = opponent;
-    }
-
-    @Override
-    protected void apply(Player p) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public String toString() {
-        String s = info.toString() + "\n";
-        s += opponent.toString();
-//        if (info != null) {
-//            s += "\n\n\t" + info;
-//        }
-        return s;
-    }
+public class PrintSettings {
 
 }

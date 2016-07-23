@@ -17,10 +17,10 @@
  */
 package redrouter.route;
 
-import java.util.ArrayList;
 import java.util.List;
 import redrouter.data.Battler;
-import redrouter.data.Protagonist;
+import redrouter.data.EncounterArea;
+import redrouter.data.Player;
 
 /**
  *
@@ -28,30 +28,77 @@ import redrouter.data.Protagonist;
  */
 public class RouteEncounter extends RouteEntry {
 
-    public final List<Battler> choices;
-    public final int preference;
+    private final List<Battler> choices;
+    private final int preference;
+    // Use this for DSUM later, maybe?
+    private final EncounterArea area;
+    private final int[] slots;
 
-    public RouteEncounter(RouteSection parentSection, RouteEntryInfo info, List<Battler> choices) {
-        this(parentSection, info, choices, 0);
+    public RouteEncounter(RouteSection parentSection, RouteEntryInfo info, EncounterArea area, List<Battler> choices) {
+        this(parentSection, info, area, choices, -1);
     }
 
-    public RouteEncounter(RouteSection parentSection, RouteEntryInfo info, List<Battler> choices, int preference) {
+    public RouteEncounter(RouteSection parentSection, RouteEntryInfo info, EncounterArea area, List<Battler> choices, int preference) {
         super(parentSection, info);
-        if (choices == null) {
-            this.choices = new ArrayList<>();
-            this.preference = -1;
+        this.area = area;
+        if (choices == null && area != null) {
+            this.choices = area.getUniqueBattlers();
+            this.slots = new int[area.slots.length];
+            for (int i = 0; i < this.slots.length; i++) {
+                this.slots[i] = i;
+            }
         } else {
             this.choices = choices;
-            if (preference >= choices.size()) {
-                this.preference = 0;
+            if (area != null) {
+                this.slots = area.getSlots(choices);
             } else {
-                this.preference = preference;
+                this.slots = new int[0];
             }
+        }
+        if (preference >= this.choices.size() || preference < -1) {
+            this.preference = -1;
+        } else {
+            this.preference = preference;
         }
     }
 
+    public RouteEncounter(RouteSection parentSection, RouteEntryInfo info, EncounterArea area, int[] slots) {
+        this(parentSection, info, area, slots, -1);
+    }
+
+    public RouteEncounter(RouteSection parentSection, RouteEntryInfo info, EncounterArea area, int[] slots, int preference) {
+        super(parentSection, info);
+        this.area = area;
+        if (slots == null || slots.length > area.slots.length) {
+            this.slots = new int[area.slots.length];
+            for (int i = 0; i < this.slots.length; i++) {
+                this.slots[i] = i;
+            }
+        } else {
+            this.slots = slots;
+        }
+        this.choices = area.getBattlers(slots);
+        if (preference >= this.slots.length || preference < -1) {
+            this.preference = -1;
+        } else {
+            this.preference = preference;
+        }
+    }
+
+    public EncounterArea getArea() {
+        return this.area;
+    }
+
+    public List<Battler> getChoices() {
+        return this.choices;
+    }
+
+    public int getPreference() {
+        return this.preference;
+    }
+
     @Override
-    public Protagonist apply(Protagonist p) {
+    protected void apply(Player p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -60,7 +107,7 @@ public class RouteEncounter extends RouteEntry {
         String str = info + " Choices: ";
 
         for (int i = 0; i < choices.size(); i++) {
-            str += choices.get(i).toString() + ", ";
+            str += choices.get(i) + ", ";
         }
         if (choices.size() > 0) {
             str = str.substring(0, str.length() - 2);

@@ -18,6 +18,7 @@
 package redrouter.view.route;
 
 import java.awt.BorderLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import redrouter.data.Battler;
 import redrouter.data.Move;
@@ -74,6 +75,10 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
 
         labelText = text;
         lblInfo = lbl;
+
+        JButton btnBattlerInfo = makeBattlerInfoButton(Battler.DUMMY);
+
+        view.add(btnBattlerInfo, BorderLayout.EAST);
     }
 
 }

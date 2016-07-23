@@ -17,8 +17,9 @@
  */
 package redrouter.route;
 
+import java.io.File;
 import redrouter.data.Location;
-import redrouter.data.Protagonist;
+import redrouter.data.Player;
 import redrouter.data.RouterData;
 
 /**
@@ -27,11 +28,26 @@ import redrouter.data.RouterData;
  */
 public class Route extends RouteSection {
 
-    public final Protagonist player;
+    public final Player player;
 
     public Route(RouterData rd, String title) {
         super(null, title);
-        player = new Protagonist(new Location(rd, "Pallet Town"), "Red", "The playable character", null);
+        player = new Player(new Location(rd, "Pallet Town"), "Red", "The playable character", null);
+    }
+
+    // TODO
+    public void load(File file) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    // TODO
+    public void save(File file) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    // TODO
+    public void printReadable(File file, PrintSettings printSettings) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

@@ -18,7 +18,7 @@
 package redrouter.route;
 
 import java.util.HashMap;
-import redrouter.data.Protagonist;
+import redrouter.data.Player;
 
 /**
  *
@@ -64,7 +64,7 @@ public class RouteOr extends RouteEntry {
     }
 
     @Override
-    public Protagonist apply(Protagonist p) {
+    protected void apply(Player p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
