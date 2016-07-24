@@ -62,7 +62,7 @@ public class Move {
             try {
                 this.name = lStrings[0];
                 this.power = Integer.parseInt(lStrings[2]);
-                this.type = Types.getTypeFromString(lStrings[3],pFile,pLine);
+                this.type = Types.getType(lStrings[3],pFile,pLine);
                 this.accuracy = Integer.parseInt(lStrings[4]);
                 this.pp = Integer.parseInt(lStrings[5]);
             } catch (NumberFormatException nex) {
