@@ -31,6 +31,7 @@ public class Trainer {
     public final String name;
     public final String info;
     public final List<Battler> team;
+    public Item item; // Item given after the fight
 
     public Trainer(Location location, String name, String info, List<Battler> team) {
         this.location = location;
