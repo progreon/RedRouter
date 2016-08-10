@@ -119,6 +119,7 @@ public class Pokemon {
             }
             while (i < 4) {
                 moveset[i] = null;
+                i++;
             }
         }
 

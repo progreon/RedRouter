@@ -22,6 +22,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import redrouter.data.Battler;
 import redrouter.data.Move;
+import redrouter.data.SingleBattler;
 import redrouter.route.RouteBattle;
 
 /**
@@ -49,10 +50,7 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
         RouteBattle rb = (RouteBattle) routeEntry;
         text = rb.info.toString() + "\n";
         text += (rb.opponent.info == null ? "" : "\tInfo: " + rb.opponent.info + "\n");
-//        text += "Team:\n";
-//        for (Battler b : rb.opponent.team) {
-//            text += "\t" + b.toString();
-//        }
+
         lbl = new JLabel();
         setLabelText(lbl, text, availableWidth);
         view.add(lbl);
@@ -63,7 +61,7 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
             teamTable += "<tr>";
             teamTable += "<td>" + b.toString() + " (" + b.getHP() + "hp)" + "</td>";
             teamTable += "<td>";
-            for (Move m : b.moveset) {
+            for (Move m : b.getMoveset()) {
                 teamTable += m.toString() + "<br>";
             }
             teamTable += "</td>";
@@ -76,7 +74,14 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
         labelText = text;
         lblInfo = lbl;
 
-        JButton btnBattlerInfo = makeBattlerInfoButton(Battler.DUMMY);
+        Battler b;
+        if (routeEntry.getPlayer() != null && !routeEntry.getPlayer().team.isEmpty()) {
+            b = routeEntry.getPlayer().team.get(0);
+        } else {
+//            b = Battler.DUMMY;
+            b = new SingleBattler(tree.route.rd.getPokemon("NidoranM"), null, 5);
+        }
+        JButton btnBattlerInfo = b.makeBattlerInfoButton();
 
         view.add(btnBattlerInfo, BorderLayout.EAST);
     }

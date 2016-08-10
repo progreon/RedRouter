@@ -17,15 +17,19 @@
  */
 package redrouter.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TODO
- * TODO: testing item management
+ * TODO TODO: testing item management TODO: not extending from Trainer?
  *
  * @author Marco Willems
  */
-public class Player extends Trainer {
+public class Player {
+
+    public final String name;
+    public final String info;
+    public final List<CombinedBattler> team;
 
     private int money = 0;
     private final ItemSlot[] bagItems = new ItemSlot[20];
@@ -36,20 +40,26 @@ public class Player extends Trainer {
     boolean spdBadge = false;
     boolean spcBadge = false;
 
-    public Player(Location location, String name, String info, List<Battler> team) {
-        super(location, name, info, team);
-    }
-
-    public void swapToFront(Battler battler) {
-        int index = super.team.indexOf(battler);
-        if (index != -1) {
-            super.team.set(index, super.team.get(0));
-            super.team.set(0, battler);
+    public Player(Location location, String name, String info, List<CombinedBattler> team) {
+        this.name = name;
+        this.info = info;
+        if (team == null) {
+            this.team = new ArrayList<>();
+        } else {
+            this.team = team;
         }
     }
 
-    public Battler getLead() {
-        return super.team.get(0);
+    public void swapToFront(CombinedBattler battler) {
+        int index = team.indexOf(battler);
+        if (index != -1) {
+            team.set(index, team.get(0));
+            team.set(0, battler);
+        }
+    }
+
+    public CombinedBattler getLead() {
+        return team.get(0);
     }
 
     public boolean addItem(Item item) {
@@ -135,7 +145,7 @@ public class Player extends Trainer {
             return success;
         }
     }
-    
+
     public boolean fromPC(int pcIndex, int quantity) {
         if (pcIndex < 0 || pcIndex >= pcItems.length || pcItems[pcIndex] == null || bagItems[bagItems.length - 1] != null) {
             return false;

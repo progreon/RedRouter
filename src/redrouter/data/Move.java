@@ -29,6 +29,7 @@ public class Move {
 
     public final String name;
     public final Types.Type type;
+    public final String effect;
     public final boolean isAttack; // ??
     public final int power;
     public final int accuracy;
@@ -36,8 +37,13 @@ public class Move {
     public final List<Pokemon> pokemon; // Pokemon that learn this move
 
     public Move(String name, Types.Type type, boolean isAttack, int power, int accuracy) {
+        this(name, type, "NO_ADDITIONAL_EFFECT", isAttack, power, accuracy);
+    }
+
+    public Move(String name, Types.Type type, String effect, boolean isAttack, int power, int accuracy) {
         this.name = name;
         this.type = type;
+        this.effect = effect;
         this.isAttack = isAttack;
         this.power = power;
         this.accuracy = accuracy;

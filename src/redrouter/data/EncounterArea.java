@@ -67,11 +67,11 @@ public class EncounterArea {
         }
     }
 
-    public Battler getBattler(int slot) {
-        return new Battler(this, slot);
+    public SingleBattler getBattler(int slot) {
+        return new SingleBattler(this, slot);
     }
 
-    public List<Battler> getBattlers(int[] slots) {
+    public List<SingleBattler> getBattlers(int[] slots) {
         List<Integer> uniqueSlots = new ArrayList<>();
         for (int i = 0; i < slots.length; i++) {
             boolean contains = false;
@@ -84,14 +84,14 @@ public class EncounterArea {
                 uniqueSlots.add(slots[i]);
             }
         }
-        List<Battler> uniqueBattlers = new ArrayList<>();
+        List<SingleBattler> uniqueBattlers = new ArrayList<>();
         for (int i = 0; i < uniqueSlots.size(); i++) {
-            uniqueBattlers.add(new Battler(this, uniqueSlots.get(i)));
+            uniqueBattlers.add(new SingleBattler(this, uniqueSlots.get(i)));
         }
         return uniqueBattlers;
     }
 
-    public int[] getSlots(Battler battler) {
+    public int[] getSlots(SingleBattler battler) {
         List<Integer> slotIDs = new ArrayList<>();
         Slot dummy = new Slot(battler.level, battler.getPokemon());
         for (int i = 0; i < slots.length; i++) {
@@ -106,7 +106,7 @@ public class EncounterArea {
         return ids;
     }
 
-    public int[] getSlots(List<Battler> battlers) {
+    public int[] getSlots(List<SingleBattler> battlers) {
         List<Integer> slotIDs = new ArrayList<>();
         for (int i = 0; i < battlers.size(); i++) {
             Slot dummy = new Slot(battlers.get(i).level, battlers.get(i).getPokemon());
@@ -123,7 +123,7 @@ public class EncounterArea {
         return ids;
     }
 
-    public List<Battler> getUniqueBattlers() {
+    public List<SingleBattler> getUniqueBattlers() {
         int[] slotIDs = new int[slots.length];
         for (int i = 0; i < slotIDs.length; i++) {
             slotIDs[i] = i;

@@ -30,10 +30,10 @@ public class Trainer {
     public final Location location;
     public final String name;
     public final String info;
-    public final List<Battler> team;
+    public final List<SingleBattler> team;
     public Item item; // Item given after the fight
 
-    public Trainer(Location location, String name, String info, List<Battler> team) {
+    public Trainer(Location location, String name, String info, List<SingleBattler> team) {
         this.location = location;
         this.name = name;
         this.info = info;

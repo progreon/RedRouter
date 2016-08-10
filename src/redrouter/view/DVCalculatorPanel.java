@@ -49,6 +49,7 @@ import redrouter.data.DVCalculator;
 import redrouter.data.EncounterArea;
 import redrouter.data.Location;
 import redrouter.data.Pokemon;
+import redrouter.data.SingleBattler;
 
 /**
  *
@@ -116,13 +117,13 @@ public class DVCalculatorPanel extends JPanel {
     }
 
     private void setPokemon(Pokemon poke) {
-        this.calc.setBattler(new Battler(poke, null, (int) spnLevel.getValue()));
+        this.calc.setBattler(new SingleBattler(poke, null, (int) spnLevel.getValue()));
         fillEncounterAreas();
         updateButtons();
     }
 
     private void setCatchLocation(EncounterArea catchLocation) {
-        this.calc.setBattler(new Battler(this.calc.getBattler().getPokemon(), catchLocation, (int) spnLevel.getValue()));
+        this.calc.setBattler(new SingleBattler(this.calc.getBattler().getPokemon(), catchLocation, (int) spnLevel.getValue()));
         updateButtons();
     }
 
@@ -169,7 +170,7 @@ public class DVCalculatorPanel extends JPanel {
         for (DefeatedPkmn poke : pkmnDefeated) {
             calc.defeatPokemon(poke.pkmn, poke.isDivided ? 2 : 1);
         }
-        calc.setLevel(calc.getBattler().level);
+        calc.setLevel(calc.getBattler().getLevel());
         updateButtons();
     }
 
@@ -254,7 +255,7 @@ public class DVCalculatorPanel extends JPanel {
         settingsPanel.add(cmbPokemon);
 
         // Level
-        spnLevel = new JSpinner(new SpinnerNumberModel(this.calc.getBattler().level, 2, 100, 1));
+        spnLevel = new JSpinner(new SpinnerNumberModel(this.calc.getBattler().getLevel(), 2, 100, 1));
         spnLevel.setMaximumSize(new Dimension(spnLevel.getMaximumSize().width, spnLevel.getMinimumSize().height));
         spnLevel.addChangeListener((ChangeEvent e) -> {
             setLevel((int) spnLevel.getValue());

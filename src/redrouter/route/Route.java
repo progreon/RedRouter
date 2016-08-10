@@ -18,7 +18,6 @@
 package redrouter.route;
 
 import java.io.File;
-import redrouter.data.Location;
 import redrouter.data.Player;
 import redrouter.data.RouterData;
 
@@ -28,11 +27,17 @@ import redrouter.data.RouterData;
  */
 public class Route extends RouteSection {
 
-    public final Player player;
+    public final RouterData rd;
 
     public Route(RouterData rd, String title) {
         super(null, title);
-        player = new Player(new Location(rd, "Pallet Town"), "Red", "The playable character", null);
+        this.rd = rd;
+        super.player = new Player(rd.getLocation("Pallet Town"), "Red", "The playable character", null);
+    }
+
+    public final void setPlayer(Player p) {
+        super.player = p;
+//        refreshData(player);
     }
 
     // TODO

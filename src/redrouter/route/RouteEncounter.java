@@ -18,7 +18,7 @@
 package redrouter.route;
 
 import java.util.List;
-import redrouter.data.Battler;
+import redrouter.data.SingleBattler;
 import redrouter.data.EncounterArea;
 import redrouter.data.Player;
 
@@ -28,17 +28,17 @@ import redrouter.data.Player;
  */
 public class RouteEncounter extends RouteEntry {
 
-    private final List<Battler> choices;
+    private final List<SingleBattler> choices;
     private final int preference;
     // Use this for DSUM later, maybe?
     private final EncounterArea area;
     private final int[] slots;
 
-    public RouteEncounter(RouteSection parentSection, RouteEntryInfo info, EncounterArea area, List<Battler> choices) {
+    public RouteEncounter(RouteSection parentSection, RouteEntryInfo info, EncounterArea area, List<SingleBattler> choices) {
         this(parentSection, info, area, choices, -1);
     }
 
-    public RouteEncounter(RouteSection parentSection, RouteEntryInfo info, EncounterArea area, List<Battler> choices, int preference) {
+    public RouteEncounter(RouteSection parentSection, RouteEntryInfo info, EncounterArea area, List<SingleBattler> choices, int preference) {
         super(parentSection, info);
         this.area = area;
         if (choices == null && area != null) {
@@ -89,7 +89,7 @@ public class RouteEncounter extends RouteEntry {
         return this.area;
     }
 
-    public List<Battler> getChoices() {
+    public List<SingleBattler> getChoices() {
         return this.choices;
     }
 
