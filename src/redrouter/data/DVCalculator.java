@@ -19,7 +19,8 @@ package redrouter.data;
 
 import java.util.HashMap;
 import java.util.Map;
-import redrouter.data.Battler.StatRange;
+import redrouter.util.DVRange;
+import redrouter.util.Range;
 
 /**
  *
@@ -40,7 +41,7 @@ public class DVCalculator {
     public final int defaultLevel = 3;
     private SingleBattler battler;
     public final int maxEncounterRate = 255;
-    public final StatRange[][] stats;
+    public final Range[][] stats;
 
     public DVCalculator(RouterData rd, SingleBattler battler) {
         this.rd = rd;
@@ -48,7 +49,7 @@ public class DVCalculator {
         if (this.battler == null) {
             this.battler = getDefaultBattler();
         }
-        this.stats = new StatRange[5][16];
+        this.stats = new Range[5][16];
         init();
     }
 
@@ -91,7 +92,7 @@ public class DVCalculator {
 
     public boolean setDV(int stat, int dv) {
         if (battler.possibleDVs[stat][dv]) {
-            StatRange val = stats[stat][dv];
+            Range val = stats[stat][dv];
             for (int i = 0; i < battler.possibleDVs[stat].length; i++) {
                 if (!stats[stat][i].containsOneOf(val)) {
                     battler.possibleDVs[stat][i] = false;
@@ -130,7 +131,7 @@ public class DVCalculator {
         init();
     }
 
-    public Battler.DVRange[] getDVRanges() {
+    public DVRange[] getDVRanges() {
         return battler.getDVRanges();
     }
 

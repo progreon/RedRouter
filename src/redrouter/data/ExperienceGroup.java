@@ -22,27 +22,91 @@ package redrouter.data;
  * @author Marco Willems
  */
 public class ExperienceGroup {
-    
-    public enum Group {
-        FAST, MEDIUM_FAST, MEDIUM_SLOW, SLOW
-    }
-    
-    private Group group;
 
-    public ExperienceGroup(Group group) {
+    private static final String[] groupStrings = new String[]{"Slow", "Medium Slow", "Medium Fast", "Fast"};
+    private static final ExperienceGroup[] groups = new ExperienceGroup[]{new ExperienceGroup(Group.SLOW), new ExperienceGroup(Group.MEDIUM_SLOW), new ExperienceGroup(Group.MEDIUM_FAST), new ExperienceGroup(Group.FAST)};
+
+    public enum Group {
+
+        SLOW, MEDIUM_SLOW, MEDIUM_FAST, FAST
+    }
+
+    public final Group group;
+    private final int[] expCurve = new int[101]; // including lvl 0 for ease
+
+    private ExperienceGroup(Group group) {
         this.group = group;
+        initExpCurve();
     }
-    
-    public int getLevel(int totalExp) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+    // TODO: how is this implemented!?
+    private void initExpCurve() {
+        if (this.group == Group.FAST) {
+            for (int l = 0; l < expCurve.length; l++) {
+                expCurve[l] = 4 * l * l * l / 5;
+            }
+        } else if (this.group == Group.MEDIUM_FAST) {
+            for (int l = 0; l < expCurve.length; l++) {
+                expCurve[l] = l * l * l;
+            }
+        } else if (this.group == Group.MEDIUM_SLOW) {
+            for (int l = 0; l < expCurve.length; l++) {
+                expCurve[l] = 6 * l * l * l / 5 - 15 * l * l + 100 * l - 140;
+            }
+        } else if (this.group == Group.SLOW) {
+            for (int l = 0; l < expCurve.length; l++) {
+                expCurve[l] = 5 * l * l * l / 4;
+            }
+        }
     }
-    
+
+    public static ExperienceGroup getExperienceGroup(String name) {
+        int gr = -1;
+        for (int i = 0; i < groupStrings.length; i++) {
+            if (groupStrings[i].equals(name)) {
+                gr = i;
+            }
+        }
+        if (gr >= 0) {
+            return groups[gr];
+        } else {
+            return null; // TODO: throw exception?
+//            return new ExperienceGroup(Group.FAST); // DEFAULT
+        }
+    }
+
     public int getDeltaExp(int fromLevel, int toLevel) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return getDeltaExp(fromLevel, toLevel, 0);
     }
-    
+
+    public int getDeltaExp(int fromLevel, int toLevel, int levelExp) {
+        if (toLevel <= fromLevel) {
+            return 0;
+        } else {
+            int exp = getTotalExp(toLevel) - getTotalExp(fromLevel, levelExp);
+            return Math.max(exp, 0);
+        }
+    }
+
+    public int getLevel(int totalExp) {
+        int l = 0;
+        while (l <= 100 && expCurve[l] <= totalExp) {
+            l++;
+        }
+        return l - 1;
+    }
+
+    public int getLevelExp(int totalExp) {
+        int level = getLevel(totalExp);
+        return totalExp - expCurve[level];
+    }
+
     public int getTotalExp(int level) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return getTotalExp(level, 0);
     }
-    
+
+    public int getTotalExp(int level, int levelExp) {
+        return expCurve[level] + levelExp;
+    }
+
 }

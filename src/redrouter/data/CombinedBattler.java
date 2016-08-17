@@ -20,6 +20,8 @@ package redrouter.data;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import redrouter.util.DVRange;
+import redrouter.util.Range;
 
 /**
  *
@@ -119,8 +121,8 @@ public class CombinedBattler extends Battler {
     }
 
     @Override
-    public StatRange getHP() {
-        StatRange range = possibleBattlers.get(0).getHP();
+    public Range getHP() {
+        Range range = possibleBattlers.get(0).getHP();
         for (SingleBattler sb : possibleBattlers) {
             range.combine(sb.getHP());
         }
@@ -128,8 +130,8 @@ public class CombinedBattler extends Battler {
     }
 
     @Override
-    public StatRange getAtk(int badgeBoosts, int stage) {
-        StatRange range = possibleBattlers.get(0).getAtk(badgeBoosts, stage);
+    public Range getAtk(int badgeBoosts, int stage) {
+        Range range = possibleBattlers.get(0).getAtk(badgeBoosts, stage);
         for (SingleBattler sb : possibleBattlers) {
             range.combine(sb.getAtk(badgeBoosts, stage));
         }
@@ -137,8 +139,8 @@ public class CombinedBattler extends Battler {
     }
 
     @Override
-    public StatRange getDef(int badgeBoosts, int stage) {
-        StatRange range = possibleBattlers.get(0).getDef(badgeBoosts, stage);
+    public Range getDef(int badgeBoosts, int stage) {
+        Range range = possibleBattlers.get(0).getDef(badgeBoosts, stage);
         for (SingleBattler sb : possibleBattlers) {
             range.combine(sb.getDef(badgeBoosts, stage));
         }
@@ -146,8 +148,8 @@ public class CombinedBattler extends Battler {
     }
 
     @Override
-    public StatRange getSpd(int badgeBoosts, int stage) {
-        StatRange range = possibleBattlers.get(0).getSpd(badgeBoosts, stage);
+    public Range getSpd(int badgeBoosts, int stage) {
+        Range range = possibleBattlers.get(0).getSpd(badgeBoosts, stage);
         for (SingleBattler sb : possibleBattlers) {
             range.combine(sb.getSpd(badgeBoosts, stage));
         }
@@ -155,8 +157,8 @@ public class CombinedBattler extends Battler {
     }
 
     @Override
-    public StatRange getSpc(int badgeBoosts, int stage) {
-        StatRange range = possibleBattlers.get(0).getSpc(badgeBoosts, stage);
+    public Range getSpc(int badgeBoosts, int stage) {
+        Range range = possibleBattlers.get(0).getSpc(badgeBoosts, stage);
         for (SingleBattler sb : possibleBattlers) {
             range.combine(sb.getSpc(badgeBoosts, stage));
         }
@@ -164,8 +166,8 @@ public class CombinedBattler extends Battler {
     }
 
     @Override
-    public StatRange getHPStatIfDV(int DV) {
-        StatRange range = possibleBattlers.get(0).getHPStatIfDV(DV);
+    public Range getHPStatIfDV(int DV) {
+        Range range = possibleBattlers.get(0).getHPStatIfDV(DV);
         for (SingleBattler sb : possibleBattlers) {
             range.combine(sb.getHPStatIfDV(DV));
         }
@@ -173,8 +175,8 @@ public class CombinedBattler extends Battler {
     }
 
     @Override
-    public StatRange getAtkStatIfDV(int DV) {
-        StatRange range = possibleBattlers.get(0).getAtkStatIfDV(DV);
+    public Range getAtkStatIfDV(int DV) {
+        Range range = possibleBattlers.get(0).getAtkStatIfDV(DV);
         for (SingleBattler sb : possibleBattlers) {
             range.combine(sb.getAtkStatIfDV(DV));
         }
@@ -182,8 +184,8 @@ public class CombinedBattler extends Battler {
     }
 
     @Override
-    public StatRange getDefStatIfDV(int DV) {
-        StatRange range = possibleBattlers.get(0).getDefStatIfDV(DV);
+    public Range getDefStatIfDV(int DV) {
+        Range range = possibleBattlers.get(0).getDefStatIfDV(DV);
         for (SingleBattler sb : possibleBattlers) {
             range.combine(sb.getDefStatIfDV(DV));
         }
@@ -191,8 +193,8 @@ public class CombinedBattler extends Battler {
     }
 
     @Override
-    public StatRange getSpdStatIfDV(int DV) {
-        StatRange range = possibleBattlers.get(0).getSpdStatIfDV(DV);
+    public Range getSpdStatIfDV(int DV) {
+        Range range = possibleBattlers.get(0).getSpdStatIfDV(DV);
         for (SingleBattler sb : possibleBattlers) {
             range.combine(sb.getSpdStatIfDV(DV));
         }
@@ -200,10 +202,28 @@ public class CombinedBattler extends Battler {
     }
 
     @Override
-    public StatRange getSpcStatIfDV(int DV) {
-        StatRange range = possibleBattlers.get(0).getSpcStatIfDV(DV);
+    public Range getSpcStatIfDV(int DV) {
+        Range range = possibleBattlers.get(0).getSpcStatIfDV(DV);
         for (SingleBattler sb : possibleBattlers) {
             range.combine(sb.getSpcStatIfDV(DV));
+        }
+        return range;
+    }
+
+    @Override
+    public Range getExp(int participants) {
+        Range range = possibleBattlers.get(0).getExp(participants);
+        for (SingleBattler sb : possibleBattlers) {
+            range.combine(sb.getExp(participants));
+        }
+        return range;
+    }
+
+    @Override
+    public Range getLevelExp() {
+        Range range = possibleBattlers.get(0).getLevelExp();
+        for (SingleBattler sb : possibleBattlers) {
+            range.combine(sb.getLevelExp());
         }
         return range;
     }

@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import redrouter.util.DVRange;
+import redrouter.util.Range;
 
 /**
  * TODO: cleanup!
@@ -32,7 +34,7 @@ public class SingleBattler extends Battler {
     public Move[] moveset;
 
     public int level;
-    private int levelXP = 0;
+    private int levelExp = 0;
 //    public int totalXP = 0;
 
 //    private int[] statXP = new int[5]; // hpXP, atkXP, defXP, spdXP, spcXP
@@ -116,7 +118,7 @@ public class SingleBattler extends Battler {
         SingleBattler newBattler = new SingleBattler(pokemon, catchLocation, level);
 
         newBattler.moveset = this.moveset.clone();
-        newBattler.levelXP = this.levelXP;
+        newBattler.levelExp = this.levelExp;
 //        newBattler.totalXP = this.totalXP;
 
         newBattler.hpXP = this.hpXP;
@@ -186,7 +188,7 @@ public class SingleBattler extends Battler {
     }
 
     @Override
-    public StatRange getHP() {
+    public Range getHP() {
         DVRange dvRange = getDVRange(0);
         double extraStats = 0;
         if (hpXP - 1 >= 0) {
@@ -194,78 +196,104 @@ public class SingleBattler extends Battler {
         }
         double minStatValue = Math.floor((((pokemon.hp + dvRange.getMin() + 50) * 2 + extraStats) * level / 100) + 10);
         double maxStatValue = Math.floor((((pokemon.hp + dvRange.getMax() + 50) * 2 + extraStats) * level / 100) + 10);
-        return new StatRange((int) minStatValue, (int) maxStatValue);
+        return new Range((int) minStatValue, (int) maxStatValue);
     }
 
     @Override
-    public StatRange getAtk(int badgeBoosts, int stage) {
+    public Range getAtk(int badgeBoosts, int stage) {
         DVRange dvRange = getDVRange(1);
         int min = getStat(level, pokemon.atk, dvRange.getMin(), atkXP, badgeBoosts, stage);
         int max = getStat(level, pokemon.atk, dvRange.getMax(), atkXP, badgeBoosts, stage);
-        return new StatRange(min, max);
+        return new Range(min, max);
     }
 
     @Override
-    public StatRange getDef(int badgeBoosts, int stage) {
+    public Range getDef(int badgeBoosts, int stage) {
         DVRange dvRange = getDVRange(2);
         int min = getStat(level, pokemon.def, dvRange.getMin(), defXP, badgeBoosts, stage);
         int max = getStat(level, pokemon.def, dvRange.getMax(), defXP, badgeBoosts, stage);
-        return new StatRange(min, max);
+        return new Range(min, max);
     }
 
     @Override
-    public StatRange getSpd(int badgeBoosts, int stage) {
+    public Range getSpd(int badgeBoosts, int stage) {
         DVRange dvRange = getDVRange(3);
         int min = getStat(level, pokemon.spd, dvRange.getMin(), spdXP, badgeBoosts, stage);
         int max = getStat(level, pokemon.spd, dvRange.getMax(), spdXP, badgeBoosts, stage);
-        return new StatRange(min, max);
+        return new Range(min, max);
     }
 
     @Override
-    public StatRange getSpc(int badgeBoosts, int stage) {
+    public Range getSpc(int badgeBoosts, int stage) {
         DVRange dvRange = getDVRange(4);
         int min = getStat(level, pokemon.spc, dvRange.getMin(), spcXP, badgeBoosts, stage);
         int max = getStat(level, pokemon.spc, dvRange.getMax(), spcXP, badgeBoosts, stage);
-        return new StatRange(min, max);
+        return new Range(min, max);
     }
 
     @Override
-    public StatRange getHPStatIfDV(int DV) {
+    public Range getHPStatIfDV(int DV) {
         double extraStats = 0;
         if (hpXP - 1 >= 0) {
             extraStats = Math.floor(Math.floor((Math.sqrt(hpXP - 1) + 1)) / 4);
         }
         double statValue = Math.floor((((pokemon.hp + DV + 50) * 2 + extraStats) * level / 100) + 10);
-        return new StatRange((int) statValue, (int) statValue);
+        return new Range((int) statValue, (int) statValue);
     }
 
     @Override
-    public StatRange getAtkStatIfDV(int DV) {
+    public Range getAtkStatIfDV(int DV) {
         int stat = getStat(level, pokemon.atk, DV, atkXP, 0, 0);
-        return new StatRange(stat, stat);
+        return new Range(stat, stat);
     }
 
     @Override
-    public StatRange getDefStatIfDV(int DV) {
+    public Range getDefStatIfDV(int DV) {
         int stat = getStat(level, pokemon.def, DV, defXP, 0, 0);
-        return new StatRange(stat, stat);
+        return new Range(stat, stat);
     }
 
     @Override
-    public StatRange getSpdStatIfDV(int DV) {
+    public Range getSpdStatIfDV(int DV) {
         int stat = getStat(level, pokemon.spd, DV, spdXP, 0, 0);
-        return new StatRange(stat, stat);
+        return new Range(stat, stat);
     }
 
     @Override
-    public StatRange getSpcStatIfDV(int DV) {
+    public Range getSpcStatIfDV(int DV) {
         int stat = getStat(level, pokemon.spc, DV, spcXP, 0, 0);
-        return new StatRange(stat, stat);
+        return new Range(stat, stat);
+    }
+
+    @Override
+    public Range getExp(int participants) {
+        int exp = pokemon.getExp(level, participants, false, catchLocation == null);
+        return new Range(exp, exp);
+    }
+
+    @Override
+    public Range getLevelExp() {
+        return new Range(levelExp, levelExp);
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof SingleBattler && this.hashCode() == ((SingleBattler) obj).hashCode();
+        if (obj instanceof SingleBattler) {
+            SingleBattler b = (SingleBattler) obj;
+            return pokemon == b.pokemon
+                    && Arrays.equals(moveset, b.moveset)
+                    && catchLocation == b.catchLocation
+                    && level == b.level
+                    && levelExp == b.levelExp
+                    && hpXP == b.hpXP
+                    && atkXP == b.atkXP
+                    && defXP == b.defXP
+                    && spdXP == b.spdXP
+                    && spcXP == b.spcXP
+                    && Arrays.deepEquals(possibleDVs, b.possibleDVs);
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -275,7 +303,7 @@ public class SingleBattler extends Battler {
         hash = 89 * hash + Arrays.deepHashCode(this.moveset);
         hash = 89 * hash + Objects.hashCode(this.catchLocation);
         hash = 89 * hash + this.level;
-        hash = 89 * hash + this.levelXP;
+        hash = 89 * hash + this.levelExp;
         hash = 89 * hash + this.hpXP;
         hash = 89 * hash + this.atkXP;
         hash = 89 * hash + this.defXP;

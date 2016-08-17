@@ -18,6 +18,8 @@
 package redrouter.view.route;
 
 import java.awt.BorderLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import redrouter.data.Battler;
@@ -81,9 +83,37 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
 //            b = Battler.DUMMY;
             b = new SingleBattler(tree.route.rd.getPokemon("NidoranM"), null, 5);
         }
-        JButton btnBattlerInfo = b.makeBattlerInfoButton();
+        JButton btnBattlerInfo = makeBattlerInfoButton(b);
 
         view.add(btnBattlerInfo, BorderLayout.EAST);
+    }
+
+    public JButton makeBattlerInfoButton(Battler b) {
+        JButton btn = new JButton("B");
+        btn.addMouseListener(new MouseAdapter() {
+            BattlerInfoDialog bif = null;
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    if (bif != null) {
+                        bif.dispose();
+                    }
+                    bif = new BattlerInfoDialog(b, e.getLocationOnScreen());
+                    bif.setVisible(true);
+                    //                    tree.requestFocus();
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (bif != null) {
+                    bif.dispose();
+                    bif = null;
+                }
+            }
+        });
+        return btn;
     }
 
 }

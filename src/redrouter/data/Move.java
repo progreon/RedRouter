@@ -20,6 +20,7 @@ package redrouter.data;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  *
@@ -109,6 +110,24 @@ public class Move {
     @Override
     public String toString() {
         return this.name;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        // TODO
+        return super.equals(obj); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 59 * hash + Objects.hashCode(this.name);
+        hash = 59 * hash + Objects.hashCode(this.type);
+        hash = 59 * hash + Objects.hashCode(this.effect);
+        hash = 59 * hash + (this.isAttack ? 1 : 0);
+        hash = 59 * hash + this.power;
+        hash = 59 * hash + this.accuracy;
+        return hash;
     }
 
     public class DamageRange {
