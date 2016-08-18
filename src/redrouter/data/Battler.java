@@ -43,14 +43,26 @@ public abstract class Battler implements Cloneable {
     
     public void defeatBattler(Battler b, int participants) {
         addStatXP(b.pokemon.hp, b.pokemon.atk, b.pokemon.def, b.pokemon.spd, b.pokemon.spc, participants);
+        addXP(b.getExp(participants).getMin());
+//        if (checkEvolve()) {
+//            evolve(null);
+//        }
     }
 
     // TODO: evolve condition (item, ...)
-    public abstract void evolve();
+    public abstract void evolve(Item item);
 
     public abstract void addStatXP(int hp, int atk, int def, int spd, int spc, int nrOfPkmn);
 
     public abstract void resetStatXP();
+    
+    public abstract void addXP(int exp);
+    
+    /**
+     * TODO
+     * @return
+     */
+    public abstract boolean checkEvolve();
 
     public abstract List<Move> getMoveset();
 

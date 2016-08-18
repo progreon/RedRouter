@@ -30,21 +30,29 @@ public class Range {
         this.max = max;
     }
 
-    public void combine(Range statRange) {
-        if (statRange.min < this.min) {
-            this.min = statRange.min;
+    public void combine(Range range) {
+        if (range.min < this.min) {
+            this.min = range.min;
         }
-        if (statRange.max > this.max) {
-            this.max = statRange.max;
+        if (range.max > this.max) {
+            this.max = range.max;
         }
     }
-
-    public boolean contains(int stat) {
-        return min <= stat && stat <= max;
+    
+    public int getMin() {
+        return this.min;
+    }
+    
+    public int getMax() {
+        return this.max;
     }
 
-    public boolean containsOneOf(Range statRange) {
-        return (this.min <= statRange.min && statRange.min <= this.max) || statRange.containsOneOf(this);
+    public boolean contains(int value) {
+        return min <= value && value <= max;
+    }
+
+    public boolean containsOneOf(Range range) {
+        return (this.min <= range.min && range.min <= this.max) || range.containsOneOf(this);
     }
 
     public Range devideBy(int d) {

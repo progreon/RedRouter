@@ -74,7 +74,7 @@ public class CombinedBattler extends Battler {
     }
 
     @Override
-    public void evolve() {
+    public void evolve(Item item) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -90,6 +90,21 @@ public class CombinedBattler extends Battler {
         for (SingleBattler sb : possibleBattlers) {
             sb.resetStatXP();
         }
+    }
+
+    @Override
+    public void addXP(int exp) {
+        for (SingleBattler sb : possibleBattlers) {
+            sb.addXP(exp);
+        }
+    }
+
+    @Override
+    public boolean checkEvolve() {
+        for (SingleBattler sb : possibleBattlers) {
+            sb.checkEvolve();
+        }
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

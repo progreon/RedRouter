@@ -137,7 +137,7 @@ public class SingleBattler extends Battler {
 
     // TODO: evolve condition (item, ...)
     @Override
-    public void evolve() {
+    public void evolve(Item item) {
         if (pokemon.evolution != null) {
             pokemon = pokemon.evolution;
         }
@@ -160,6 +160,35 @@ public class SingleBattler extends Battler {
         defXP = 0;
         spdXP = 0;
         spcXP = 0;
+    }
+
+    @Override
+    public void addXP(int exp) {
+        levelExp += exp;
+        int totExp = pokemon.expGroup.getTotalExp(level, levelExp);
+        int newLevel = pokemon.expGroup.getLevel(totExp);
+        if (level != newLevel) {
+            levelExp -= pokemon.expGroup.getDeltaExp(level, newLevel);
+            level = newLevel;
+            List<Move> newMoves = pokemon.getLearnedMoves(level);
+            int numCurMoves = 0;
+            while (numCurMoves < moveset.length && moveset[numCurMoves] != null) {
+                numCurMoves++;
+            }
+            int i = 0;
+            while (numCurMoves + i < moveset.length && i < newMoves.size()) {
+                moveset[numCurMoves + i] = newMoves.get(i);
+                i++;
+            }
+            if (i < newMoves.size()) {
+                // TODO check what move to override -> make Battler settings?
+            }
+        }
+    }
+
+    @Override
+    public boolean checkEvolve() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
