@@ -18,14 +18,15 @@
 package redrouter.data;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.CharBuffer;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import redrouter.Settings;
 
 /**
@@ -42,8 +43,8 @@ public class RouterData {
     private final Map<String, Location> locations = new HashMap<>();
     private final Map<String, Pokemon> pokemonByName = new HashMap<>();
     private final Map<Integer, Pokemon> pokemonByID = new HashMap<>();
-    // TODO hoe indexeren?
     private final Map<String, Move> moves = new HashMap<>();
+    // TODO hoe indexeren?
     private final Map<String, Trainer> trainers = new HashMap<>();
 
     public RouterData() {
@@ -52,13 +53,15 @@ public class RouterData {
 
     public RouterData(Settings settings) {
         this.settings = settings;
-        initPokemon();
+
+        initMovesets();
+        /*initPokemon();
         initLocations();
         initEncounters();
+        initMoves();
 
         // For dummy data
-        initTrainers();
-        initMoves();
+        initTrainers();*/
     }
 
     public EncounterArea getEncounterArea(Location location, String subArea) {
@@ -185,8 +188,8 @@ public class RouterData {
     }
 
     // TODO TEMP with moveString?
-    private Move addMove(String pokemonString, String file, int line) throws ParserException{
-        Move move = new Move(pokemonString,file,line);
+    private Move addMove(String moveString, String file, int line) throws ParserException{
+        Move move = new Move(moveString,file,line);
         if (!moves.containsKey(move.getIndexString())) {
             moves.put(move.getIndexString(), move);
             return move;
@@ -279,5 +282,30 @@ public class RouterData {
         return lines;
     }
 
+    private void initMovesets() {
+        List<String> lContent = getLinesFromMovesetFile(settings.getMovesetFile());
+        if(lContent == null) {
+            Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, "Error Parsing ");
+        }
+        for(String lString: lContent){
+
+        }
+    }
+
+    private List<String> getLinesFromMovesetFile(String pFileName) {
+        try {
+            StringBuilder lBuffer = new StringBuilder();
+            BufferedReader lReader = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream(pFileName), "UTF-8"));
+            for (int c = lReader.read(); c != -1; c = lReader.read()){
+                lBuffer.append((char)c);
+            }
+            String[] lStrings = lBuffer.toString().split("[\\n\\r|\\n|\\r]{2}");
+            return Arrays.stream(lStrings).collect(Collectors.toList());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     // Dummy space
 }
