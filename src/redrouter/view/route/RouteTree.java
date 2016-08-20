@@ -36,7 +36,7 @@ import redrouter.route.*;
  */
 public class RouteTree extends JTree {
 
-    private final Route route;
+    public final Route route;
 
     protected boolean isEditMode = false;
     public final Color backgroundColor = new Color(225, 225, 175);

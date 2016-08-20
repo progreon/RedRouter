@@ -63,11 +63,11 @@ public class RouteFactory {
         RouteSection rsParcel = new RouteSection(null, "Getting the Parcel to Oak");
 
         RouteSection rsRoute1A = new RouteSection(null, "Route 1");
-        List<Battler> r1Choices = new ArrayList<>();
-        r1Choices.add(new Battler(rd.getPokemon("Rattata"), 2, null));
-        r1Choices.add(new Battler(rd.getPokemon("Rattata"), 3, null));
-        r1Choices.add(new Battler(rd.getPokemon("Pidgey"), 2, null));
-        r1Choices.add(new Battler(rd.getPokemon("Pidgey"), 3, null));
+        List<SingleBattler> r1Choices = new ArrayList<>();
+        r1Choices.add(new SingleBattler(rd.getPokemon("Rattata"), 2, null));
+        r1Choices.add(new SingleBattler(rd.getPokemon("Rattata"), 3, null));
+        r1Choices.add(new SingleBattler(rd.getPokemon("Pidgey"), 2, null));
+        r1Choices.add(new SingleBattler(rd.getPokemon("Pidgey"), 3, null));
         rsRoute1A.addNewEncounter("You want to defeat an encounter here so that you have enough experience to get Lvl.8 at the Bug Catcher fight later. Only attempt to kill low level pokemon as higher levels take longer to kill.", rd.getEncounterArea(rd.getLocation("Route 1"), null), r1Choices, 0);
         rsRoute1A.addNewDirections("Head north through the route to Viridian City.");
         rsParcel.addSection(rsRoute1A);

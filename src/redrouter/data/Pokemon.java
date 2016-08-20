@@ -43,14 +43,14 @@ public class Pokemon {
     public final int def;
     public final int spd;
     public final int spc;
-    // TODO: growth rate
-//    private ExperienceGroup expGroup;
+
+    public final ExperienceGroup expGroup;
 
     private final List<Move> defaultMoves = new ArrayList<>();
     private final Map<Integer, List<Move>> learnedMoves = new HashMap<>();
     private final List<Move> tmMoves = new ArrayList<>();
 
-    public Pokemon(RouterData rd, int ID, String name, Types.Type type1, Types.Type type2, int expGiven, int hp, int atk, int def, int spd, int spc) {
+    public Pokemon(RouterData rd, int ID, String name, Types.Type type1, Types.Type type2, int expGiven, int hp, int atk, int def, int spd, int spc, ExperienceGroup expGroup) {
         this.rd = rd;
         this.ID = ID;
         this.name = name;
@@ -62,13 +62,14 @@ public class Pokemon {
         this.def = def;
         this.spd = spd;
         this.spc = spc;
+        this.expGroup = expGroup;
     }
 
     public Pokemon(RouterData rd, int ID, String pokemonString, String file, int line) throws ParserException {
         this.rd = rd;
         String[] s = pokemonString.split("#");
-        if (s.length != 9) {
-            throw new ParserException(file, line, "Entry must have 9 parameters!");
+        if (s.length != 10) {
+            throw new ParserException(file, line, "Entry must have 10 parameters!");
         } else {
             try {
                 this.ID = ID;
@@ -81,6 +82,7 @@ public class Pokemon {
                 this.def = Integer.parseInt(s[6]);
                 this.spd = Integer.parseInt(s[7]);
                 this.spc = Integer.parseInt(s[8]);
+                this.expGroup = ExperienceGroup.getExperienceGroup(s[9]);
             } catch (NumberFormatException nex) {
                 throw new ParserException(file, line, "Could not parse stat exp parameters!");
             }
@@ -119,6 +121,7 @@ public class Pokemon {
             }
             while (i < 4) {
                 moveset[i] = null;
+                i++;
             }
         }
 
@@ -169,6 +172,18 @@ public class Pokemon {
 
     public String getIndexString() {
         return getIndexString(name);
+    }
+
+    // TODO exp. all?
+    public int getExp(int level, int participants, boolean isTraded, boolean isTrainer) {
+        int a = ((expGiven / participants) * level / 7);
+        if (isTraded) {
+            a = a + (a / 2);
+        }
+        if (isTrainer) {
+            a = a + (a / 2);
+        }
+        return a;
     }
 
     public static String getIndexString(String name) {

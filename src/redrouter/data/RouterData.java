@@ -18,10 +18,8 @@
 package redrouter.data;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.CharBuffer;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,8 +41,8 @@ public class RouterData {
     private final Map<String, Location> locations = new HashMap<>();
     private final Map<String, Pokemon> pokemonByName = new HashMap<>();
     private final Map<Integer, Pokemon> pokemonByID = new HashMap<>();
-    private final Map<String, Move> moves = new HashMap<>();
     // TODO hoe indexeren?
+    private final Map<String, Move> moves = new HashMap<>();
     private final Map<String, Trainer> trainers = new HashMap<>();
 
     public RouterData() {
@@ -53,15 +51,13 @@ public class RouterData {
 
     public RouterData(Settings settings) {
         this.settings = settings;
-
-        initMovesets();
-        /*initPokemon();
+        initPokemon();
         initLocations();
         initEncounters();
-        initMoves();
 
         // For dummy data
-        initTrainers();*/
+        initTrainers();
+        initMoves();
     }
 
     public EncounterArea getEncounterArea(Location location, String subArea) {
@@ -201,31 +197,31 @@ public class RouterData {
     // TODO: TEMP
     private void initTrainers() {
         // TODO: input file!
-        List<Move> moveset = makeMoveSet(0);
-        List<List<Move>> movesets = new ArrayList<>();
+        Move[] moveset = makeMoveSet(0);
+        List<Move[]> movesets = new ArrayList<>();
         movesets.add(moveset);
-        List<Battler> team = makeTeam(new Pokemon[]{getPokemon("Bulbasaur")}, new int[]{5}, movesets);
+        List<SingleBattler> team = makeTeam(new Pokemon[]{getPokemon("Bulbasaur")}, new int[]{5}, movesets);
         Trainer rival1 = new Trainer(new Location(this, "Oak's Lab"), "Rival 1", null, team);
         trainers.put(rival1.getIndexString(), rival1);
     }
 
     // TODO: TEMP
-    private List<Move> makeMoveSet(int num) {
-        List<Move> moveset = new ArrayList<>();
+    private Move[] makeMoveSet(int num) {
+        Move[] moveset = new Move[4];
         for (int i = 1; i <= 4; i++) {
-           // moveset.add(addMove("Move" + (i + num), Types.Type.NORMAL, true, i * 20, 100,35));
+           // moveset[i - 1] = addMove("Move" + (i + num), Types.Type.NORMAL, true, i * 20, 100);
         }
         return moveset;
     }
 
     // TODO: TEMP
-    private List<Battler> makeTeam(Pokemon[] pokemon, int[] levels, List<List<Move>> movesets) {
+    private List<SingleBattler> makeTeam(Pokemon[] pokemon, int[] levels, List<Move[]> movesets) {
         if (pokemon.length != levels.length || pokemon.length != movesets.size()) {
             return null;
         } else {
-            List<Battler> team = new ArrayList<>();
+            List<SingleBattler> team = new ArrayList<>();
             for (int i = 0; i < pokemon.length; i++) {
-                Battler b = new Battler(pokemon[i], levels[i], movesets.get(i));
+                SingleBattler b = new SingleBattler(pokemon[i], levels[i], movesets.get(i));
                 team.add(b);
             }
             return team;

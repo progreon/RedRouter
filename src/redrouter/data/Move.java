@@ -20,6 +20,7 @@ package redrouter.data;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  *
@@ -29,6 +30,7 @@ public class Move {
 
     public final String name;
     public final Types.Type type;
+    public final String effect;
     public final boolean isAttack; // ??
     public final int power;
     public final int accuracy;
@@ -36,9 +38,14 @@ public class Move {
 
     public final List<Pokemon> pokemon; // Pokemon that learn this move
 
-    public Move(String name, Types.Type type, boolean isAttack, int power, int accuracy,int pp) {
+    public Move(String name, Types.Type type, boolean isAttack, int power, int accuracy,pp) {
+        this(name, type, "NO_ADDITIONAL_EFFECT", isAttack, power, accuracy,pp);
+    }
+
+    public Move(String name, Types.Type type, String effect, boolean isAttack, int power, int accuracy,int pp) {
         this.name = name;
         this.type = type;
+        this.effect = effect;
         this.isAttack = isAttack;
         this.power = power;
         this.accuracy = accuracy;
@@ -132,6 +139,24 @@ public class Move {
     @Override
     public String toString() {
         return this.name;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        // TODO
+        return super.equals(obj); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 59 * hash + Objects.hashCode(this.name);
+        hash = 59 * hash + Objects.hashCode(this.type);
+        hash = 59 * hash + Objects.hashCode(this.effect);
+        hash = 59 * hash + (this.isAttack ? 1 : 0);
+        hash = 59 * hash + this.power;
+        hash = 59 * hash + this.accuracy;
+        return hash;
     }
 
     public class DamageRange {

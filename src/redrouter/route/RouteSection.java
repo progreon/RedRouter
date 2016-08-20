@@ -19,9 +19,9 @@ package redrouter.route;
 
 import java.util.ArrayList;
 import java.util.List;
-import redrouter.data.Battler;
 import redrouter.data.EncounterArea;
 import redrouter.data.Player;
+import redrouter.data.SingleBattler;
 import redrouter.data.Trainer;
 
 /**
@@ -36,7 +36,7 @@ public class RouteSection extends RouteEntry {
     }
 
     public RouteSection(RouteSection parentSection, RouteEntryInfo info) {
-        super(parentSection, info, null);
+        this(parentSection, info, null);
     }
 
     public RouteSection(RouteSection parentSection, String title) {
@@ -76,7 +76,7 @@ public class RouteSection extends RouteEntry {
         return r;
     }
 
-    public RouteEncounter addNewEncounter(String description, EncounterArea area, List<Battler> choices, int preference) {
+    public RouteEncounter addNewEncounter(String description, EncounterArea area, List<SingleBattler> choices, int preference) {
         RouteEncounter r = new RouteEncounter(this, new RouteEntryInfo(null, description), area, choices, preference);
         addEntry(r);
         return r;

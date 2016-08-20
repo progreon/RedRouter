@@ -23,14 +23,12 @@ import java.awt.FontMetrics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
-import redrouter.data.Battler;
 import redrouter.route.RouteEntry;
 
 /**
@@ -157,34 +155,6 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         wrapped = "<html><body>" + wrapped + "</body></html>";
 
         return wrapped;
-    }
-
-    protected JButton makeBattlerInfoButton(Battler battler) {
-
-        JButton btn = new JButton("B");
-        btn.addMouseListener(new MouseAdapter() {
-
-            BattlerInfoDialog bif = null;
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (bif != null) {
-                    bif.dispose();
-                }
-                bif = new BattlerInfoDialog(battler, e.getLocationOnScreen());
-                bif.setVisible(true);
-                tree.requestFocus();
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (bif != null) {
-                    bif.dispose();
-                    bif = null;
-                }
-            }
-        });
-        return btn;
     }
 
 }

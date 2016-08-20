@@ -44,11 +44,12 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
-import redrouter.data.Battler;
 import redrouter.data.DVCalculator;
 import redrouter.data.EncounterArea;
 import redrouter.data.Location;
 import redrouter.data.Pokemon;
+import redrouter.data.SingleBattler;
+import redrouter.util.DVRange;
 
 /**
  *
@@ -65,9 +66,9 @@ public class DVCalculatorPanel extends JPanel {
 
     private final int settingsPanelWidth = 200;
     private final JPanel settingsPanel;
-    private JComboBox cmbPokemon;
+    private JComboBox<Pokemon> cmbPokemon;
     private JSpinner spnLevel;
-    private JComboBox cmbCatchLocation;
+    private JComboBox<EncounterArea> cmbCatchLocation;
     private List<DefeatedPkmn> pkmnDefeated;
     private JList<DefeatedPkmn> lstDefeated;
 
@@ -116,13 +117,13 @@ public class DVCalculatorPanel extends JPanel {
     }
 
     private void setPokemon(Pokemon poke) {
-        this.calc.setBattler(new Battler(poke, null, (int) spnLevel.getValue()));
+        this.calc.setBattler(new SingleBattler(poke, null, (int) spnLevel.getValue()));
         fillEncounterAreas();
         updateButtons();
     }
 
     private void setCatchLocation(EncounterArea catchLocation) {
-        this.calc.setBattler(new Battler(this.calc.getBattler().getPokemon(), catchLocation, (int) spnLevel.getValue()));
+        this.calc.setBattler(new SingleBattler(this.calc.getBattler().getPokemon(), catchLocation, (int) spnLevel.getValue()));
         updateButtons();
     }
 
@@ -169,7 +170,7 @@ public class DVCalculatorPanel extends JPanel {
         for (DefeatedPkmn poke : pkmnDefeated) {
             calc.defeatPokemon(poke.pkmn, poke.isDivided ? 2 : 1);
         }
-        calc.setLevel(calc.getBattler().level);
+        calc.setLevel(calc.getBattler().getLevel());
         updateButtons();
     }
 
@@ -240,7 +241,7 @@ public class DVCalculatorPanel extends JPanel {
         JLabel lblPokemon = new JLabel("Pokemon:");
         lblPokemon.setAlignmentX(Component.CENTER_ALIGNMENT);
         settingsPanel.add(lblPokemon);
-        cmbPokemon = new JComboBox(calc.getRd().getAllPokemon());
+        cmbPokemon = new JComboBox<>(calc.getRd().getAllPokemon());
         cmbPokemon.setPreferredSize(new Dimension(settingsPanelWidth, cmbPokemon.getMinimumSize().height));
         cmbPokemon.setMaximumSize(new Dimension(settingsPanelWidth, cmbPokemon.getMinimumSize().height));
         cmbPokemon.setSelectedItem(calc.getBattler().getPokemon());
@@ -254,7 +255,7 @@ public class DVCalculatorPanel extends JPanel {
         settingsPanel.add(cmbPokemon);
 
         // Level
-        spnLevel = new JSpinner(new SpinnerNumberModel(this.calc.getBattler().level, 2, 100, 1));
+        spnLevel = new JSpinner(new SpinnerNumberModel(this.calc.getBattler().getLevel(), 2, 100, 1));
         spnLevel.setMaximumSize(new Dimension(spnLevel.getMaximumSize().width, spnLevel.getMinimumSize().height));
         spnLevel.addChangeListener((ChangeEvent e) -> {
             setLevel((int) spnLevel.getValue());
@@ -265,7 +266,7 @@ public class DVCalculatorPanel extends JPanel {
         settingsPanel.add(spnLevel);
 
         // Location
-        cmbCatchLocation = new JComboBox();
+        cmbCatchLocation = new JComboBox<>();
         fillEncounterAreas();
         cmbCatchLocation.setPreferredSize(new Dimension(settingsPanelWidth, cmbCatchLocation.getMinimumSize().height));
         cmbCatchLocation.setMaximumSize(new Dimension(settingsPanelWidth, cmbCatchLocation.getMinimumSize().height));
@@ -290,7 +291,7 @@ public class DVCalculatorPanel extends JPanel {
         JLabel lblDefeatedInfo = new JLabel("(before leveling up)");
         lblDefeatedInfo.setAlignmentX(Component.CENTER_ALIGNMENT);
         settingsPanel.add(lblDefeatedInfo);
-        JComboBox cmbPokemon2 = new JComboBox(calc.getRd().getAllPokemon());
+        JComboBox<Pokemon> cmbPokemon2 = new JComboBox<>(calc.getRd().getAllPokemon());
         cmbPokemon2.setPreferredSize(new Dimension(settingsPanelWidth, cmbPokemon2.getMinimumSize().height));
         cmbPokemon2.setMaximumSize(new Dimension(settingsPanelWidth, cmbPokemon2.getMinimumSize().height));
         settingsPanel.add(cmbPokemon2);
@@ -373,17 +374,17 @@ public class DVCalculatorPanel extends JPanel {
 
     private class DVPanel extends JPanel {
 
-        public DVPanel(Battler.DVRange[] ranges) {
+        public DVPanel(DVRange[] ranges) {
             super(new GridLayout(0, 5));
             init(ranges);
             this.setPreferredSize(new Dimension(300, this.getPreferredSize().height));
         }
 
-        private void init(Battler.DVRange[] ranges) {
+        private void init(DVRange[] ranges) {
             setRanges(ranges);
         }
 
-        public void setRanges(Battler.DVRange[] ranges) {
+        public void setRanges(DVRange[] ranges) {
             this.removeAll();
             String[] statNames = new String[]{"HP", "ATK", "DEF", "SPD", "SPC"};
             for (int stat = 0; stat < 5; stat++) {

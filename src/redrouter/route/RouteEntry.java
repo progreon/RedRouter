@@ -30,10 +30,8 @@ public abstract class RouteEntry {
     public RouteSection parent;
     public final List<RouteEntry> children;
 
-    private Player player = null; // current instance of the player
+    protected Player player = null; // current instance of the player
 
-//    public RouteEntry() {
-//    }
     public RouteEntry(RouteSection parentSection, RouteEntryInfo info) {
         this(parentSection, info, null);
     }
@@ -45,6 +43,10 @@ public abstract class RouteEntry {
 //        refreshData(null);
     }
 
+    public Player getPlayer() {
+        return this.player;
+    }
+
     public final void refreshData(Player previousPlayer) {
         RouteEntry previous = getPrevious();
         if (previousPlayer == null && previous != null) {
@@ -54,7 +56,10 @@ public abstract class RouteEntry {
             previousPlayer = new Player(null, "The player", "", null);
         }
         apply(previousPlayer);
-        getNext().refreshData(player); // TODO: not optimal to use getNext!
+        RouteEntry next = getNext();
+        if (next != null) {
+            getNext().refreshData(player); // TODO: not optimal to use getNext!
+        }
     }
 
     protected abstract void apply(Player previousPlayer);
@@ -69,7 +74,7 @@ public abstract class RouteEntry {
             if (thisIndex > 0) {
                 return parent.children.get(thisIndex - 1).getLastChild();
             } else { // This is the first child
-                return ((RouteEntry) parent).getPrevious();
+                return (RouteEntry) parent;
             }
         } else { // This is the root
             return null;
@@ -77,7 +82,9 @@ public abstract class RouteEntry {
     }
 
     private RouteEntry getNext() {
-        if (parent != null) {
+        if (hasChildren()) {
+            return children.get(0);
+        } else if (parent != null) {
             int thisIndex = parent.children.indexOf(this);
             if (thisIndex < parent.children.size() - 1) {
                 return parent.children.get(thisIndex + 1).getFirstChild();

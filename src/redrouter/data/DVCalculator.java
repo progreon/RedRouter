@@ -19,6 +19,8 @@ package redrouter.data;
 
 import java.util.HashMap;
 import java.util.Map;
+import redrouter.util.DVRange;
+import redrouter.util.Range;
 
 /**
  *
@@ -37,22 +39,22 @@ public class DVCalculator {
 
     public final String defaultPokemon = "NidoranM";
     public final int defaultLevel = 3;
-    private Battler battler;
+    private SingleBattler battler;
     public final int maxEncounterRate = 255;
-    public final int[][] stats;
+    public final Range[][] stats;
 
-    public DVCalculator(RouterData rd, Battler battler) {
+    public DVCalculator(RouterData rd, SingleBattler battler) {
         this.rd = rd;
         this.battler = battler;
         if (this.battler == null) {
             this.battler = getDefaultBattler();
         }
-        this.stats = new int[5][16];
+        this.stats = new Range[5][16];
         init();
     }
 
-    private Battler getDefaultBattler() {
-        return new Battler(rd.getPokemon(defaultPokemon), null, defaultLevel);
+    private SingleBattler getDefaultBattler() {
+        return new SingleBattler(rd.getPokemon(defaultPokemon), null, defaultLevel);
     }
 
     private void init() {
@@ -90,9 +92,9 @@ public class DVCalculator {
 
     public boolean setDV(int stat, int dv) {
         if (battler.possibleDVs[stat][dv]) {
-            int val = stats[stat][dv];
+            Range val = stats[stat][dv];
             for (int i = 0; i < battler.possibleDVs[stat].length; i++) {
-                if (stats[stat][i] != val) {
+                if (!stats[stat][i].containsOneOf(val)) {
                     battler.possibleDVs[stat][i] = false;
                 }
             }
@@ -121,7 +123,7 @@ public class DVCalculator {
         return battler;
     }
 
-    public void setBattler(Battler battler) {
+    public void setBattler(SingleBattler battler) {
         this.battler = battler;
         if (this.battler == null) {
             this.battler = getDefaultBattler();
@@ -129,7 +131,7 @@ public class DVCalculator {
         init();
     }
 
-    public Battler.DVRange[] getDVRanges() {
+    public DVRange[] getDVRanges() {
         return battler.getDVRanges();
     }
 
