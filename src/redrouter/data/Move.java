@@ -38,7 +38,7 @@ public class Move {
 
     public final List<Pokemon> pokemon; // Pokemon that learn this move
 
-    public Move(String name, Types.Type type, boolean isAttack, int power, int accuracy,pp) {
+    public Move(String name, Types.Type type, boolean isAttack, int power, int accuracy,int pp) {
         this(name, type, "NO_ADDITIONAL_EFFECT", isAttack, power, accuracy,pp);
     }
 
@@ -68,6 +68,7 @@ public class Move {
         } else {
             try {
                 this.name = lStrings[0];
+                this.effect = lStrings[1];
                 this.power = Integer.parseInt(lStrings[2]);
                 this.type = Types.getType(lStrings[3],pFile,pLine);
                 this.accuracy = Integer.parseInt(lStrings[4]);
