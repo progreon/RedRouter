@@ -20,12 +20,11 @@ package redrouter.data;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import redrouter.Settings;
 
 /**
@@ -44,6 +43,7 @@ public class RouterData {
     private final Map<Integer, Pokemon> pokemonByID = new HashMap<>();
     // TODO hoe indexeren?
     private final Map<String, Move> moves = new HashMap<>();
+    private final Map<String, Move> tms = new HashMap<>();
     private final Map<String, Trainer> trainers = new HashMap<>();
 
     public RouterData() {
@@ -55,10 +55,12 @@ public class RouterData {
         initPokemon();
         initLocations();
         initEncounters();
-
+        initMoves();
+        initTms();
+        initMovesets();
         // For dummy data
         initTrainers();
-        initMoves();
+
     }
 
     public EncounterArea getEncounterArea(Location location, String subArea) {
@@ -167,16 +169,26 @@ public class RouterData {
         }
     }
 
-    // TODO dynamic
-    private void initMoves() {
-        for (int i = 0; i <= 5; i++) {
-            addMove("Move" + (i + 1), Types.Type.NORMAL, true, i * 20, 100);
+
+    private void initMoves()  {
+        List<String> lMoveList = getLinesFromFile(settings.getMoveFile());
+        try {
+            for (int i=0;i<lMoveList.size();i++){
+                String lMove = lMoveList.get(i);
+                if (!lMove.equals("") && !lMove.substring(0, 2).equals("//")) {
+                    if (addMove(lMove, settings.getMoveFile(), i) == null) {
+                            throw new ParserException(settings.getMoveFile(), i, "This move already exists!");
+                    }
+                }
+            }
+        } catch (ParserException pE) {
+            Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, pE);
         }
     }
 
     // TODO TEMP with moveString?
-    private Move addMove(String name, Types.Type type, boolean isAttack, int power, int accuracy) {
-        Move move = new Move(name, type, isAttack, power, accuracy);
+    private Move addMove(String moveString, String file, int line) throws ParserException{
+        Move move = new Move(moveString,file,line);
         if (!moves.containsKey(move.getIndexString())) {
             moves.put(move.getIndexString(), move);
             return move;
@@ -188,7 +200,7 @@ public class RouterData {
     // TODO: TEMP
     private void initTrainers() {
         // TODO: input file!
-        Move[] moveset = makeMoveSet(0);
+        Move[] moveset = makeMoveSet(1);
         List<Move[]> movesets = new ArrayList<>();
         movesets.add(moveset);
         List<SingleBattler> team = makeTeam(new Pokemon[]{getPokemon("Bulbasaur")}, new int[]{5}, movesets);
@@ -200,7 +212,7 @@ public class RouterData {
     private Move[] makeMoveSet(int num) {
         Move[] moveset = new Move[4];
         for (int i = 1; i <= 4; i++) {
-            moveset[i - 1] = addMove("Move" + (i + num), Types.Type.NORMAL, true, i * 20, 100);
+            moveset[i - 1] = moves.get("POUND");
         }
         return moveset;
     }
@@ -267,6 +279,133 @@ public class RouterData {
             }
         }
         return lines;
+    }
+
+    //TODO Exception Handling
+    private void initMovesets() {
+        List<String> lContent = getLinesFromMovesetFile(settings.getMovesetFile());
+        if(lContent == null) {
+            Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, "Error Parsing ",lContent );
+        }
+        try {
+            for(String lString: lContent){
+                String[] lData = lString.split("\n");
+                if(!addMoveset(lData)){
+                    throw new ParserException(settings.getMovesetFile(), -1, "Error with this line : " + lString);
+                }
+            }
+        } catch (ParserException pPE) {
+            Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, pPE);
+        }
+    }
+
+    /**
+     *
+     * @param lData
+     * @throws ParserException
+     */
+    private boolean addMoveset(String[] lData) throws ParserException{
+        // Removes # from name
+        String lName = lData[0].substring(1);
+        Pokemon lPokemon = pokemonByName.get(lName);
+        // Loop so TM Moves and Pokemon name are ignored
+        for (int i = 1; i < lData.length-1; i++) {
+            String lMove = lData[i];
+            String[] lMoveSplit = lMove.split("#");
+            // [0] => level [1] => move name
+            try{
+                lPokemon.addLearnedMove(Integer.parseInt(lMoveSplit[0]),moves.get(lMoveSplit[1]));
+            }
+            catch (NullPointerException pNpe){
+                Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, pNpe);
+                return false;
+            }
+        }
+        //Deals with TM Moves
+        //Ignores first 3 characters
+        String lTmsMove = lData[lData.length-1].substring(3);
+        if(!lTmsMove.isEmpty()){
+            String[] lTMsSplit = lTmsMove.split(",");
+            for (String lTM : lTMsSplit){
+                lPokemon.addTmMove(tms.get(lTM));
+            }
+        }
+        return true;
+    }
+
+    private List<String> getLinesFromMovesetFile(String pFileName) {
+        try {
+            StringBuilder lBuffer = new StringBuilder();
+            BufferedReader lReader = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream(pFileName), "UTF-8"));
+            for (int c = lReader.read(); c != -1; c = lReader.read()){
+                lBuffer.append((char)c);
+            }
+            //Splits file using empty lines as a separator
+            String[] lStrings = lBuffer.toString().split("[\\n\\r|\\n|\\r]{2}");
+            return Arrays.stream(lStrings).collect(Collectors.toList());
+
+        } catch (IOException pIOE) {
+            Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, pIOE);
+        }
+        return null;
+    }
+    //TODO Change that
+    private void initTms() {
+        tms.put("TM_01",moves.get("MEGA_PUNCH"));
+        tms.put("TM_02",moves.get("RAZOR_WIND"));
+        tms.put("TM_03",moves.get("SWORDS_DANCE"));
+        tms.put("TM_04",moves.get("WHIRLWIND"));
+        tms.put("TM_05",moves.get("MEGA_KICK"));
+        tms.put("TM_06",moves.get("TOXIC"));
+        tms.put("TM_07",moves.get("HORN_DRILL"));
+        tms.put("TM_08",moves.get("BODY_SLAM"));
+        tms.put("TM_09",moves.get("TAKE_DOWN"));
+        tms.put("TM_10",moves.get("DOUBLE_EDGE"));
+        tms.put("TM_11",moves.get("BUBBLEBEAM"));
+        tms.put("TM_12",moves.get("WATER_GUN"));
+        tms.put("TM_13",moves.get("ICE_BEAM"));
+        tms.put("TM_14",moves.get("BLIZZARD"));
+        tms.put("TM_15",moves.get("HYPER_BEAM"));
+        tms.put("TM_16",moves.get("PAY_DAY"));
+        tms.put("TM_17",moves.get("SUBMISSION"));
+        tms.put("TM_18",moves.get("COUNTER"));
+        tms.put("TM_19",moves.get("SEISMIC_TOSS"));
+        tms.put("TM_20",moves.get("RAGE"));
+        tms.put("TM_21",moves.get("MEGA_DRAIN"));
+        tms.put("TM_22",moves.get("SOLARBEAM"));
+        tms.put("TM_23",moves.get("DRAGON_RAGE"));
+        tms.put("TM_24",moves.get("THUNDERBOLT"));
+        tms.put("TM_25",moves.get("THUNDER"));
+        tms.put("TM_26",moves.get("EARTHQUAKE"));
+        tms.put("TM_27",moves.get("FISSURE"));
+        tms.put("TM_28",moves.get("DIG"));
+        tms.put("TM_29",moves.get("PSYCHIC_M"));
+        tms.put("TM_30",moves.get("TELEPORT"));
+        tms.put("TM_31",moves.get("MIMIC"));
+        tms.put("TM_32",moves.get("DOUBLE_TEAM"));
+        tms.put("TM_33",moves.get("REFLECT"));
+        tms.put("TM_34",moves.get("BIDE"));
+        tms.put("TM_35",moves.get("METRONOME"));
+        tms.put("TM_36",moves.get("SELFDESTRUCT"));
+        tms.put("TM_37",moves.get("EGG_BOMB"));
+        tms.put("TM_38",moves.get("FIRE_BLAST"));
+        tms.put("TM_39",moves.get("SWIFT"));
+        tms.put("TM_40",moves.get("SKULL_BASH"));
+        tms.put("TM_41",moves.get("SOFTBOILED"));
+        tms.put("TM_42",moves.get("DREAM_EATER"));
+        tms.put("TM_43",moves.get("SKY_ATTACK"));
+        tms.put("TM_44",moves.get("REST"));
+        tms.put("TM_45",moves.get("THUNDER_WAVE"));
+        tms.put("TM_46",moves.get("PSYWAVE"));
+        tms.put("TM_47",moves.get("EXPLOSION"));
+        tms.put("TM_48",moves.get("ROCK_SLIDE"));
+        tms.put("TM_49",moves.get("TRI_ATTACK"));
+        tms.put("TM_50",moves.get("SUBSTITUTE"));
+        tms.put("HM_01",moves.get("CUT"));
+        tms.put("HM_02",moves.get("FLY"));
+        tms.put("HM_03",moves.get("SURF"));
+        tms.put("HM_04",moves.get("STRENGTH"));
+        tms.put("HM_05",moves.get("FLASH"));
     }
 
     // Dummy space

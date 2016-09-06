@@ -71,6 +71,24 @@ public class Types {
         return typeChart;
     }
 
+    /**
+     * Get a type from its string
+     * @param pString
+     * @return
+     */
+    public static Type getType(String pString, String pFile, int pLine) throws ParserException{
+
+        if(pString.isEmpty()) return null;
+        try {
+            Type lType = Type.valueOf(pString.toUpperCase());
+            return lType;
+        }
+        catch (IllegalArgumentException pE) {
+            throw new ParserException(pFile, pLine, "Could not find type :" + pString);
+        }
+
+    }
+
     public static class TypeChart {
 
         private final HashMap<Type, HashMap<Type, Double>> chart;
@@ -84,10 +102,12 @@ public class Types {
                     chart.get(t1).put(t2, 1.0);
                 }
             }
-            
+            //TODO Check if chart is right
             // Second: specific multipliers
+            //NORMAL
             chart.get(Type.NORMAL).put(Type.ROCK, 0.5);
             chart.get(Type.NORMAL).put(Type.GHOST, 0.0);
+            //FIRE
             chart.get(Type.FIRE).put(Type.FIRE, 0.5);
             chart.get(Type.FIRE).put(Type.WATER, 0.5);
             chart.get(Type.FIRE).put(Type.GRASS, 2.0);
@@ -95,8 +115,90 @@ public class Types {
             chart.get(Type.FIRE).put(Type.BUG, 2.0);
             chart.get(Type.FIRE).put(Type.ROCK, 0.5);
             chart.get(Type.FIRE).put(Type.DRAGON, 0.5);
+            //WATER
             chart.get(Type.WATER).put(Type.FIRE, 2.0);
-            // TODO
+            chart.get(Type.WATER).put(Type.DRAGON, 0.5);
+            chart.get(Type.WATER).put(Type.GRASS, 0.5);
+            chart.get(Type.WATER).put(Type.GROUND, 2.0);
+            chart.get(Type.WATER).put(Type.ROCK, 2.0);
+            //BUG
+            chart.get(Type.BUG).put(Type.FIGHTING, 2.0);
+            chart.get(Type.BUG).put(Type.FIRE, 0.5);
+            chart.get(Type.BUG).put(Type.FLYING, 0.5);
+            chart.get(Type.BUG).put(Type.GRASS, 2.0);
+            chart.get(Type.BUG).put(Type.POISON, 2.0);
+            chart.get(Type.BUG).put(Type.PSYCHIC, 2.0);
+            //DRAGON
+            chart.get(Type.DRAGON).put(Type.DRAGON, 2.0);
+            //ELECTRIC
+            chart.get(Type.ELECTRIC).put(Type.DRAGON, 0.5);
+            chart.get(Type.ELECTRIC).put(Type.ELECTRIC, 0.5);
+            chart.get(Type.ELECTRIC).put(Type.FLYING, 2.0);
+            chart.get(Type.ELECTRIC).put(Type.GRASS, 0.5);
+            chart.get(Type.ELECTRIC).put(Type.GROUND, 0.0);
+            chart.get(Type.ELECTRIC).put(Type.WATER, 2.0);
+            //FIGHTING
+            chart.get(Type.FIGHTING).put(Type.BUG, 0.5);
+            chart.get(Type.FIGHTING).put(Type.FLYING, 0.5);
+            chart.get(Type.FIGHTING).put(Type.GHOST, 0.0);
+            chart.get(Type.FIGHTING).put(Type.ICE, 2.0);
+            chart.get(Type.FIGHTING).put(Type.NORMAL, 2.0);
+            chart.get(Type.FIGHTING).put(Type.POISON, 0.5);
+            chart.get(Type.FIGHTING).put(Type.PSYCHIC, 0.5);
+            chart.get(Type.FIGHTING).put(Type.ROCK, 2.0);
+            //FLYING
+            chart.get(Type.FLYING).put(Type.BUG, 0.5);
+            chart.get(Type.FLYING).put(Type.ELECTRIC, 0.5);
+            chart.get(Type.FLYING).put(Type.GRASS, 2.0);
+            chart.get(Type.FLYING).put(Type.GROUND, 2.0);
+            chart.get(Type.FLYING).put(Type.ROCK, 0.5);
+            //GHOST
+            chart.get(Type.GHOST).put(Type.GHOST, 2.0);
+            chart.get(Type.GHOST).put(Type.NORMAL, 0.0);
+            chart.get(Type.GHOST).put(Type.PSYCHIC, 0.0);
+            //GRASS
+            chart.get(Type.GRASS).put(Type.BUG, 0.5);
+            chart.get(Type.GRASS).put(Type.DRAGON, 0.5);
+            chart.get(Type.GRASS).put(Type.FIRE, 0.5);
+            chart.get(Type.GRASS).put(Type.FLYING, 0.5);
+            chart.get(Type.GRASS).put(Type.GRASS, 0.5);
+            chart.get(Type.GRASS).put(Type.GROUND, 2.0);
+            chart.get(Type.GRASS).put(Type.POISON, 0.5);
+            chart.get(Type.GRASS).put(Type.ROCK, 2.0);
+            chart.get(Type.GRASS).put(Type.WATER, 2.0);
+            //GROUND
+            chart.get(Type.GROUND).put(Type.BUG, 0.5);
+            chart.get(Type.GROUND).put(Type.ELECTRIC, 2.0);
+            chart.get(Type.GROUND).put(Type.FIRE, 2.0);
+            chart.get(Type.GROUND).put(Type.FLYING, 0.0);
+            chart.get(Type.GROUND).put(Type.GRASS, 0.5);
+            chart.get(Type.GROUND).put(Type.POISON, 2.0);
+            chart.get(Type.GROUND).put(Type.ROCK, 2.0);
+            //ICE
+            chart.get(Type.ICE).put(Type.DRAGON, 2.0);
+            chart.get(Type.ICE).put(Type.FLYING, 2.0);
+            chart.get(Type.ICE).put(Type.GRASS, 2.0);
+            chart.get(Type.ICE).put(Type.GROUND,2.0);
+            chart.get(Type.ICE).put(Type.ICE, 0.5);
+            chart.get(Type.ICE).put(Type.WATER, 0.5);
+            //POISON
+            chart.get(Type.POISON).put(Type.BUG, 2.0);
+            chart.get(Type.POISON).put(Type.GHOST, 0.5);
+            chart.get(Type.POISON).put(Type.GRASS, 2.0);
+            chart.get(Type.POISON).put(Type.GROUND, 0.5);
+            chart.get(Type.POISON).put(Type.POISON, 0.5);
+            chart.get(Type.POISON).put(Type.ROCK, 0.5);
+            //PSYCHIC
+            chart.get(Type.PSYCHIC).put(Type.FIGHTING, 2.0);
+            chart.get(Type.PSYCHIC).put(Type.POISON, 2.0);
+            chart.get(Type.PSYCHIC).put(Type.PSYCHIC, 0.5);
+            //ROCK
+            chart.get(Type.ROCK).put(Type.BUG, 2.0);
+            chart.get(Type.ROCK).put(Type.FIGHTING, 0.5);
+            chart.get(Type.ROCK).put(Type.FIRE, 2.0);
+            chart.get(Type.ROCK).put(Type.FLYING, 2.0);
+            chart.get(Type.ROCK).put(Type.GROUND, 0.5);
+            chart.get(Type.ROCK).put(Type.ICE, 2.0);
         }
         
         public double getFactor(Type typeAtk, Type typeDef1, Type typeDef2) {
