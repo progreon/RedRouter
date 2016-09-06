@@ -52,7 +52,8 @@ public class Range {
     }
 
     public boolean containsOneOf(Range range) {
-        return (this.min <= range.min && range.min <= this.max) || range.containsOneOf(this);
+        return (this.min <= range.min && range.min <= this.max)
+                || (range.min <= this.min && this.min <= range.max);
     }
 
     public Range devideBy(int d) {
