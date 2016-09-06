@@ -18,10 +18,14 @@
 package redrouter.view.route;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import redrouter.data.Battler;
 import redrouter.data.Move;
 import redrouter.data.SingleBattler;
@@ -45,46 +49,74 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
         setLabelText(lblInfo, labelText, availableWidth);
     }
 
+    private JPanel getBattlerCell(Battler b, boolean isOpponent) {
+        JPanel pnlCell = new JPanel(new BorderLayout());
+
+        String text = "<html><body>";
+        text += b.toString() + "<br>(" + b.getHP() + "hp)<br>";
+        if (isOpponent) {
+            text += "Gives " + b.getExp(1) + " xp<br>";
+        }
+        text += "Crit: " + (((b.getPokemon().spd / 2) / 256.0) * 100.0) + "%";
+        text += "</body></html";
+        JLabel lbl = new JLabel(text);
+        pnlCell.add(lbl);
+        pnlCell.setOpaque(false);
+        pnlCell.setBorder(BorderFactory.createLineBorder(Color.black, 1));
+
+        return pnlCell;
+    }
+
+    private JPanel getMovesCell(Battler attacker, Battler defender) {
+        JPanel pnlCell = new JPanel(new BorderLayout());
+
+        String text = "<html><body>";
+        for (Move m : attacker.getMoveset()) {
+            text += m;
+            text += " (" + m.getDamageRange(attacker, defender, false) + ")";
+            text += "<br>";
+        }
+        text += "</body></html";
+        JLabel lbl = new JLabel(text);
+        pnlCell.add(lbl);
+        pnlCell.setOpaque(false);
+        pnlCell.setBorder(BorderFactory.createLineBorder(Color.black, 1));
+
+        return pnlCell;
+    }
+
     @Override
     protected void initRender(int availableWidth) {
         String text;
-        JLabel lbl;
+        JLabel lbl = new JLabel();
         RouteBattle rb = (RouteBattle) routeEntry;
         text = rb.info.toString() + "\n";
         text += (rb.opponent.info == null ? "" : "\tInfo: " + rb.opponent.info + "\n");
-
-        lbl = new JLabel();
         setLabelText(lbl, text, availableWidth);
         view.add(lbl);
-        JLabel lblTeam = new JLabel();
-        String teamTable = "<html><body><table border=\"1\">";
-        teamTable += "<tr><th>Party Pkmn</th><th>Moveset</th></tr>";
-        for (Battler b : rb.opponent.team) {
-            teamTable += "<tr>";
-            teamTable += "<td>" + b.toString() + " (" + b.getHP() + "hp)" + "</td>";
-            teamTable += "<td>";
-            for (Move m : b.getMoveset()) {
-                teamTable += m.toString() + "<br>";
-            }
-            teamTable += "</td>";
-            teamTable += "</tr>";
+
+        Battler myBat;
+        if (routeEntry.getPlayer() != null && !routeEntry.getPlayer().team.isEmpty()) {
+            myBat = routeEntry.getPlayer().team.get(0);
+        } else {
+//            b = Battler.DUMMY;
+            myBat = new SingleBattler(tree.route.rd.getPokemon("NidoranM"), null, 5);
         }
-        teamTable += "</table></body></html>";
-        lblTeam.setText(teamTable);
-        view.add(lblTeam, BorderLayout.SOUTH);
+
+        JPanel pnlMoves = new JPanel(new GridLayout(0, 4));
+        for (Battler b : rb.opponent.team) {
+            pnlMoves.add(getBattlerCell(b, true));
+            pnlMoves.add(getMovesCell(b, myBat));
+            pnlMoves.add(getMovesCell(myBat, b));
+            pnlMoves.add(getBattlerCell(myBat, false));
+        }
+        pnlMoves.setOpaque(false);
+        view.add(pnlMoves, BorderLayout.SOUTH);
 
         labelText = text;
         lblInfo = lbl;
 
-        Battler b;
-        if (routeEntry.getPlayer() != null && !routeEntry.getPlayer().team.isEmpty()) {
-            b = routeEntry.getPlayer().team.get(0);
-        } else {
-//            b = Battler.DUMMY;
-            b = new SingleBattler(tree.route.rd.getPokemon("NidoranM"), null, 5);
-        }
-        JButton btnBattlerInfo = makeBattlerInfoButton(b);
-
+        JButton btnBattlerInfo = makeBattlerInfoButton(myBat);
         view.add(btnBattlerInfo, BorderLayout.EAST);
     }
 

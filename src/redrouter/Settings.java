@@ -26,6 +26,9 @@ public class Settings {
     // TODO from settings file?
 //    public static final String TITLE = "Gen I DV Calculator";
     public static final String TITLE = "Gen I Router";
+    
+    public static final int WIDTH = 800;
+    public static final int HEIGHT = 600;
 
     public static final String GAME_RED = "Pokemon Red";
     public static final String GAME_BLUE = "Pokemon Blue";
