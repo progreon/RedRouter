@@ -112,7 +112,7 @@ public class CombinedBattler extends Battler {
         List<Move> moves = new ArrayList<>();
         for (SingleBattler sb : possibleBattlers) {
             for (Move m : sb.getMoveset()) {
-                if (!moves.contains(m)) {
+                if (m != null && !moves.contains(m)) {
                     moves.add(m);
                 }
             }

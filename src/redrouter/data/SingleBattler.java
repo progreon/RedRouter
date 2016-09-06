@@ -195,7 +195,9 @@ public class SingleBattler extends Battler {
     public List<Move> getMoveset() {
         List<Move> moves = new ArrayList<>();
         for (Move m : moveset) {
-            moves.add(m);
+            if (m != null) {
+                moves.add(m);
+            }
         }
         return moves;
     }
