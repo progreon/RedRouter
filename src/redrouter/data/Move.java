@@ -28,27 +28,65 @@ import java.util.Objects;
  */
 public class Move {
 
+    private final RouterData rd;
+
     public final String name;
     public final Types.Type type;
     public final String effect;
     public final boolean isAttack; // ??
     public final int power;
     public final int accuracy;
+    public final int pp;
 
     public final List<Pokemon> pokemon; // Pokemon that learn this move
 
-    public Move(String name, Types.Type type, boolean isAttack, int power, int accuracy) {
-        this(name, type, "NO_ADDITIONAL_EFFECT", isAttack, power, accuracy);
+    public Move(RouterData rd, String name, Types.Type type, boolean isAttack, int power, int accuracy, int pp) {
+        this(rd, name, type, "NO_ADDITIONAL_EFFECT", isAttack, power, accuracy, pp);
     }
 
-    public Move(String name, Types.Type type, String effect, boolean isAttack, int power, int accuracy) {
+    public Move(RouterData rd, String name, Types.Type type, String effect, boolean isAttack, int power, int accuracy, int pp) {
+        this.rd = rd;
         this.name = name;
         this.type = type;
         this.effect = effect;
         this.isAttack = isAttack;
         this.power = power;
         this.accuracy = accuracy;
+        this.pp = pp;
         this.pokemon = new ArrayList<>();
+    }
+
+    /**
+     * Creates a Move from a parsed line
+     *
+     * @param rd
+     * @param moveString i.e : POUND,NO_ADDITIONAL_EFFECT#40#NORMAL#100#35
+     * @param file
+     * @param line
+     * @throws ParserException
+     */
+    // TODO Move effect
+    public Move(RouterData rd, String moveString, String file, int line) throws ParserException {
+        this.rd = rd;
+        String[] s = moveString.split("#");
+        if (s.length != 6) {
+            throw new ParserException(file, line, "Entry must have 6 parameters!");
+        } else {
+            try {
+                this.name = s[0];
+                this.effect = s[1];
+                this.power = Integer.parseInt(s[2]);
+                this.type = Types.getType(s[3]);
+                this.accuracy = Integer.parseInt(s[4]);
+                this.pp = Integer.parseInt(s[5]);
+                this.isAttack = this.power > 0;
+                this.pokemon = new ArrayList<>();
+            } catch (NumberFormatException nex) {
+                throw new ParserException(file, line, "Could not parse a move parameter!");
+            } catch (IllegalArgumentException ex) {
+                throw new ParserException(file, line, "Could not parse the move type!");
+            }
+        }
     }
 
     // TODO : ref. RedHelper for implementation
