@@ -202,7 +202,7 @@ public class Types {
         public double getFactor(Type typeAtk, Type typeDef1, Type typeDef2) {
             double f = 1.0;
             f *= chart.get(typeAtk).get(typeDef1);
-            f *= chart.get(typeAtk).get(typeDef2);
+            f *= typeDef2 == null ? 1.0 : chart.get(typeAtk).get(typeDef2);
             return f;
         }
 

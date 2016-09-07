@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import redrouter.util.Range;
 
 /**
  *
@@ -37,6 +38,9 @@ public class Move {
     public final int power;
     public final int accuracy;
     public final int pp;
+
+    private int[] multipliers = new int[]{25, 28, 33, 40, 50, 66, 1, 15, 2, 25, 3, 35, 4};
+    private int[] divisors = new int[]{100, 100, 100, 100, 100, 100, 1, 10, 1, 10, 1, 10, 1};
 
     public final List<Pokemon> pokemon; // Pokemon that learn this move
 
@@ -89,52 +93,65 @@ public class Move {
         }
     }
 
-    // TODO : ref. RedHelper for implementation
-    public DamageRange getDamageRange(Battler attacker, Battler defender, boolean isCrit) {
-        int minDamage = 0;
-        int maxDamage = 127;
-        int minCritDamage = 0;
-        int maxCritDamage = 254;
-        int maxRandom = 255;
-//        double oneShot = 0.0;
+    // TODO boosts!
+    public DamageRange getDamageRange(Battler attacker, Battler defender) {
+        Range damageRange = getDamageRange(attacker, defender, false);
+        Range critRange = getDamageRange(attacker, defender, true);
+        return new DamageRange(damageRange.getMin(), damageRange.getMax(), critRange.getMin(), critRange.getMax());
+    }
 
-//        if (isAttack) {
-//            int attack = Types.isPhysical(type) ? attacker.getAtk(isCrit) : attacker.getSpc(isCrit);
-//            int defense = Types.isPhysical(type) ? defender.getDef(isCrit) : defender.getSpc(isCrit);
-//            boolean isSTAB = attacker.isType(type);
-//            double typeEff = Types.getTypeChart().getFactor(type, defender.getPokemon().type1, defender.getPokemon().type2);
-//            int critical = isCrit ? 2 : 1;
-//            double oneShot = 0.0; // TODO ??
-////            double other = 1; // TODO ??
-////            double modifier = STAB * typeEff * critical * other;
-//            int damage = (attacker.level * critical) % 256;
-//            damage *= attack;
-//            damage *= power;
-//            damage /= 50;
-//            damage /= defense;
-//            damage += 2;
-//            damage = isSTAB ? damage * 3 / 2 : damage;
-//            damage *= typeEff;
-//
-//            if (damage != 0) {
-//                minDamage = Math.max(damage * 217 / 255, 1);
-//                maxDamage = Math.max(damage * maxRandom / 255, 1);
-//
-//                // TODO ??
-//                int oneShots = 0;
-//                for (int r = 217; r <= 255; r++) {
-//                    if ((damage * r / 255) >= defender.getHP()) {
-//                        oneShots++;
-//                    }
-//                }
-//                if (oneShots > 0) {
-//                    oneShot = (oneShots / 39.0) * 100.0;
-//                }
-//            }
-//        } else {
-//            // TODO: RangesPanel:791
-//        }
-        return new DamageRange(minDamage, maxDamage, minCritDamage, maxCritDamage);
+    // TODO: confusion & night shade damage
+    // TODO: boosts
+    private Range getDamageRange(Battler attacker, Battler defender, boolean isCrit) {
+        if (power == 0) {
+            return new Range(0, 0); // TODO: special cases?
+        }
+        int minDamage = (attacker.getLevel() * (isCrit ? 2 : 1)) % 256;
+        int maxDamage = (attacker.getLevel() * (isCrit ? 2 : 1)) % 256;
+        minDamage = (minDamage * 2 / 5 + 2);
+        maxDamage = (maxDamage * 2 / 5 + 2);
+        if (Types.isPhysical(type)) {
+            Range atkRange = attacker.getAtk();
+            minDamage *= isCrit ? atkRange.getMax() : getStatWithBoosts(atkRange.getMin(), 0, 0);
+            maxDamage *= isCrit ? atkRange.getMax() : getStatWithBoosts(atkRange.getMax(), 0, 0);
+        } else {
+            Range spcRange = attacker.getSpc();
+            minDamage *= isCrit ? spcRange.getMin() : getStatWithBoosts(spcRange.getMin(), 0, 0);
+            maxDamage *= isCrit ? spcRange.getMax() : getStatWithBoosts(spcRange.getMax(), 0, 0);
+        }
+        minDamage *= power;
+        maxDamage *= power;
+        minDamage /= 50;
+        maxDamage /= 50;
+        if (Types.isPhysical(type)) {
+            Range defRange = defender.getDef();
+            minDamage /= isCrit ? defRange.getMax() : getStatWithBoosts(defRange.getMax(), 0, 0);
+            maxDamage /= isCrit ? defRange.getMin() : getStatWithBoosts(defRange.getMin(), 0, 0);
+        } else {
+            Range spcRange = defender.getSpc();
+            minDamage /= isCrit ? spcRange.getMax() : getStatWithBoosts(spcRange.getMax(), 0, 0);
+            maxDamage /= isCrit ? spcRange.getMin() : getStatWithBoosts(spcRange.getMin(), 0, 0);
+        }
+        minDamage += 2;
+        maxDamage += 2;
+        minDamage = attacker.isType(type) ? minDamage * 3 / 2 : minDamage; // STAB
+        maxDamage = attacker.isType(type) ? maxDamage * 3 / 2 : maxDamage; // STAB
+        minDamage *= Types.getTypeChart().getFactor(type, defender.getPokemon().type1, defender.getPokemon().type2);
+
+        if (minDamage != 0) {
+            minDamage = Math.max(minDamage * 217 / 255, 1);
+        }
+
+        return new Range(minDamage, maxDamage);
+    }
+
+    // TODO get this from Battler (and fix its method)
+    private int getStatWithBoosts(int stat, int badgeBoostCount, int xItemCount) {
+        stat *= multipliers[xItemCount + 6] / divisors[xItemCount + 6];
+        for (int bb = 0; bb < badgeBoostCount; bb++) {
+            stat = (int) (9 * stat / 8);
+        }
+        return stat;
     }
 
     public static String getIndexString(String name) {

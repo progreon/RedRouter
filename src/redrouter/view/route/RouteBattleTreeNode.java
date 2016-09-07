@@ -28,6 +28,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import redrouter.data.Battler;
 import redrouter.data.Move;
+import redrouter.data.Move.DamageRange;
 import redrouter.data.SingleBattler;
 import redrouter.route.RouteBattle;
 
@@ -53,7 +54,7 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
         JPanel pnlCell = new JPanel(new BorderLayout());
 
         String text = "<html><body>";
-        text += b.toString() + "<br>(" + b.getHP() + "hp)<br>";
+        text += b.toString() + "<br>Health: " + b.getHP() + " hp<br>";
         if (isOpponent) {
             text += "Gives " + b.getExp(1) + " xp<br>";
         }
@@ -73,7 +74,10 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
         String text = "<html><body>";
         for (Move m : attacker.getMoveset()) {
             text += m;
-            text += " (" + m.getDamageRange(attacker, defender, false) + ")";
+            DamageRange dr = m.getDamageRange(attacker, defender);
+            if (dr.critMax != 0) {
+                text += ": " + m.getDamageRange(attacker, defender);
+            }
             text += "<br>";
         }
         text += "</body></html";
