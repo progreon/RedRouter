@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 /**
  * TODO: dynamic?
+ *
  * @author Marco Willems
  */
 public class Types {
@@ -37,7 +38,7 @@ public class Types {
     public Types() {
         init();
     }
-    
+
     private static void init() {
         if (typeChart == null) {
             typeChart = new TypeChart();
@@ -60,7 +61,7 @@ public class Types {
             isPhysical.put(Type.DRAGON, false);
         }
     }
-    
+
     public static boolean isPhysical(Type type) {
         init();
         return isPhysical.get(type);
@@ -73,26 +74,23 @@ public class Types {
 
     /**
      * Get a type from its string
-     * @param pString
+     *
+     * @param string
      * @return
      */
-    public static Type getType(String pString, String pFile, int pLine) throws ParserException{
-
-        if(pString.isEmpty()) return null;
-        try {
-            Type lType = Type.valueOf(pString.toUpperCase());
-            return lType;
+    public static Type getType(String string) throws IllegalArgumentException {
+        if (string.isEmpty()) {
+            return null;
+        } else {
+            return Type.valueOf(string.toUpperCase());
         }
-        catch (IllegalArgumentException pE) {
-            throw new ParserException(pFile, pLine, "Could not find type :" + pString);
-        }
-
     }
 
     public static class TypeChart {
 
         private final HashMap<Type, HashMap<Type, Double>> chart;
 
+        // TODO Check if chart is right
         public TypeChart() {
             chart = new HashMap<>();
             // First: all x1
@@ -102,7 +100,7 @@ public class Types {
                     chart.get(t1).put(t2, 1.0);
                 }
             }
-            //TODO Check if chart is right
+
             // Second: specific multipliers
             //NORMAL
             chart.get(Type.NORMAL).put(Type.ROCK, 0.5);
@@ -178,7 +176,7 @@ public class Types {
             chart.get(Type.ICE).put(Type.DRAGON, 2.0);
             chart.get(Type.ICE).put(Type.FLYING, 2.0);
             chart.get(Type.ICE).put(Type.GRASS, 2.0);
-            chart.get(Type.ICE).put(Type.GROUND,2.0);
+            chart.get(Type.ICE).put(Type.GROUND, 2.0);
             chart.get(Type.ICE).put(Type.ICE, 0.5);
             chart.get(Type.ICE).put(Type.WATER, 0.5);
             //POISON
@@ -200,7 +198,7 @@ public class Types {
             chart.get(Type.ROCK).put(Type.GROUND, 0.5);
             chart.get(Type.ROCK).put(Type.ICE, 2.0);
         }
-        
+
         public double getFactor(Type typeAtk, Type typeDef1, Type typeDef2) {
             double f = 1.0;
             f *= chart.get(typeAtk).get(typeDef1);

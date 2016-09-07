@@ -2,6 +2,3 @@
 /build/
 /nbproject/private/
 /files_to_parse/
-.idea/
-output/
-.gitignore

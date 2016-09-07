@@ -74,8 +74,8 @@ public class Pokemon {
             try {
                 this.ID = ID;
                 this.name = s[0];
-                this.type1 = Types.getType(s[1],file,line);
-                this.type2 = Types.getType(s[2],file,line);
+                this.type1 = Types.getType(s[1]);
+                this.type2 = Types.getType(s[2]);
                 this.expGiven = Integer.parseInt(s[3]);
                 this.hp = Integer.parseInt(s[4]);
                 this.atk = Integer.parseInt(s[5]);

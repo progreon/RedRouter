@@ -28,6 +28,8 @@ import java.util.Objects;
  */
 public class Move {
 
+    private final RouterData rd;
+
     public final String name;
     public final Types.Type type;
     public final String effect;
@@ -38,11 +40,12 @@ public class Move {
 
     public final List<Pokemon> pokemon; // Pokemon that learn this move
 
-    public Move(String name, Types.Type type, boolean isAttack, int power, int accuracy,int pp) {
-        this(name, type, "NO_ADDITIONAL_EFFECT", isAttack, power, accuracy,pp);
+    public Move(RouterData rd, String name, Types.Type type, boolean isAttack, int power, int accuracy, int pp) {
+        this(rd, name, type, "NO_ADDITIONAL_EFFECT", isAttack, power, accuracy, pp);
     }
 
-    public Move(String name, Types.Type type, String effect, boolean isAttack, int power, int accuracy,int pp) {
+    public Move(RouterData rd, String name, Types.Type type, String effect, boolean isAttack, int power, int accuracy, int pp) {
+        this.rd = rd;
         this.name = name;
         this.type = type;
         this.effect = effect;
@@ -55,32 +58,37 @@ public class Move {
 
     /**
      * Creates a Move from a parsed line
-     * @param pMoveString i.e : POUND,NO_ADDITIONAL_EFFECT,40,NORMAL,100,35
-     * @param pFile
-     * @param pLine
+     *
+     * @param rd
+     * @param moveString i.e : POUND,NO_ADDITIONAL_EFFECT#40#NORMAL#100#35
+     * @param file
+     * @param line
      * @throws ParserException
      */
-    //TODO Move effect
-    public Move(String pMoveString, String pFile, int pLine) throws ParserException {
-        String[] lStrings = pMoveString.split(",");
-        if (lStrings.length != 6) {
-            throw new ParserException(pFile, pLine, "Entry must have 6 parameters!");
+    // TODO Move effect
+    public Move(RouterData rd, String moveString, String file, int line) throws ParserException {
+        this.rd = rd;
+        String[] s = moveString.split("#");
+        if (s.length != 6) {
+            throw new ParserException(file, line, "Entry must have 6 parameters!");
         } else {
             try {
-                this.name = lStrings[0];
-                this.effect = lStrings[1];
-                this.power = Integer.parseInt(lStrings[2]);
-                this.type = Types.getType(lStrings[3],pFile,pLine);
-                this.accuracy = Integer.parseInt(lStrings[4]);
-                this.pp = Integer.parseInt(lStrings[5]);
+                this.name = s[0];
+                this.effect = s[1];
+                this.power = Integer.parseInt(s[2]);
+                this.type = Types.getType(s[3]);
+                this.accuracy = Integer.parseInt(s[4]);
+                this.pp = Integer.parseInt(s[5]);
+                this.isAttack = this.power > 0;
+                this.pokemon = new ArrayList<>();
             } catch (NumberFormatException nex) {
-                throw new ParserException(pFile, pLine, "Could not parse a move parameter!");
+                throw new ParserException(file, line, "Could not parse a move parameter!");
+            } catch (IllegalArgumentException ex) {
+                throw new ParserException(file, line, "Could not parse the move type!");
             }
-
-            this.isAttack = this.power>0;
-            this.pokemon = new ArrayList<>();
         }
     }
+
     // TODO : ref. RedHelper for implementation
     public DamageRange getDamageRange(Battler attacker, Battler defender, boolean isCrit) {
         int minDamage = 0;
