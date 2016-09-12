@@ -23,6 +23,7 @@ import redrouter.data.EncounterArea;
 import redrouter.data.Player;
 
 /**
+ * TODO: rework this completely!
  *
  * @author Marco Willems
  */
@@ -98,8 +99,14 @@ public class RouteEncounter extends RouteEntry {
     }
 
     @Override
-    protected void apply(Player p) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected Player apply(Player p) {
+        Player newPlayer = super.apply(p).getDeepCopy();
+
+        if (this.preference >= 0) {
+            newPlayer.getFrontBattler().defeatBattler(this.choices.get(this.preference), 1);
+        }
+
+        return newPlayer;
     }
 
     @Override

@@ -46,7 +46,7 @@ public class RouterFrame extends JFrame {
         this.setContentPane(tabbedPane);
         tabbedPane.setSelectedIndex(1);
         this.pack();
-        this.setSize(new Dimension(Settings.WIDTH, Settings.HEIGHT));
+//        this.setSize(new Dimension(Settings.WIDTH, Settings.HEIGHT));
         this.setMinimumSize(new Dimension(this.getPreferredSize().width * 3 / 4, this.getPreferredSize().height * 3 / 4));
         this.setLocationRelativeTo(null);
 //        this.setResizable(false);

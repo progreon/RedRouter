@@ -28,19 +28,14 @@ import redrouter.route.RouteSection;
  */
 public class RouteSectionTreeNode extends RouteEntryTreeNode {
 
-    private JLabel lblInfo;
-    private String labelText;
-
     public RouteSectionTreeNode(RouteTree tree, RouteSection routeSection) {
         super(tree, routeSection);
     }
 
     @Override
-    protected void initRender(int availableWidth) {
-        String text;
-        JLabel lbl;
-        text = ((RouteSection) routeEntry).info.toString();
-        lbl = new JLabel();
+    protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+        String text = ((RouteSection) routeEntry).info.toString();
+        JLabel lbl = new JLabel();
         Font font = lbl.getFont();
         float minFontSize = font.getSize2D();
         float maxFontSize = 18.0f;
@@ -54,14 +49,6 @@ public class RouteSectionTreeNode extends RouteEntryTreeNode {
         lbl.setFont(font.deriveFont(thisFontSize));
         setLabelText(lbl, text, availableWidth);
         view.add(lbl);
-
-        labelText = text;
-        lblInfo = lbl;
-    }
-
-    @Override
-    protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        setLabelText(lblInfo, labelText, availableWidth);
     }
 
 }

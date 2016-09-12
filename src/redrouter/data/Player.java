@@ -18,10 +18,12 @@
 package redrouter.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * TODO TODO: testing item management TODO: not extending from Trainer?
+ * TODO: testing item management, pc pokemon, ...
  *
  * @author Marco Willems
  */
@@ -29,7 +31,7 @@ public class Player {
 
     public final String name;
     public final String info;
-    public final List<CombinedBattler> team;
+    public final List<Battler> team;
 
     private int money = 0;
     private final ItemSlot[] bagItems = new ItemSlot[20];
@@ -40,7 +42,7 @@ public class Player {
     boolean spdBadge = false;
     boolean spcBadge = false;
 
-    public Player(Location location, String name, String info, List<CombinedBattler> team) {
+    public Player(String name, String info, List<Battler> team) {
         this.name = name;
         this.info = info;
         if (team == null) {
@@ -50,16 +52,49 @@ public class Player {
         }
     }
 
+    public Player getDeepCopy() {
+        Player newPlayer = new Player(this.name, this.info, null);
+
+        for (int i = 0; i < this.team.size(); i++) {
+            newPlayer.team.add(this.team.get(i).getDeepCopy());
+        }
+        newPlayer.money = this.money;
+        for (int i = 0; i < 20; i++) {
+            if (this.bagItems[i] != null) {
+                newPlayer.bagItems[i] = new ItemSlot(this.bagItems[i].item, this.bagItems[i].count);
+            }
+        }
+        for (int i = 0; i < 50; i++) {
+            if (this.pcItems[i] != null) {
+                newPlayer.pcItems[i] = new ItemSlot(this.pcItems[i].item, this.pcItems[i].count);
+            }
+        }
+        newPlayer.atkBadge = this.atkBadge;
+        newPlayer.defBadge = this.defBadge;
+        newPlayer.spdBadge = this.spdBadge;
+        newPlayer.spcBadge = this.spcBadge;
+
+        return newPlayer;
+    }
+
+    public int getMoney() {
+        return this.money;
+    }
+
+    public void addBattler(Battler battler) {
+        team.add(battler);
+    }
+
+    public Battler getFrontBattler() {
+        return team.isEmpty() ? null : team.get(0);
+    }
+
     public void swapToFront(CombinedBattler battler) {
         int index = team.indexOf(battler);
         if (index != -1) {
             team.set(index, team.get(0));
             team.set(0, battler);
         }
-    }
-
-    public CombinedBattler getLead() {
-        return team.get(0);
     }
 
     public boolean addItem(Item item) {
@@ -250,6 +285,69 @@ public class Player {
         return index;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj != null && obj instanceof Player) {
+            Player p = (Player) obj;
+            if (!(name.equals(p.name) && info.equals(p.info) && money == p.money)) {
+                return false;
+            }
+            for (int i = 0; i < bagItems.length; i++) {
+                if (bagItems[i] == null) {
+                    if (p.bagItems[i] != null) {
+                        return false;
+                    }
+                } else {
+                    if (!bagItems[i].equals(p.bagItems[i])) {
+                        return false;
+                    }
+                }
+            }
+            for (int i = 0; i < pcItems.length; i++) {
+                if (pcItems[i] == null) {
+                    if (p.pcItems[i] != null) {
+                        return false;
+                    }
+                } else {
+                    if (!pcItems[i].equals(p.pcItems[i])) {
+                        return false;
+                    }
+                }
+            }
+            if (team.size() != p.team.size()) {
+                return false;
+            } else {
+                for (int i = 0; i < team.size(); i++) {
+                    if (!team.get(i).equals(p.team.get(i))) {
+                        return false;
+                    }
+                }
+            }
+            return atkBadge == p.atkBadge
+                    && defBadge == p.defBadge
+                    && spdBadge == p.spdBadge
+                    && spcBadge == p.spcBadge;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 43 * hash + Objects.hashCode(this.name);
+        hash = 43 * hash + Objects.hashCode(this.info);
+        hash = 43 * hash + Objects.hashCode(this.team);
+        hash = 43 * hash + this.money;
+        hash = 43 * hash + Arrays.deepHashCode(this.bagItems);
+        hash = 43 * hash + Arrays.deepHashCode(this.pcItems);
+        hash = 43 * hash + (this.atkBadge ? 1 : 0);
+        hash = 43 * hash + (this.defBadge ? 1 : 0);
+        hash = 43 * hash + (this.spdBadge ? 1 : 0);
+        hash = 43 * hash + (this.spcBadge ? 1 : 0);
+        return hash;
+    }
+
     private class ItemSlot {
 
         Item item;
@@ -267,6 +365,15 @@ public class Player {
         @Override
         public String toString() {
             return item.toString() + " x" + count;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj != null && obj instanceof ItemSlot) {
+                return this.item == ((ItemSlot) obj).item && this.count == ((ItemSlot) obj).count;
+            } else {
+                return false;
+            }
         }
     }
 

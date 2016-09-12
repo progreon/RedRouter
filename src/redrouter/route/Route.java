@@ -32,12 +32,12 @@ public class Route extends RouteSection {
     public Route(RouterData rd, String title) {
         super(null, title);
         this.rd = rd;
-        super.player = new Player(rd.getLocation("Pallet Town"), "Red", "The playable character", null);
+        super.player = new Player("Red", "The playable character", null);
     }
 
     public final void setPlayer(Player p) {
         super.player = p;
-//        refreshData(player);
+        refreshData(player);
     }
 
     // TODO

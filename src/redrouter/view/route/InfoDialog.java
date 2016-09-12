@@ -15,25 +15,35 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package redrouter.route;
+package redrouter.view.route;
+
+import java.awt.Point;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
 
 /**
  *
  * @author Marco Willems
  */
-public class RouteDirections extends RouteEntry {
+public abstract class InfoDialog extends JDialog {
 
-    public RouteDirections(RouteSection parentSection, RouteEntryInfo info) {
-        super(parentSection, info);
+    protected JPanel panel;
+    private final Point mouseLocation;
+
+    public InfoDialog(Point mouseLocation) {
+        this.mouseLocation = mouseLocation;
     }
 
-    public RouteDirections(RouteSection parentSection, String description) {
-        this(parentSection, new RouteEntryInfo(null, description));
+    protected final void initAndDisplay() {
+        initPanel();
+        this.setContentPane(panel);
+        this.setUndecorated(true);
+        this.pack();
+        this.setModal(false);
+        this.setLocation(new Point(mouseLocation.x, mouseLocation.y - this.getHeight()));
+        this.setFocusable(false);
     }
 
-    @Override
-    public String toString() {
-        return info.toString();
-    }
+    protected abstract void initPanel();
 
 }

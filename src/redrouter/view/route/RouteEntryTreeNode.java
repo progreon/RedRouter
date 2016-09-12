@@ -22,20 +22,24 @@ import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Observable;
+import java.util.Observer;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
+import redrouter.data.Battler;
 import redrouter.route.RouteEntry;
 
 /**
  *
  * @author Marco Willems
  */
-public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
+public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode implements Observer { // TODO: custom Observer class
 
     protected final RouteTree tree;
     protected RouteEntry routeEntry;
@@ -59,7 +63,6 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         view = new JPanel(new BorderLayout());
         view.setBorder(border);
 
-        initRender(initAvailableWidth - getBorderWidth());
         view.addMouseListener(new MouseAdapter() {
 
             @Override
@@ -79,18 +82,23 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
             }
         });
 
+//        doSizedRender(initAvailableWidth - getBorderWidth(), false, false, false, -1, false);
         view.setPreferredSize(new Dimension(initAvailableWidth, view.getPreferredSize().height));
     }
 
-    protected abstract void initRender(int availableWidth);
-
     public JComponent getRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+        view.removeAll();
+
+        JButton btnPlayerInfo = makePlayerInfoButton();
+        view.add(btnPlayerInfo, BorderLayout.EAST);
+
+        doSizedRender(availableWidth - getBorderWidth() - 2, selected, expanded, leaf, row, hasFocus);
+
         if (selected) {
             view.setBackground(tree.nodeSelectedColor);
         } else {
             view.setBackground(tree.nodeBackgroundColor);
         }
-        doSizedRender(availableWidth - getBorderWidth() - 2, selected, expanded, leaf, row, hasFocus);
         int preferredHeight = 0;
         BorderLayout layout = (BorderLayout) view.getLayout();
         if (layout.getLayoutComponent(BorderLayout.NORTH) != null) {
@@ -155,6 +163,71 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         wrapped = "<html><body>" + wrapped + "</body></html>";
 
         return wrapped;
+    }
+
+    public JButton makeBattlerInfoButton(Battler b, boolean isPlayerBattler) {
+        JButton btn = new JButton(b.toString());
+        btn.addMouseListener(new MouseAdapter() {
+            BattlerInfoDialog bif = null;
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    if (bif != null) {
+                        bif.dispose();
+                    }
+                    bif = new BattlerInfoDialog(b, isPlayerBattler, e.getLocationOnScreen());
+                    bif.setVisible(true);
+                    //                    tree.requestFocus();
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (bif != null) {
+                    bif.dispose();
+                    bif = null;
+                }
+            }
+        });
+        return btn;
+    }
+
+    public JButton makePlayerInfoButton() {
+        JButton btn = new JButton("Player");
+        btn.addMouseListener(new MouseAdapter() {
+            PlayerInfoDialog pif = null;
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    if (pif != null) {
+                        pif.dispose();
+                    }
+                    pif = new PlayerInfoDialog(routeEntry.getPlayer(), e.getLocationOnScreen());
+                    pif.setVisible(true);
+                    //                    tree.requestFocus();
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (pif != null) {
+                    pif.dispose();
+                    pif = null;
+                }
+            }
+        });
+        return btn;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o == this.routeEntry) {
+            if (arg instanceof String && ((String) arg).equals("Tree updated")) { // TODO
+                this.tree.validate();
+            }
+        }
     }
 
 }

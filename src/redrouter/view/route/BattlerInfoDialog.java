@@ -19,27 +19,36 @@ package redrouter.view.route;
 
 import java.awt.BorderLayout;
 import java.awt.Point;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import redrouter.data.Battler;
-import redrouter.data.CombinedBattler;
 
 /**
- * TODO: redbar
  *
  * @author Marco Willems
  */
-public class BattlerInfoDialog extends JDialog {
+public class BattlerInfoDialog extends InfoDialog {
 
-    public BattlerInfoDialog(Battler battler, Point mouseLocation) {
-        JPanel panel = new JPanel(new BorderLayout());
-        boolean isPlayerBattler = battler instanceof CombinedBattler;
+    private final Battler battler;
+    private final boolean isPlayerBattler;
+
+    public BattlerInfoDialog(Battler battler, boolean isPlayerBattler, Point mouseLocation) {
+        super(mouseLocation);
+        this.battler = battler;
+        this.isPlayerBattler = isPlayerBattler;
+        initAndDisplay();
+    }
+
+    @Override
+    protected void initPanel() {
+        this.panel = new JPanel(new BorderLayout());
         String info = "<html><body>";
         info += "<p style=\"font-size:16px\">" + battler.toString() + "</p>";
         info += "Experience group: " + battler.getPokemon().expGroup.group + "<br>";
         if (!isPlayerBattler) {
             info += "Given experience: " + battler.getExp(1) + "<br>";
+        } else {
+            info += "Redbar: &lt;" + battler.getHP().multiplyBy(53).devideBy(256).add(1) + " HP<br>";
         }
         // TODO: check & move to Pokemon class
         info += "Critical hit ratio: " + (((battler.getPokemon().spd / 2) / 256.0) * 100.0) + "% ";
@@ -58,20 +67,13 @@ public class BattlerInfoDialog extends JDialog {
         info += "<td align=\"center\">" + battler.getSpd() + "</td>";
         info += "<td align=\"center\">" + battler.getSpc() + "</td></tr></table>";
         if (isPlayerBattler) {
-            info += "Redbar: " + battler.getHP().multiplyBy(53).devideBy(256) + "HP";
             // TODO
-            info += "Exp. to next level: ";
+            info += "Exp. to next level: TODO";
         }
         info += "</body></html>";
 
         JLabel lblInfo = new JLabel(info);
         panel.add(lblInfo);
-        this.setContentPane(panel);
-        this.setUndecorated(true);
-        this.pack();
-        this.setModal(false);
-        this.setLocation(new Point(mouseLocation.x, mouseLocation.y - this.getHeight()));
-        this.setFocusable(false);
     }
 
 }

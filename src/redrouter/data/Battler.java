@@ -28,9 +28,7 @@ import redrouter.util.Range;
  */
 public abstract class Battler implements Cloneable {
 
-//    public static final Battler NULL = new SingleBattler(null, 0, null);
-    public static final Battler DUMMY = new SingleBattler(new Pokemon(null, 0, "Dummy Poke", Types.Type.NORMAL, null, 100, 100, 100, 100, 100, 100, ExperienceGroup.getExperienceGroup("Fast")), null, 5);
-    protected Pokemon pokemon; // TODO: final!? -> evoluties?
+    protected Pokemon pokemon;
     public final EncounterArea catchLocation;
 
     public Battler(Pokemon pokemon, EncounterArea catchLocation) {
@@ -39,8 +37,13 @@ public abstract class Battler implements Cloneable {
     }
 
     @Override
-    protected abstract Object clone() throws CloneNotSupportedException;
-    
+    protected Object clone() throws CloneNotSupportedException {
+        return getDeepCopy();
+    }
+
+    public abstract Battler getDeepCopy();
+
+    // TODO: evolving?
     public void defeatBattler(Battler b, int participants) {
         addStatXP(b.pokemon.hp, b.pokemon.atk, b.pokemon.def, b.pokemon.spd, b.pokemon.spc, participants);
         addXP(b.getExp(participants).getMin());
@@ -55,11 +58,12 @@ public abstract class Battler implements Cloneable {
     public abstract void addStatXP(int hp, int atk, int def, int spd, int spc, int nrOfPkmn);
 
     public abstract void resetStatXP();
-    
+
     public abstract void addXP(int exp);
-    
+
     /**
      * TODO
+     *
      * @return
      */
     public abstract boolean checkEvolve();

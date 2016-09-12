@@ -37,11 +37,11 @@ public class CombinedBattler extends Battler {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        CombinedBattler newBattler = new CombinedBattler(possibleBattlers.get(0));
+    public Battler getDeepCopy() {
+        CombinedBattler newBattler = new CombinedBattler((SingleBattler) possibleBattlers.get(0).getDeepCopy());
 
         for (int i = 1; i < possibleBattlers.size(); i++) {
-            newBattler.combine(possibleBattlers.get(i));
+            newBattler.possibleBattlers.add((SingleBattler) possibleBattlers.get(i).getDeepCopy());
         }
 
         return newBattler;

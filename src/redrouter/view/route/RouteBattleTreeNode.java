@@ -20,12 +20,10 @@ package redrouter.view.route;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 import redrouter.data.Battler;
 import redrouter.data.Move;
 import redrouter.data.Move.DamageRange;
@@ -38,38 +36,33 @@ import redrouter.route.RouteBattle;
  */
 public class RouteBattleTreeNode extends RouteEntryTreeNode {
 
-    private JLabel lblInfo;
-    private String labelText;
-
     public RouteBattleTreeNode(RouteTree tree, RouteBattle routeBattle) {
         super(tree, routeBattle);
     }
 
-    @Override
-    protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        setLabelText(lblInfo, labelText, availableWidth);
-    }
-
-    private JPanel getBattlerCell(Battler b, boolean isOpponent) {
-        JPanel pnlCell = new JPanel(new BorderLayout());
-
-        String text = "<html><body>";
-        text += b.toString() + "<br>Health: " + b.getHP() + " hp<br>";
-        if (isOpponent) {
-            text += "Gives " + b.getExp(1) + " xp<br>";
-        }
-        text += "Crit: " + (((b.getPokemon().spd / 2) / 256.0) * 100.0) + "%";
-        text += "</body></html";
-        JLabel lbl = new JLabel(text);
-        pnlCell.add(lbl);
-        pnlCell.setOpaque(false);
-        pnlCell.setBorder(BorderFactory.createLineBorder(Color.black, 1));
-
-        return pnlCell;
-    }
-
-    private JPanel getMovesCell(Battler attacker, Battler defender) {
-        JPanel pnlCell = new JPanel(new BorderLayout());
+//    private JPanel getBattlerCell(Battler b, boolean isOpponent) {
+//        JPanel pnlCell = new JPanel(new BorderLayout(2, 2));
+////        pnlCell.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+//
+//        String text = "<html><body>";
+//        text += b.toString() + "<br>Health: " + b.getHP() + " hp<br>";
+//        if (isOpponent) {
+//            text += "Gives " + b.getExp(1) + " xp<br>";
+//        }
+//        text += "Crit: " + (((b.getPokemon().spd / 2) / 256.0) * 100.0) + "%";
+//        text += "</body></html";
+//        JLabel lbl = new JLabel(text);
+//        pnlCell.add(lbl);
+//        pnlCell.setOpaque(false);
+//        Border lineBorder = BorderFactory.createLineBorder(Color.black, 1);
+//        Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+//        pnlCell.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
+//
+//        return pnlCell;
+//    }
+    private JPanel getMovesCell(Battler attacker, Battler defender, boolean isPlayerAttacker) {
+        JPanel pnlCell = new JPanel(new BorderLayout(2, 2));
+        pnlCell.add(makeBattlerInfoButton(attacker, isPlayerAttacker), BorderLayout.NORTH);
 
         String text = "<html><body>";
         for (Move m : attacker.getMoveset()) {
@@ -84,17 +77,18 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
         JLabel lbl = new JLabel(text);
         pnlCell.add(lbl);
         pnlCell.setOpaque(false);
-        pnlCell.setBorder(BorderFactory.createLineBorder(Color.black, 1));
+        Border lineBorder = BorderFactory.createLineBorder(Color.black, 1);
+        Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+        pnlCell.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
 
         return pnlCell;
     }
 
     @Override
-    protected void initRender(int availableWidth) {
-        String text;
+    protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         JLabel lbl = new JLabel();
         RouteBattle rb = (RouteBattle) routeEntry;
-        text = rb.info.toString() + "\n";
+        String text = rb.info.toString() + "\n";
         text += (rb.opponent.info == null ? "" : "\tInfo: " + rb.opponent.info + "\n");
         setLabelText(lbl, text, availableWidth);
         view.add(lbl);
@@ -103,53 +97,21 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
         if (routeEntry.getPlayer() != null && !routeEntry.getPlayer().team.isEmpty()) {
             myBat = routeEntry.getPlayer().team.get(0);
         } else {
-//            b = Battler.DUMMY;
-            myBat = new SingleBattler(tree.route.rd.getPokemon("NidoranM"), null, 5);
+            myBat = new SingleBattler(tree.route.rd.getPokemon("Nidoking"), null, 25);
         }
 
-        JPanel pnlMoves = new JPanel(new GridLayout(0, 4));
+        // TODO: stages, badge boosts
+        JPanel pnlMoves = new JPanel(new GridLayout(0, 2));
         for (Battler b : rb.opponent.team) {
-            pnlMoves.add(getBattlerCell(b, true));
-            pnlMoves.add(getMovesCell(b, myBat));
-            pnlMoves.add(getMovesCell(myBat, b));
-            pnlMoves.add(getBattlerCell(myBat, false));
+//            pnlMoves.add(getBattlerCell(b, true));
+            pnlMoves.add(getMovesCell(b, myBat, false));
+            pnlMoves.add(getMovesCell(myBat, b, true));
+//            pnlMoves.add(getBattlerCell(myBat, false));
         }
         pnlMoves.setOpaque(false);
         view.add(pnlMoves, BorderLayout.SOUTH);
 
-        labelText = text;
-        lblInfo = lbl;
-
-        JButton btnBattlerInfo = makeBattlerInfoButton(myBat);
-        view.add(btnBattlerInfo, BorderLayout.EAST);
-    }
-
-    public JButton makeBattlerInfoButton(Battler b) {
-        JButton btn = new JButton("B");
-        btn.addMouseListener(new MouseAdapter() {
-            BattlerInfoDialog bif = null;
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1) {
-                    if (bif != null) {
-                        bif.dispose();
-                    }
-                    bif = new BattlerInfoDialog(b, e.getLocationOnScreen());
-                    bif.setVisible(true);
-                    //                    tree.requestFocus();
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (bif != null) {
-                    bif.dispose();
-                    bif = null;
-                }
-            }
-        });
-        return btn;
+        view.add(makePlayerInfoButton(), BorderLayout.EAST);
     }
 
 }

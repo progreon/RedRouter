@@ -18,19 +18,21 @@
 package redrouter.route;
 
 import java.util.List;
+import java.util.Observable;
 import redrouter.data.Player;
 
 /**
+ * TODO: keep pointer to next node for performance of refresh()?
  *
  * @author Marco Willems
  */
-public abstract class RouteEntry {
+public abstract class RouteEntry extends Observable { // TODO: custom Observable class
 
     public RouteEntryInfo info;
     public RouteSection parent;
     public final List<RouteEntry> children;
 
-    protected Player player = null; // current instance of the player
+    protected Player player = null; // instance of the player when entering this entry
 
     public RouteEntry(RouteSection parentSection, RouteEntryInfo info) {
         this(parentSection, info, null);
@@ -47,22 +49,30 @@ public abstract class RouteEntry {
         return this.player;
     }
 
-    public final void refreshData(Player previousPlayer) {
-        RouteEntry previous = getPrevious();
-        if (previousPlayer == null && previous != null) {
-            previousPlayer = previous.player;
+    public final void refreshData(Player newPlayer) {
+        if (newPlayer == null) {
+            newPlayer = this.player;
         }
-        if (previousPlayer == null) {
-            previousPlayer = new Player(null, "The player", "", null);
+        if (newPlayer == null) {
+            RouteEntry previous = getPrevious();
+            if (previous != null && previous.player != null) {
+                newPlayer = previous.apply(previous.player);
+            }
         }
-        apply(previousPlayer);
-        RouteEntry next = getNext();
-        if (next != null) {
-            getNext().refreshData(player); // TODO: not optimal to use getNext!
+        Player appliedPlayer = apply(newPlayer);
+        RouteEntry next = getNext(); // TODO: not optimal to use getNext!
+//        if (next != null && !appliedPlayer.equals(next.player)) { // TODO: ?
+        if (next != null) { // only notify observers when the whole tree is updated!
+            next.refreshData(appliedPlayer);
+        } else {
+            notifyObservers("Tree updated"); // TODO (RouteEntryTreeNode:165)
         }
     }
 
-    protected abstract void apply(Player previousPlayer);
+    protected Player apply(Player p) {
+        this.player = p;
+        return this.player;
+    }
 
     public boolean hasChildren() {
         return children != null && !children.isEmpty();
@@ -70,13 +80,17 @@ public abstract class RouteEntry {
 
     private RouteEntry getPrevious() {
         if (parent != null) {
-            int thisIndex = parent.children.indexOf(this);
-            if (thisIndex > 0) {
-                return parent.children.get(thisIndex - 1).getLastChild();
-            } else { // This is the first child
+            int nIndex = parent.children.indexOf(this);
+            if (nIndex > 0) {
+                RouteEntry previous = parent.children.get(nIndex - 1);
+                while (previous.hasChildren()) {
+                    previous = previous.children.get(previous.children.size() - 1);
+                }
+                return previous;
+            } else {
                 return (RouteEntry) parent;
             }
-        } else { // This is the root
+        } else {
             return null;
         }
     }
@@ -84,18 +98,34 @@ public abstract class RouteEntry {
     private RouteEntry getNext() {
         if (hasChildren()) {
             return children.get(0);
-        } else if (parent != null) {
-            int thisIndex = parent.children.indexOf(this);
-            if (thisIndex < parent.children.size() - 1) {
-                return parent.children.get(thisIndex + 1).getFirstChild();
-            } else { // This is the last child
-                return ((RouteEntry) parent).getNext();
+        } else {
+            RouteEntry node = this;
+            RouteEntry pNode = node.parent;
+            while (pNode != null) {
+                int nIndex = pNode.children.indexOf(node);
+                if (nIndex < pNode.children.size() - 1) {
+                    return pNode.children.get(nIndex + 1);
+                } else {
+                    node = pNode;
+                    pNode = node.parent;
+                }
             }
-        } else { // This is the root
-            return null;
         }
+        return null;
     }
 
+//    private RouteEntry getNextSibling() {
+//        if (parent != null) {
+//            int thisIndex = parent.children.indexOf(this);
+//            if (thisIndex < parent.children.size() - 1) {
+//                return parent.children.get(thisIndex + 1);
+//            } else {
+//                return ((RouteEntry) parent).getNextSibling();
+//            }
+//        } else {
+//            return null;
+//        }
+//    }
     private RouteEntry getFirstChild() {
         if (!hasChildren()) {
             return this;
@@ -110,6 +140,10 @@ public abstract class RouteEntry {
         } else {
             return children.get(children.size() - 1).getLastChild();
         }
+    }
+
+    public boolean hasNext() {
+        return getNext() != null;
     }
 
     @Override

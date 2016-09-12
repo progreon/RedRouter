@@ -55,7 +55,8 @@ public class RouteFactory {
 
         RouteSection rsPalletA = new RouteSection(null, "Pallet Town");
         rsPalletA.addNewDirections("Exit out of your home, and head north towards Route 1. Prof. Oak will stop you and lead you back to his lab. After he and your rival are done talking, select the middle Pokeball on the table to get Squirtle. Name it a one character name, and go to head out of the lab. Your rival will stop you for a battle.");
-        // TODO: Acquire entry!
+        RouteGetPokemon rgpPalletA = new RouteGetPokemon(null, new RouteEntryInfo("Get Squirtle"), new CombinedBattler(new SingleBattler(rd.getPokemon("Squirtle"), 5, null)));
+        rsPalletA.addEntry(rgpPalletA);
         rsPalletA.addNewBattle(new RouteEntryInfo(rd.getTrainer("Rival 1").name, "Tail Whip x1-2, then Tackle until it faints."), rd.getTrainer("Rival 1"));
         rsPalletA.addNewDirections("Head out of the lab, and north to Route 1");
         route.addSection(rsPalletA);
@@ -113,6 +114,28 @@ public class RouteFactory {
         // TODO: add image
         rsViridianC.addNewDirections("Continue north to Route 2, and straight through to Viridian Forest.");
         route.addSection(rsViridianC);
+
+        RouteSection rsViridianF = new RouteSection(null, "Viridian Forest");
+        rsViridianF.addNewDirections("Avoid the trainers and walk on the encounterless tiles. Pick up the Antidote on your way up.");
+        rsViridianF.addNewBattle(new RouteEntryInfo(rd.getTrainer("Bug 1").name, "Tail Whip x2, then Tackle until it faints."), rd.getTrainer("Bug 1"));
+        rsViridianF.addNewDirections("After the battle, exit the grass and open the menu: Squirtle <-> Nidoran, [use potion], [use antidote]");
+        rsViridianF.addNewDirections("Exit Viridian Forest and head north to Pewter City.");
+        route.addSection(rsViridianF);
+
+        RouteSection rsPewter = new RouteSection(null, "Pewter City");
+        rsPewter.addNewDirections("Head straight into Brock's Gym, go left to avoid the Gym trainer and battle Brock.");
+        rsPewter.addNewBattle(new RouteEntryInfo(rd.getTrainer("Brock").name, "Geodude: switch to Squirtle, B x2-3, same for Onix"), rd.getTrainer("Brock"));
+        rsPewter.addNewDirections("-- Pewter Mart --");
+        rsPewter.addNewDirections("Exit the Mart and head east out of the city towards Route 3.");
+        rsPewter.addNewDirections("Menu: go to Options and change your Battle Style from Shift to Set.");
+        route.addSection(rsPewter);
+
+        RouteSection rsRoute3 = new RouteSection(null, "Route 3");
+        rsRoute3.addNewBattle(new RouteEntryInfo(rd.getTrainer("Bug 2").name, "x3: Leer, HA x2"), rd.getTrainer("Bug 2"));
+        rsRoute3.addNewDirections("Heal to full or near full for the next fight");
+        rsRoute3.addNewBattle(new RouteEntryInfo(rd.getTrainer("Shorts Guy").name, "x2: Leer, HA x2"), rd.getTrainer("Shorts Guy"));
+        rsRoute3.addNewDirections("Potion before the next fight ONLY if you're at 1 HP.");
+        route.addSection(rsRoute3);
 
         exaNidoRoute = route;
     }

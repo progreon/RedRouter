@@ -109,12 +109,11 @@ public class SingleBattler extends Battler {
     }
 
     private void initDefaultMoveSet(Pokemon pokemon, int level) {
-        // TODO
         moveset = pokemon.getDefaultMoveset(level);
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
+    public Battler getDeepCopy() {
         SingleBattler newBattler = new SingleBattler(pokemon, catchLocation, level);
 
         newBattler.moveset = this.moveset.clone();
@@ -145,7 +144,6 @@ public class SingleBattler extends Battler {
 
     @Override
     public void addStatXP(int hp, int atk, int def, int spd, int spc, int nrOfPkmn) {
-
         hpXP += hp / nrOfPkmn;
         atkXP += atk / nrOfPkmn;
         defXP += def / nrOfPkmn;
@@ -171,17 +169,19 @@ public class SingleBattler extends Battler {
             levelExp -= pokemon.expGroup.getDeltaExp(level, newLevel);
             level = newLevel;
             List<Move> newMoves = pokemon.getLearnedMoves(level);
-            int numCurMoves = 0;
-            while (numCurMoves < moveset.length && moveset[numCurMoves] != null) {
-                numCurMoves++;
-            }
-            int i = 0;
-            while (numCurMoves + i < moveset.length && i < newMoves.size()) {
-                moveset[numCurMoves + i] = newMoves.get(i);
-                i++;
-            }
-            if (i < newMoves.size()) {
-                // TODO check what move to override -> make Battler settings?
+            if (newMoves != null) {
+                int numCurMoves = 0;
+                while (numCurMoves < moveset.length && moveset[numCurMoves] != null) {
+                    numCurMoves++;
+                }
+                int i = 0;
+                while (numCurMoves + i < moveset.length && i < newMoves.size()) {
+                    moveset[numCurMoves + i] = newMoves.get(i);
+                    i++;
+                }
+                if (i < newMoves.size()) {
+                    // TODO check what move to override -> make Battler settings?
+                }
             }
         }
     }

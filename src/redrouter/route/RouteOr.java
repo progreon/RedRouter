@@ -21,6 +21,7 @@ import java.util.HashMap;
 import redrouter.data.Player;
 
 /**
+ * TODO
  *
  * @author Marco Willems
  */
@@ -64,7 +65,7 @@ public class RouteOr extends RouteEntry {
     }
 
     @Override
-    protected void apply(Player p) {
+    protected Player apply(Player p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

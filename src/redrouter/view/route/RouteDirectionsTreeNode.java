@@ -26,29 +26,16 @@ import redrouter.route.RouteDirections;
  */
 public class RouteDirectionsTreeNode extends RouteEntryTreeNode {
 
-    private JLabel lblInfo;
-    private String labelText;
-
     public RouteDirectionsTreeNode(RouteTree tree, RouteDirections routeDirections) {
         super(tree, routeDirections);
     }
 
     @Override
     protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        setLabelText(lblInfo, labelText, availableWidth);
-    }
-
-    @Override
-    protected void initRender(int availableWidth) {
-        String text;
-        JLabel lbl;
-        text = routeEntry.toString();
-        lbl = new JLabel();
+        String text = routeEntry.toString();
+        JLabel lbl = new JLabel();
         setLabelText(lbl, text, availableWidth);
         view.add(lbl);
-
-        labelText = text;
-        lblInfo = lbl;
     }
 
 }

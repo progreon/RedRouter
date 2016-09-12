@@ -34,7 +34,6 @@ public class Move {
     public final String name;
     public final Types.Type type;
     public final String effect;
-    public final boolean isAttack; // ??
     public final int power;
     public final int accuracy;
     public final int pp;
@@ -53,7 +52,6 @@ public class Move {
         this.name = name;
         this.type = type;
         this.effect = effect;
-        this.isAttack = isAttack;
         this.power = power;
         this.accuracy = accuracy;
         this.pp = pp;
@@ -83,7 +81,6 @@ public class Move {
                 this.type = Types.getType(s[3]);
                 this.accuracy = Integer.parseInt(s[4]);
                 this.pp = Integer.parseInt(s[5]);
-                this.isAttack = this.power > 0;
                 this.pokemon = new ArrayList<>();
             } catch (NumberFormatException nex) {
                 throw new ParserException(file, line, "Could not parse a move parameter!");
@@ -137,6 +134,7 @@ public class Move {
         minDamage = attacker.isType(type) ? minDamage * 3 / 2 : minDamage; // STAB
         maxDamage = attacker.isType(type) ? maxDamage * 3 / 2 : maxDamage; // STAB
         minDamage *= Types.getTypeChart().getFactor(type, defender.getPokemon().type1, defender.getPokemon().type2);
+        maxDamage *= Types.getTypeChart().getFactor(type, defender.getPokemon().type1, defender.getPokemon().type2);
 
         if (minDamage != 0) {
             minDamage = Math.max(minDamage * 217 / 255, 1);
@@ -179,7 +177,6 @@ public class Move {
         hash = 59 * hash + Objects.hashCode(this.name);
         hash = 59 * hash + Objects.hashCode(this.type);
         hash = 59 * hash + Objects.hashCode(this.effect);
-        hash = 59 * hash + (this.isAttack ? 1 : 0);
         hash = 59 * hash + this.power;
         hash = 59 * hash + this.accuracy;
         return hash;

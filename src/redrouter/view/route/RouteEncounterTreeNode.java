@@ -33,20 +33,15 @@ import redrouter.route.RouteEncounter;
  */
 public class RouteEncounterTreeNode extends RouteEntryTreeNode {
 
-    private JLabel lblInfo;
-    private String labelText;
-
     public RouteEncounterTreeNode(RouteTree tree, RouteEncounter routeEncounter) {
         super(tree, routeEncounter);
     }
 
     @Override
-    protected void initRender(int availableWidth) {
-        String text;
-        JLabel lbl;
+    protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         RouteEncounter re = (RouteEncounter) routeEntry;
-        text = re.info + "\n";
-        lbl = new JLabel();
+        String text = re.info + "\n";
+        JLabel lbl = new JLabel();
         setLabelText(lbl, text, availableWidth);
         view.add(lbl);
         JPanel southPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -60,14 +55,6 @@ public class RouteEncounterTreeNode extends RouteEntryTreeNode {
         cmbChoices.setSelectedIndex(re.getPreference() + 1);
         southPanel.add(cmbChoices);
         view.add(southPanel, BorderLayout.SOUTH);
-
-        labelText = text;
-        lblInfo = lbl;
-    }
-
-    @Override
-    protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        setLabelText(lblInfo, labelText, availableWidth);
     }
 
 }

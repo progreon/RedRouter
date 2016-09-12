@@ -20,7 +20,6 @@ package redrouter.route;
 import java.util.ArrayList;
 import java.util.List;
 import redrouter.data.EncounterArea;
-import redrouter.data.Player;
 import redrouter.data.SingleBattler;
 import redrouter.data.Trainer;
 
@@ -104,11 +103,6 @@ public class RouteSection extends RouteEntry {
         RouteSection r = new RouteSection(this, info);
         addEntry(r);
         return r;
-    }
-
-    @Override
-    protected void apply(Player p) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

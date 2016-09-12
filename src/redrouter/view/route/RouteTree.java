@@ -63,6 +63,7 @@ public class RouteTree extends JTree {
         for (int i = 0; i < getRowCount(); i++) {
             expandRow(i);
         }
+        route.refreshData(null);
     }
 
     public void refresh() {
@@ -105,6 +106,8 @@ public class RouteTree extends JTree {
             return new RouteDirectionsTreeNode(tree, (RouteDirections) entry);
         } else if (entry instanceof RouteEncounter) {
             return new RouteEncounterTreeNode(tree, (RouteEncounter) entry);
+        } else if (entry instanceof RouteGetPokemon) {
+            return new RouteGetPokemonTreeNode(tree, (RouteGetPokemon) entry);
         } else if (entry instanceof RouteOr) {
             return new RouteOrTreeNode(tree, (RouteOr) entry);
         } else if (entry instanceof RouteSection) {

@@ -19,9 +19,11 @@ package redrouter.route;
 
 import redrouter.data.Battler;
 import redrouter.data.Player;
+import redrouter.data.SingleBattler;
 import redrouter.data.Trainer;
 
 /**
+ * TODO: share exp!
  *
  * @author Marco Willems
  */
@@ -32,19 +34,44 @@ public class RouteBattle extends RouteEntry {
 //    private final int[] extraBadgeBoosts;
     private final RouteBattleEntry[] entries;
 
+    private final Player[] playerBeforeEvery;
+    private final Player[] playerAfterEvery;
+
     public RouteBattle(RouteSection parentSection, RouteEntryInfo info, Trainer opponent) {
         super(parentSection, info);
         this.opponent = opponent;
-        
+
         entries = new RouteBattleEntry[opponent.team.size()];
         for (int i = 0; i < entries.length; i++) {
             entries[i] = new RouteBattleEntry(i);
         }
+        playerBeforeEvery = new Player[opponent.team.size()];
+        playerAfterEvery = new Player[opponent.team.size()];
     }
 
     @Override
-    protected void apply(Player p) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected Player apply(Player p) {
+        Player newPlayer = super.apply(p).getDeepCopy();
+
+        for (int i = 0; i < opponent.team.size(); i++) {
+            playerBeforeEvery[i] = newPlayer;
+
+            newPlayer = newPlayer.getDeepCopy();
+            SingleBattler sb = opponent.team.get(i);
+            newPlayer.getFrontBattler().defeatBattler(sb, 1); // TODO: share exp!
+
+            playerAfterEvery[i] = newPlayer;
+        }
+
+        return newPlayer;
+    }
+
+    public Player[] getPlayersBeforeEvery() {
+        return playerBeforeEvery;
+    }
+
+    public Player[] getPlayersAfterEvery() {
+        return playerAfterEvery;
     }
 
     @Override
@@ -77,7 +104,7 @@ public class RouteBattle extends RouteEntry {
             xItems[3] = xSpc;
             xItems[4] = xAcc;
             if (i < entries.length - 1) {
-                RouteBattleEntry next = entries[i+1];
+                RouteBattleEntry next = entries[i + 1];
                 int newAtk = Math.max(next.xItems[0], xItems[0]);
                 int newDef = Math.max(next.xItems[1], xItems[1]);
                 int newSpd = Math.max(next.xItems[2], xItems[2]);

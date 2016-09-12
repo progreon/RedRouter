@@ -43,7 +43,6 @@ public class RouterData {
     private final Map<String, Location> locations = new HashMap<>();
     private final Map<String, Pokemon> pokemonByName = new HashMap<>();
     private final Map<Integer, Pokemon> pokemonByID = new HashMap<>();
-    // TODO hoe indexeren?
     private final Map<String, Move> moves = new HashMap<>();
     private final Map<String, Move> tms = new HashMap<>();
     private final Map<String, Trainer> trainers = new HashMap<>();
@@ -199,9 +198,26 @@ public class RouterData {
     // TODO: TEMP
     private void initTrainers() {
         // TODO: input file!
-        List<SingleBattler> team = makeTeam(new Pokemon[]{getPokemon("Bulbasaur")}, new int[]{5});
-        Trainer rival1 = new Trainer(new Location(this, "Oak's Lab"), "Rival 1", null, team);
-        trainers.put(rival1.getIndexString(), rival1);
+        // rival 1
+        List<SingleBattler> teamRival1 = makeTeam(new Pokemon[]{getPokemon("Bulbasaur")}, new int[]{5});
+        Trainer trRival1 = new Trainer(new Location(this, "Oak's Lab"), "Rival 1", null, teamRival1);
+        trainers.put(trRival1.getIndexString(), trRival1);
+        // bug catcher 1 (forest)
+        List<SingleBattler> teamBug1 = makeTeam(new Pokemon[]{getPokemon("Weedle")}, new int[]{9});
+        Trainer trBug1 = new Trainer(new Location(this, "Viridian Forest"), "Bug 1", null, teamBug1);
+        trainers.put(trBug1.getIndexString(), trBug1);
+        // brock
+        List<SingleBattler> teamBrock = makeTeam(new Pokemon[]{getPokemon("Geodude"), getPokemon("Onix")}, new int[]{12, 14});
+        Trainer trBrock = new Trainer(new Location(this, "Pewter City"), "Brock", null, teamBrock);
+        trainers.put(trBrock.getIndexString(), trBrock);
+        // bug catcher 2 (r3)
+        List<SingleBattler> teamBug2 = makeTeam(new Pokemon[]{getPokemon("Caterpie"), getPokemon("Weedle"), getPokemon("Caterpie")}, new int[]{10, 10, 10});
+        Trainer trBug2 = new Trainer(new Location(this, "Route 3"), "Bug 2", null, teamBug2);
+        trainers.put(trBug2.getIndexString(), trBug2);
+        // shorts guy (r3)
+        List<SingleBattler> teamShorts = makeTeam(new Pokemon[]{getPokemon("Rattata"), getPokemon("Ekans")}, new int[]{11, 11});
+        Trainer trShorts = new Trainer(new Location(this, "Route 3"), "Shorts guy", null, teamShorts);
+        trainers.put(trShorts.getIndexString(), trShorts);
     }
 
     // TODO: TEMP
@@ -247,7 +263,6 @@ public class RouterData {
         }
     }
 
-    //TODO Exception Handling
     private void initMovesets() {
         List<String> lines = getLinesFromFile(settings.getMovesetFile());
 

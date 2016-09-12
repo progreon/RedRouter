@@ -15,25 +15,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package redrouter.route;
+package redrouter.view.route;
+
+import javax.swing.JLabel;
+import redrouter.route.RouteGetPokemon;
 
 /**
  *
  * @author Marco Willems
  */
-public class RouteDirections extends RouteEntry {
+public class RouteGetPokemonTreeNode extends RouteEntryTreeNode {
 
-    public RouteDirections(RouteSection parentSection, RouteEntryInfo info) {
-        super(parentSection, info);
-    }
-
-    public RouteDirections(RouteSection parentSection, String description) {
-        this(parentSection, new RouteEntryInfo(null, description));
+    public RouteGetPokemonTreeNode(RouteTree tree, RouteGetPokemon routeGetPokemon) {
+        super(tree, routeGetPokemon);
     }
 
     @Override
-    public String toString() {
-        return info.toString();
+    protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+        String text = routeEntry.toString();
+        JLabel lbl = new JLabel();
+        setLabelText(lbl, text, availableWidth);
+        view.add(lbl);
     }
 
 }

@@ -58,8 +58,14 @@ public class RouteGetPokemon extends RouteEntry {
     }
 
     @Override
-    protected void apply(Player p) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected Player apply(Player p) {
+        Player newPlayer = super.apply(p).getDeepCopy();
+
+        if (this.preference >= 0) {
+            newPlayer.addBattler(choices.get(preference));
+        }
+
+        return newPlayer;
     }
 
     @Override
