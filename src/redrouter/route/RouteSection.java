@@ -63,6 +63,12 @@ public class RouteSection extends RouteEntry {
         return r;
     }
 
+    public RouteBattle addNewBattle(RouteEntryInfo info, Trainer opponent, int[][] competingPartyMon) {
+        RouteBattle r = new RouteBattle(this, info, opponent, competingPartyMon);
+        addEntry(r);
+        return r;
+    }
+
     public RouteDirections addNewDirections(String description) {
         RouteDirections r = new RouteDirections(this, description);
         addEntry(r);

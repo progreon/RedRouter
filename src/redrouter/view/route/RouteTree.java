@@ -114,6 +114,8 @@ public class RouteTree extends JTree {
             return new RouteSectionTreeNode(tree, (RouteSection) entry);
         } else if (entry instanceof RouteShopping) {
             return new RouteShoppingTreeNode(tree, (RouteShopping) entry);
+        } else if (entry instanceof RouteSwapPokemon) {
+            return new RouteSwapPokemonTreeNode(tree, (RouteSwapPokemon) entry);
         } else {
             return null;
         }

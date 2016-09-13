@@ -82,13 +82,13 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode implemen
             }
         });
 
-//        doSizedRender(initAvailableWidth - getBorderWidth(), false, false, false, -1, false);
         view.setPreferredSize(new Dimension(initAvailableWidth, view.getPreferredSize().height));
     }
 
     public JComponent getRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         view.removeAll();
 
+        // TODO: temp
         JButton btnPlayerInfo = makePlayerInfoButton();
         view.add(btnPlayerInfo, BorderLayout.EAST);
 

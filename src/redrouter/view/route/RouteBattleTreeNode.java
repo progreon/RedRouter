@@ -21,13 +21,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import redrouter.data.Battler;
 import redrouter.data.Move;
 import redrouter.data.Move.DamageRange;
-import redrouter.data.SingleBattler;
 import redrouter.route.RouteBattle;
 
 /**
@@ -62,22 +62,25 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
 //    }
     private JPanel getMovesCell(Battler attacker, Battler defender, boolean isPlayerAttacker) {
         JPanel pnlCell = new JPanel(new BorderLayout(2, 2));
-        pnlCell.add(makeBattlerInfoButton(attacker, isPlayerAttacker), BorderLayout.NORTH);
+        if (attacker != null && defender != null) {
+            pnlCell.add(makeBattlerInfoButton(attacker, isPlayerAttacker), BorderLayout.NORTH);
 
-        String text = "<html><body>";
-        for (Move m : attacker.getMoveset()) {
-            text += m;
-            DamageRange dr = m.getDamageRange(attacker, defender);
-            if (dr.critMax != 0) {
-                text += ": " + m.getDamageRange(attacker, defender);
+            String text = "<html><body>";
+            for (Move m : attacker.getMoveset()) {
+                text += m;
+                DamageRange dr = m.getDamageRange(attacker, defender);
+                if (dr.critMax != 0) {
+                    text += ": " + m.getDamageRange(attacker, defender);
+                }
+                text += "<br>";
             }
-            text += "<br>";
+            text += "</body></html";
+            JLabel lbl = new JLabel(text);
+            pnlCell.add(lbl);
         }
-        text += "</body></html";
-        JLabel lbl = new JLabel(text);
-        pnlCell.add(lbl);
         pnlCell.setOpaque(false);
-        Border lineBorder = BorderFactory.createLineBorder(Color.black, 1);
+//        Border lineBorder = BorderFactory.createLineBorder(Color.black, 1);
+        Border lineBorder = BorderFactory.createMatteBorder(1, 1, 2, 0, Color.black);
         Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
         pnlCell.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
 
@@ -93,23 +96,39 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
         setLabelText(lbl, text, availableWidth);
         view.add(lbl);
 
-        Battler myBat;
-        if (routeEntry.getPlayer() != null && !routeEntry.getPlayer().team.isEmpty()) {
-            myBat = routeEntry.getPlayer().team.get(0);
-        } else {
-            myBat = new SingleBattler(tree.route.rd.getPokemon("Nidoking"), null, 25);
-        }
-
         // TODO: stages, badge boosts
-        JPanel pnlMoves = new JPanel(new GridLayout(0, 2));
-        for (Battler b : rb.opponent.team) {
-//            pnlMoves.add(getBattlerCell(b, true));
-            pnlMoves.add(getMovesCell(b, myBat, false));
-            pnlMoves.add(getMovesCell(myBat, b, true));
-//            pnlMoves.add(getBattlerCell(myBat, false));
+        JPanel pnlOpponents = new JPanel();
+        pnlOpponents.setLayout(new BoxLayout(pnlOpponents, BoxLayout.Y_AXIS));
+        for (int i = 0; i < rb.opponent.team.size(); i++) {
+            Color bg = new Color(215, 215, 215, 150);
+            if (i % 2 == 1) {
+                bg = new Color(165, 165, 165, 150);
+            }
+            JPanel pnlMoves = new JPanel(new GridLayout(0, 2));
+            Battler opp = rb.opponent.team.get(i);
+            for (int j = 0; j < rb.entries[i].length; j++) {
+                Battler myBat = null;
+                if (rb.getPlayersBeforeEvery()[i] != null) {
+                    myBat = rb.getPlayersBeforeEvery()[i].team.get(rb.entries[i][j].partyIndex);
+//                } else {
+//                    myBat = new SingleBattler(tree.route.rd.getPokemon("Nidoking"), null, 25);
+                }
+
+//                pnlMoves.add(getBattlerCell(opp, true));
+                pnlMoves.add(getMovesCell(opp, myBat, false));
+                pnlMoves.add(getMovesCell(myBat, opp, true));
+//                pnlMoves.add(getBattlerCell(myBat, false));
+            }
+//            pnlMoves.setOpaque(false);
+            pnlMoves.setBackground(bg);
+//            pnlMoves.setBorder(BorderFactory.createLineBorder(Color.black, 1));
+            pnlMoves.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 1, Color.black));
+            pnlOpponents.add(pnlMoves);
         }
-        pnlMoves.setOpaque(false);
-        view.add(pnlMoves, BorderLayout.SOUTH);
+        pnlOpponents.setOpaque(false);
+//        pnlOpponents.setBorder(BorderFactory.createLineBorder(Color.black, 1));
+        pnlOpponents.setBorder(BorderFactory.createMatteBorder(1, 2, 1, 2, Color.black));
+        view.add(pnlOpponents, BorderLayout.SOUTH);
 
         view.add(makePlayerInfoButton(), BorderLayout.EAST);
     }

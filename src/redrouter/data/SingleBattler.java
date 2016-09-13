@@ -91,21 +91,44 @@ public class SingleBattler extends Battler {
         initPossibleDVs(false);
     }
 
+    /**
+     * Use this constructor if it's a RNG manip'd pokemon
+     *
+     * @param pokemon
+     * @param level
+     * @param atkDV
+     * @param defDV
+     * @param spdDV
+     * @param spcDV
+     */
+    public SingleBattler(Pokemon pokemon, int level, int atkDV, int defDV, int spdDV, int spcDV) {
+        super(pokemon, null);
+        this.level = level;
+        initDefaultMoveSet(pokemon, level);
+        initPossibleDVs(atkDV, defDV, spdDV, spcDV);
+    }
+
     private void initPossibleDVs(boolean isTrainerPokemon) {
-        this.possibleDVs = new boolean[5][16];
         if (isTrainerPokemon) {
-            this.possibleDVs[0][8] = true;
-            this.possibleDVs[1][9] = true;
-            this.possibleDVs[2][8] = true;
-            this.possibleDVs[3][8] = true;
-            this.possibleDVs[4][8] = true;
+            initPossibleDVs(9, 8, 8, 8);
         } else {
+            this.possibleDVs = new boolean[5][16];
             for (int i = 0; i < 5; i++) {
                 for (int j = 0; j < 16; j++) {
                     this.possibleDVs[i][j] = true;
                 }
             }
         }
+    }
+
+    private void initPossibleDVs(int atkDV, int defDV, int spdDV, int spcDV) {
+        this.possibleDVs = new boolean[5][16];
+        int hpDV = (atkDV % 2) * 8 + (defDV % 2) * 4 + (spdDV % 2) * 2 + (spcDV % 2);
+        this.possibleDVs[0][hpDV] = true;
+        this.possibleDVs[1][atkDV] = true;
+        this.possibleDVs[2][defDV] = true;
+        this.possibleDVs[3][spdDV] = true;
+        this.possibleDVs[4][spcDV] = true;
     }
 
     private void initDefaultMoveSet(Pokemon pokemon, int level) {

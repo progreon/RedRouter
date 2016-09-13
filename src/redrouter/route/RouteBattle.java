@@ -17,7 +17,6 @@
  */
 package redrouter.route;
 
-import redrouter.data.Battler;
 import redrouter.data.Player;
 import redrouter.data.SingleBattler;
 import redrouter.data.Trainer;
@@ -30,9 +29,7 @@ import redrouter.data.Trainer;
 public class RouteBattle extends RouteEntry {
 
     public final Trainer opponent;
-//    private final int[][] xItemsPerBattler;
-//    private final int[] extraBadgeBoosts;
-    private final RouteBattleEntry[] entries;
+    public final RouteBattleEntry[][] entries; // TODO: private & getters?
 
     private final Player[] playerBeforeEvery;
     private final Player[] playerAfterEvery;
@@ -41,12 +38,25 @@ public class RouteBattle extends RouteEntry {
         super(parentSection, info);
         this.opponent = opponent;
 
-        entries = new RouteBattleEntry[opponent.team.size()];
+        entries = new RouteBattleEntry[opponent.team.size()][];
         for (int i = 0; i < entries.length; i++) {
-            entries[i] = new RouteBattleEntry(i);
+            entries[i] = new RouteBattleEntry[1];
+            entries[i][0] = new RouteBattleEntry(0);
         }
         playerBeforeEvery = new Player[opponent.team.size()];
         playerAfterEvery = new Player[opponent.team.size()];
+    }
+
+    public RouteBattle(RouteSection parentSection, RouteEntryInfo info, Trainer opponent, int[][] competingPartyMon) {
+        this(parentSection, info, opponent);
+        if (competingPartyMon.length == entries.length) {
+            for (int i = 0; i < entries.length; i++) {
+                entries[i] = new RouteBattleEntry[competingPartyMon[i].length];
+                for (int j = 0; j < competingPartyMon[i].length; j++) {
+                    entries[i][j] = new RouteBattleEntry(competingPartyMon[i][j]);
+                }
+            }
+        }
     }
 
     @Override
@@ -58,7 +68,17 @@ public class RouteBattle extends RouteEntry {
 
             newPlayer = newPlayer.getDeepCopy();
             SingleBattler sb = opponent.team.get(i);
-            newPlayer.getFrontBattler().defeatBattler(sb, 1); // TODO: share exp!
+            int n = 0;
+            for (int j = 0; j < entries[i].length; j++) {
+                if (!entries[i][j].isFainted()) {
+                    n++;
+                }
+            }
+            for (int j = 0; j < entries[i].length; j++) {
+                if (!entries[i][j].isFainted()) {
+                    newPlayer.team.get(entries[i][j].partyIndex).defeatBattler(sb, n);
+                }
+            }
 
             playerAfterEvery[i] = newPlayer;
         }
@@ -86,32 +106,61 @@ public class RouteBattle extends RouteEntry {
 
     public class RouteBattleEntry {
 
-        final int opponentTeamIndex;
-        Battler playerBattler = null;
+        public final int partyIndex;
+        private final int[] xItems = new int[5]; // xAtk, xDef, xSpd, xSpc, xAcc
 
-        int[] xItems = new int[5]; // xAtk, xDef, xSpd, xSpc, xAcc
-        int extraBadgeBoosts = 0;
+        private int extraBadgeBoosts = 0;
+        private boolean fainted = false;
 
-        public RouteBattleEntry(int opponentTeamIndex) {
-            this.opponentTeamIndex = opponentTeamIndex;
+        public RouteBattleEntry(int partyIndex) {
+            this.partyIndex = partyIndex;
         }
 
-        public void setXItems(int xAtk, int xDef, int xSpd, int xSpc, int xAcc) {
-            int i = opponentTeamIndex;
+        public RouteBattleEntry(int partyIndex, int[] xItems) {
+            this(partyIndex);
+            if (xItems.length == this.xItems.length) {
+                for (int i = 0; i < xItems.length; i++) {
+                    this.xItems[i] = xItems[i];
+                }
+            }
+        }
+
+        public int[] getXItems() {
+            return this.xItems.clone();
+        }
+
+        public void setXItemsUsed(int xAtk, int xDef, int xSpd, int xSpc, int xAcc) {
             xItems[0] = xAtk;
             xItems[1] = xDef;
             xItems[2] = xSpd;
             xItems[3] = xSpc;
             xItems[4] = xAcc;
-            if (i < entries.length - 1) {
-                RouteBattleEntry next = entries[i + 1];
-                int newAtk = Math.max(next.xItems[0], xItems[0]);
-                int newDef = Math.max(next.xItems[1], xItems[1]);
-                int newSpd = Math.max(next.xItems[2], xItems[2]);
-                int newSpc = Math.max(next.xItems[3], xItems[3]);
-                int newAcc = Math.max(next.xItems[4], xItems[4]);
-                next.setXItems(newAtk, newDef, newSpd, newSpc, newAcc);
+            // TODO: refresh?
+        }
+
+        public int getExtraBadgeBoosts() {
+            return this.extraBadgeBoosts;
+        }
+
+        public void setExtraBadgeBoosts(int extraBadgeBoosts) {
+            this.extraBadgeBoosts = extraBadgeBoosts;
+        }
+
+        public int getTotalExtraBadgeBoosts() {
+            int tot = 0;
+            for (int i = 0; i < 5; i++) {
+                tot += xItems[i];
             }
+            tot += extraBadgeBoosts;
+            return tot;
+        }
+
+        public boolean isFainted() {
+            return this.fainted;
+        }
+
+        public void setFainted(boolean isFainted) {
+            this.fainted = isFainted;
         }
 
     }

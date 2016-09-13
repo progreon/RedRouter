@@ -89,11 +89,23 @@ public class Player {
         return team.isEmpty() ? null : team.get(0);
     }
 
-    public void swapToFront(CombinedBattler battler) {
-        int index = team.indexOf(battler);
-        if (index != -1) {
+    public void swapToFront(int index) {
+        if (index >= 0 && index < team.size()) {
+            Battler battler = team.get(index);
             team.set(index, team.get(0));
             team.set(0, battler);
+        }
+    }
+
+    public void swapToFront(Battler battler) {
+        swapToFront(team.indexOf(battler));
+    }
+
+    public void swapBattlers(int index1, int index2) {
+        if (index1 >= 0 && index1 < team.size() && index2 >= 0 && index2 < team.size()) {
+            Battler battler = team.get(index1);
+            team.set(index1, team.get(index2));
+            team.set(index2, battler);
         }
     }
 
