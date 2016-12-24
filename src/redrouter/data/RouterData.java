@@ -377,7 +377,7 @@ public class RouterData {
         tms.put("HM_05", moves.get("FLASH"));
     }
 
-    private List<String> getLinesFromFile(String fileName) {
+    public static List<String> getLinesFromFile(String fileName) {
         List<String> lines = new ArrayList<>();
         BufferedReader br = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream(fileName)));
         try {

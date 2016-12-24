@@ -70,7 +70,10 @@ public class RouteGetPokemon extends RouteEntry {
 
     @Override
     public String toString() {
-        String str = super.info + "\n";
+        String str = "";
+        if (super.info != null) {
+            str = super.info + "\n";
+        }
         if (choices.size() > 1) {
             str += "Pick 1 of: ";
             for (Battler b : choices) {

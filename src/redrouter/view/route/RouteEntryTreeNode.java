@@ -89,8 +89,8 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode implemen
         view.removeAll();
 
         // TODO: temp
-        JButton btnPlayerInfo = makePlayerInfoButton();
-        view.add(btnPlayerInfo, BorderLayout.EAST);
+//        JButton btnPlayerInfo = makePlayerInfoButton();
+//        view.add(btnPlayerInfo, BorderLayout.EAST);
 
         doSizedRender(availableWidth - getBorderWidth() - 2, selected, expanded, leaf, row, hasFocus);
 

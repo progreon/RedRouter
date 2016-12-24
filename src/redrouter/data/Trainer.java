@@ -55,7 +55,14 @@ public class Trainer {
 
     @Override
     public String toString() {
-        String trainer = name + "\nLocation: " + location.name + "\nInfo: " + (info == null ? "" : info) + "\nTeam: ";
+        String trainer = name + "\n";
+        if (location != null) {
+            trainer += "Location: " + location.name + "\n";
+        }
+        if (info != null) {
+            trainer += "Info: " + info + "\n";
+        }
+        trainer += "Team: ";
         for (Battler b : team) {
             trainer += "\t" + b.toString();
         }

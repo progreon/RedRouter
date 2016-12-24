@@ -114,7 +114,9 @@ public class RouteSection extends RouteEntry {
     @Override
     public String toString() {
         String str = "--" + info.title + "--";
-        str += "\n" + info.description;
+        if (info.description != null && !info.description.isEmpty()) {
+            str += "\n  " + info.description;
+        }
 
         for (RouteEntry re : super.children) {
             str += "\n";
