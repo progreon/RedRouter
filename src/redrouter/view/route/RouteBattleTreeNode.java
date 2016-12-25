@@ -70,7 +70,7 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
                 text += m;
                 DamageRange dr = m.getDamageRange(attacker, defender);
                 if (dr.critMax != 0) {
-                    text += ": " + m.getDamageRange(attacker, defender);
+                    text += ": " + dr;
                 }
                 text += "<br>";
             }

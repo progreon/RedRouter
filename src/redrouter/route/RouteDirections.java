@@ -17,6 +17,8 @@
  */
 package redrouter.route;
 
+import redrouter.io.PrintSettings;
+
 /**
  *
  * @author Marco Willems
@@ -34,6 +36,18 @@ public class RouteDirections extends RouteEntry {
     @Override
     public String toString() {
         return info.toString();
+    }
+
+    @Override
+    public String writeToString(int depth, PrintSettings ps) {
+        if (ps == null) {
+            ps = new PrintSettings();
+        }
+        if (ps.ommitDirections()) {
+            return null;
+        } else {
+            return lineToDepth("D: " + info.toString(), depth);
+        }
     }
 
 }

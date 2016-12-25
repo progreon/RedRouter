@@ -17,7 +17,9 @@
  */
 package redrouter.route;
 
+import redrouter.io.PrintSettings;
 import java.io.File;
+import redrouter.Settings;
 import redrouter.data.Player;
 import redrouter.data.RouterData;
 
@@ -62,6 +64,39 @@ public class Route extends RouteSection {
             route += entry + "\n\n";
         }
         return route;
+    }
+
+    @Override
+    public String writeToString(int depth, PrintSettings ps) {
+        if (ps == null) {
+            ps = new PrintSettings();
+        }
+        String str = "Route: ";
+        switch (rd.settings.game) {
+            case Settings.GAME_BLUE:
+                str += "B";
+                break;
+            case Settings.GAME_RED:
+                str += "R";
+                break;
+            case Settings.GAME_YELLOW:
+                str += "Y";
+                break;
+            default:
+                throw new RuntimeException("Error while writing route to file: invalid game \"" + rd.settings.game + "\"");
+        }
+        str += " :: " + info;
+
+        for (RouteEntry child : children) {
+            str += "\n" + child.writeToString(depth + 1, ps);
+        }
+
+        return str;
+//        String str = lineToDepth("S: " + info, depth);
+//        for (RouteEntry child : children) {
+//            str += "\n" + child.writeToString(depth + 1, ps);
+//        }
+//        return str;
     }
 
 }

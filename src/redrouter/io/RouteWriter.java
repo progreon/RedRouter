@@ -15,38 +15,49 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package redrouter.route;
+package redrouter.io;
+
+import java.io.File;
+import java.util.HashMap;
+import redrouter.data.Trainer;
+import redrouter.route.Route;
+import redrouter.route.RouteEntry;
 
 /**
  *
  * @author Marco Willems
  */
-public class RouteEntryInfo {
+public class RouteWriter {
 
-    public final String title;
-    public final String description;
+    private HashMap<String, Trainer> trainers; // alias => trainer
 
-    public RouteEntryInfo(String title) {
-        this.title = title;
-        this.description = null;
+    public RouteWriter() {
+        init();
     }
 
-    public RouteEntryInfo(String title, String description) {
-        this.title = title;
-        this.description = description;
+    private void init() {
+        trainers = new HashMap<>();
     }
 
-    @Override
-    public String toString() {
-        if (title == null && description == null) {
+    public void writeToFile(Route route, File file, PrintSettings printSettings) {
+        // TODO
+    }
+
+    public String writeToString(Route route, PrintSettings printSettings) {
+        if (printSettings != null) {
+            // TODO
             return null;
         } else {
-            String str = "";
-            str += title == null ? "" : title;
-            str += title == null || description == null ? "" : ": ";
-            str += description == null ? "" : description;
-            return str;
+            return writeToString(route);
         }
+    }
+
+    public String writeToString(Route route) {
+        return writeToString(route, 0);
+    }
+
+    public String writeToString(RouteEntry entry, int depth) {
+        return entry.writeToString(depth, null);
     }
 
 }

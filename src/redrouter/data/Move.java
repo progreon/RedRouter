@@ -99,43 +99,58 @@ public class Move {
 
     // TODO: confusion & night shade damage
     // TODO: boosts
+    // See: http://upcarchive.playker.info/0/upokecenter/content/pokemon-red-version-blue-version-and-yellow-version-damage-calculation-process.html
     private Range getDamageRange(Battler attacker, Battler defender, boolean isCrit) {
         if (power == 0) {
             return new Range(0, 0); // TODO: special cases?
         }
-        int minDamage = (attacker.getLevel() * (isCrit ? 2 : 1)) % 256;
-        int maxDamage = (attacker.getLevel() * (isCrit ? 2 : 1)) % 256;
-        minDamage = (minDamage * 2 / 5 + 2);
-        maxDamage = (maxDamage * 2 / 5 + 2);
-        if (Types.isPhysical(type)) {
-            Range atkRange = attacker.getAtk();
-            minDamage *= isCrit ? atkRange.getMax() : getStatWithBoosts(atkRange.getMin(), 0, 0);
-            maxDamage *= isCrit ? atkRange.getMax() : getStatWithBoosts(atkRange.getMax(), 0, 0);
-        } else {
-            Range spcRange = attacker.getSpc();
-            minDamage *= isCrit ? spcRange.getMin() : getStatWithBoosts(spcRange.getMin(), 0, 0);
-            maxDamage *= isCrit ? spcRange.getMax() : getStatWithBoosts(spcRange.getMax(), 0, 0);
+        // (1), (2), (4)
+        Range atkRange = Types.isPhysical(type) ? attacker.getAtk() : attacker.getSpc();
+        int minAttack = isCrit ? atkRange.getMin() : getStatWithBoosts(atkRange.getMin(), 0, 0);
+        int maxAttack = isCrit ? atkRange.getMax() : getStatWithBoosts(atkRange.getMax(), 0, 0);
+        // TODO: (3) attacker is burned
+        Range defRange = Types.isPhysical(type) ? defender.getDef() : defender.getSpc();
+        int minDefense = getStatWithBoosts(defRange.getMin(), 0, 0);
+        int maxDefense = getStatWithBoosts(defRange.getMax(), 0, 0);
+        // TODO: (5) Selfdestruct & Explosion
+        // (6) ??
+        if (minAttack > 255) {
+            minAttack = ((((minAttack / 2) % 255) / 2) % 255);
         }
-        minDamage *= power;
-        maxDamage *= power;
+        if (maxAttack > 255) {
+            maxAttack = ((((maxAttack / 2) % 255) / 2) % 255);
+        }
+        if (minDefense > 255) {
+            minDefense = ((((minDefense / 2) % 255) / 2) % 255);
+        }
+        if (maxDefense > 255) {
+            maxDefense = ((((maxDefense / 2) % 255) / 2) % 255);
+        }
+        // TODO: (7) Reflect in effect
+        // TODO: (8) Light Screen in effect
+        // (9)
+        minAttack = minAttack == 0 ? 1 : minAttack;
+        maxAttack = maxAttack == 0 ? 1 : maxAttack;
+        minDefense = minDefense == 0 ? 1 : minDefense;
+        maxDefense = maxDefense == 0 ? 1 : maxDefense;
+        
+        // (10)
+        int damage = (attacker.getLevel() * (isCrit ? 2 : 1)) % 256;
+        damage = (damage * 2 / 5 + 2);
+        int minDamage = damage * minAttack * power / maxDefense;
+        int maxDamage = damage * maxAttack * power / minDefense;
         minDamage /= 50;
         maxDamage /= 50;
-        if (Types.isPhysical(type)) {
-            Range defRange = defender.getDef();
-            minDamage /= isCrit ? defRange.getMax() : getStatWithBoosts(defRange.getMax(), 0, 0);
-            maxDamage /= isCrit ? defRange.getMin() : getStatWithBoosts(defRange.getMin(), 0, 0);
-        } else {
-            Range spcRange = defender.getSpc();
-            minDamage /= isCrit ? spcRange.getMax() : getStatWithBoosts(spcRange.getMax(), 0, 0);
-            maxDamage /= isCrit ? spcRange.getMin() : getStatWithBoosts(spcRange.getMin(), 0, 0);
-        }
-        minDamage += 2;
-        maxDamage += 2;
+        // (11), (12)
+        minDamage = Math.min(minDamage, 997) + 2;
+        maxDamage = Math.min(maxDamage, 997) + 2;
+        // (13)
         minDamage = attacker.isType(type) ? minDamage * 3 / 2 : minDamage; // STAB
         maxDamage = attacker.isType(type) ? maxDamage * 3 / 2 : maxDamage; // STAB
+        // (14)
         minDamage *= Types.getTypeChart().getFactor(type, defender.getPokemon().type1, defender.getPokemon().type2);
         maxDamage *= Types.getTypeChart().getFactor(type, defender.getPokemon().type1, defender.getPokemon().type2);
-
+        // (15)
         if (minDamage != 0) {
             minDamage = Math.max(minDamage * 217 / 255, 1);
         }

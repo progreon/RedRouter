@@ -46,6 +46,8 @@ public class SingleBattler extends Battler {
 
     // TODO: DV-range & interacting with DVCalculator?
     public boolean[][] possibleDVs; // [hp, atk, def, spd, spc][0..15] -> true/false
+    private final boolean isTrainerMon; // TODO do this more properly?
+    private static int[] trainerDVs = new int[]{8, 9, 8, 8, 8};
 
     /**
      * Use this constructor if it's a trainer pokemon.
@@ -58,10 +60,11 @@ public class SingleBattler extends Battler {
         super(pokemon, null);
         this.level = level;
         this.moveset = moveset;
+        this.isTrainerMon = true;
         if (this.moveset == null) {
             initDefaultMoveSet(pokemon, level);
         }
-        initPossibleDVs(true);
+        initPossibleDVs();
     }
 
     /**
@@ -74,8 +77,9 @@ public class SingleBattler extends Battler {
     public SingleBattler(Pokemon pokemon, EncounterArea catchLocation, int level) {
         super(pokemon, catchLocation);
         this.level = level;
+        this.isTrainerMon = false;
         initDefaultMoveSet(pokemon, level);
-        initPossibleDVs(false);
+        initPossibleDVs();
     }
 
     /**
@@ -87,8 +91,9 @@ public class SingleBattler extends Battler {
     public SingleBattler(EncounterArea catchLocation, int slot) {
         super(catchLocation.slots[slot].pkmn, catchLocation);
         this.level = catchLocation.slots[slot].level;
+        this.isTrainerMon = true;
         initDefaultMoveSet(pokemon, level);
-        initPossibleDVs(false);
+        initPossibleDVs();
     }
 
     /**
@@ -104,25 +109,31 @@ public class SingleBattler extends Battler {
     public SingleBattler(Pokemon pokemon, int level, int atkDV, int defDV, int spdDV, int spcDV) {
         super(pokemon, null);
         this.level = level;
+        this.isTrainerMon = false;
         initDefaultMoveSet(pokemon, level);
         initPossibleDVs(atkDV, defDV, spdDV, spcDV);
     }
 
-    private void initPossibleDVs(boolean isTrainerPokemon) {
-        if (isTrainerPokemon) {
-            initPossibleDVs(9, 8, 8, 8);
-        } else {
-            this.possibleDVs = new boolean[5][16];
-            for (int i = 0; i < 5; i++) {
-                for (int j = 0; j < 16; j++) {
-                    this.possibleDVs[i][j] = true;
-                }
+    private void initPossibleDVs() {
+//        if (isTrainerMon) {
+//            initPossibleDVs(9, 8, 8, 8);
+//        } else {
+        this.possibleDVs = new boolean[5][16];
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 16; j++) {
+                this.possibleDVs[i][j] = true;
             }
         }
+//        }
     }
 
     private void initPossibleDVs(int atkDV, int defDV, int spdDV, int spcDV) {
         this.possibleDVs = new boolean[5][16];
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 16; j++) {
+                this.possibleDVs[i][j] = false;
+            }
+        }
         int hpDV = (atkDV % 2) * 8 + (defDV % 2) * 4 + (spdDV % 2) * 2 + (spcDV % 2);
         this.possibleDVs[0][hpDV] = true;
         this.possibleDVs[1][atkDV] = true;
@@ -159,9 +170,20 @@ public class SingleBattler extends Battler {
 
     // TODO: evolve condition (item, ...)
     @Override
-    public void evolve(Item item) {
+    public Battler evolve(Item item) {
         if (pokemon.evolution != null) {
-            pokemon = pokemon.evolution;
+            SingleBattler evo = new SingleBattler(pokemon.evolution, catchLocation, level);
+            evo.moveset = moveset;
+            evo.possibleDVs = possibleDVs;
+            evo.hpXP = hpXP;
+            evo.atkXP = atkXP;
+            evo.defXP = defXP;
+            evo.spdXP = spdXP;
+            evo.spcXP = spcXP;
+            evo.levelExp = levelExp;
+            return evo;
+        } else {
+            return null;
         }
     }
 
@@ -184,14 +206,14 @@ public class SingleBattler extends Battler {
     }
 
     @Override
-    public void addXP(int exp) {
+    public boolean addXP(int exp) {
         levelExp += exp;
         int totExp = pokemon.expGroup.getTotalExp(level, levelExp);
         int newLevel = pokemon.expGroup.getLevel(totExp);
         if (level != newLevel) {
             levelExp -= pokemon.expGroup.getDeltaExp(level, newLevel);
             level = newLevel;
-            List<Move> newMoves = pokemon.getLearnedMoves(level);
+            List<Move> newMoves = pokemon.getLearnedMoves(level); // Handle it the RBY way
             if (newMoves != null) {
                 int numCurMoves = 0;
                 while (numCurMoves < moveset.length && moveset[numCurMoves] != null) {
@@ -207,6 +229,7 @@ public class SingleBattler extends Battler {
                 }
             }
         }
+        return false; // TODO: return true if evolving
     }
 
     @Override
@@ -233,9 +256,13 @@ public class SingleBattler extends Battler {
     @Override
     public DVRange getDVRange(int stat) {
         DVRange range = new DVRange();
-        for (int DV = 0; DV < 16; DV++) {
-            if (possibleDVs[stat][DV]) {
-                range.add(DV);
+        if (isTrainerMon) {
+            range.add(trainerDVs[stat]);
+        } else {
+            for (int DV = 0; DV < 16; DV++) {
+                if (possibleDVs[stat][DV]) {
+                    range.add(DV);
+                }
             }
         }
         return range;

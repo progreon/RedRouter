@@ -21,6 +21,7 @@ import java.util.List;
 import redrouter.data.SingleBattler;
 import redrouter.data.EncounterArea;
 import redrouter.data.Player;
+import redrouter.io.PrintSettings;
 
 /**
  * TODO: rework this completely!
@@ -120,6 +121,20 @@ public class RouteEncounter extends RouteEntry {
             str = str.substring(0, str.length() - 2);
         }
 
+        return str;
+    }
+
+    @Override
+    public String writeToString(int depth, PrintSettings ps) {
+        if (ps == null) {
+            ps = new PrintSettings();
+        }
+        String str = "E: " + this.area.toString() + " ::";
+        for (int i = 0; i < slots.length; i++) {
+            str += " " + slots[i] + ":" + (preference == i ? 1 : 0);
+        }
+        // TODO description
+        str = lineToDepth(str, depth);
         return str;
     }
 

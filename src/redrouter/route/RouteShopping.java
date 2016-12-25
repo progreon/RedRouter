@@ -18,6 +18,7 @@
 package redrouter.route;
 
 import redrouter.data.Player;
+import redrouter.io.PrintSettings;
 
 /**
  * TODO
@@ -37,6 +38,11 @@ public class RouteShopping extends RouteEntry {
 
     @Override
     public String toString() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String writeToString(int depth, PrintSettings ps) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

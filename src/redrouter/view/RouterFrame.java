@@ -34,7 +34,6 @@ public class RouterFrame extends JFrame {
 
     public RouterFrame(Settings settings) {
         this(new RouteFactory(new RouterData(settings)).getRedExaNidoRoute());
-
     }
     
     public RouterFrame(Route route) {
@@ -57,6 +56,8 @@ public class RouterFrame extends JFrame {
         this.setLocationRelativeTo(null);
 //        this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        System.out.println(route.writeToString(0, null));
     }
 
 }

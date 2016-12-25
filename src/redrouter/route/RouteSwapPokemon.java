@@ -18,6 +18,7 @@
 package redrouter.route;
 
 import redrouter.data.Player;
+import redrouter.io.PrintSettings;
 
 /**
  * TODO: include possibility of multiple simultaneous swaps
@@ -53,17 +54,29 @@ public class RouteSwapPokemon extends RouteEntry {
     public String toString() {
         String text = "";
 
-        if (info != null) {
+        if (info != null && info.toString() != null) {
             text = info.toString();
         } else {
             if (box1 < 0 || box2 < 0) {
                 text = "Switch party pokemon with index " + index1 + " and " + index2 + ".";
             } else {
                 // TODO
+                text = "TODO: switch pokemon from boxes";
             }
         }
 
         return text;
+    }
+
+    @Override
+    public String writeToString(int depth, PrintSettings ps) {
+        if (ps == null) {
+            ps = new PrintSettings();
+        }
+        String str = "SwapP: " + index1 + " " + index2;
+        // TODO boxes!
+        // TODO description
+        return lineToDepth(str, depth);
     }
 
 }

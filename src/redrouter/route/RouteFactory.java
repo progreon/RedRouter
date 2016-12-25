@@ -55,7 +55,7 @@ public class RouteFactory {
 
         RouteSection rsPalletA = new RouteSection(null, "Pallet Town");
         rsPalletA.addNewDirections("Exit out of your home, and head north towards Route 1. Prof. Oak will stop you and lead you back to his lab. After he and your rival are done talking, select the middle Pokeball on the table to get Squirtle. Name it a one character name, and go to head out of the lab. Your rival will stop you for a battle.");
-        RouteGetPokemon rgpPalletA = new RouteGetPokemon(null, new RouteEntryInfo("Get Squirtle"), new CombinedBattler(new SingleBattler(rd.getPokemon("Squirtle"), null, 5)));
+        RouteGetPokemon rgpPalletA = new RouteGetPokemon(null, new RouteEntryInfo("Get Squirtle"), new SingleBattler(rd.getPokemon("Squirtle"), null, 5));
         rsPalletA.addEntry(rgpPalletA);
         rsPalletA.addNewBattle(new RouteEntryInfo(rd.getTrainer("Rival 1").name, "Tail Whip x1-2, then Tackle until it faints."), rd.getTrainer("Rival 1"));
         rsPalletA.addNewDirections("Head out of the lab, and north to Route 1");
@@ -105,7 +105,7 @@ public class RouteFactory {
         rsRoute22A.addNewDirections("Time for the Nidoran hunt. You want to catch a Lvl.3-4 Nidoran♂, and give it a one character name.");
         rsRoute22A.addNewDirections("Tackle Lvl.3 Nidorans once to make the catch easier, but just throw PokeBalls at Lvl.4 Nidorans. If you encounter a Lv. 5 Spearow, try to catch it (just throw Poke Balls). If you catch a Lvl.5 Spearow on the first ball, DSum off it by going 5 out, 6 in, 12 out, then the standard DSum (4 in, 2 out, 6 in, 11 out). If you waste at least half your Poke Balls against Spearow, Tackle Lv. 4 Nidorans once or twice to avoid running out.");
         rsRoute22A.addNewDirections("After you have your Nidoran, head back east to Viridian City.");
-        RouteGetPokemon rgpRoute22A = new RouteGetPokemon(null, new RouteEntryInfo("Catch Nidoran"), new CombinedBattler(new SingleBattler(rd.getPokemon("NidoranM"), null, 4)));
+        RouteGetPokemon rgpRoute22A = new RouteGetPokemon(null, new RouteEntryInfo("Catch Nidoran"), new SingleBattler(rd.getPokemon("NidoranM"), null, 4));
         rsRoute22A.addEntry(rgpRoute22A);
         rsNido.addSection(rsRoute22A);
 

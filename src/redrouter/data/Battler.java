@@ -28,7 +28,7 @@ import redrouter.util.Range;
  */
 public abstract class Battler implements Cloneable {
 
-    protected Pokemon pokemon;
+    public final Pokemon pokemon;
     public final EncounterArea catchLocation;
 
     public Battler(Pokemon pokemon, EncounterArea catchLocation) {
@@ -53,13 +53,18 @@ public abstract class Battler implements Cloneable {
     }
 
     // TODO: evolve condition (item, ...)
-    public abstract void evolve(Item item);
+    public abstract Battler evolve(Item item);
 
     public abstract void addStatXP(int hp, int atk, int def, int spd, int spc, int nrOfPkmn);
 
     public abstract void resetStatXP();
 
-    public abstract void addXP(int exp);
+    /**
+     * 
+     * @param exp
+     * @return true if evolving
+     */
+    public abstract boolean addXP(int exp);
 
     /**
      * TODO

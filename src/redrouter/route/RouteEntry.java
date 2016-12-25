@@ -20,13 +20,14 @@ package redrouter.route;
 import java.util.List;
 import java.util.Observable;
 import redrouter.data.Player;
+import redrouter.io.Writable;
 
 /**
  * TODO: keep pointer to next node for performance of refresh()?
  *
  * @author Marco Willems
  */
-public abstract class RouteEntry extends Observable { // TODO: custom Observable class
+public abstract class RouteEntry extends Observable implements Writable { // TODO: custom Observable class
 
     public RouteEntryInfo info;
     public RouteSection parent;
@@ -55,6 +56,9 @@ public abstract class RouteEntry extends Observable { // TODO: custom Observable
         }
         if (newPlayer == null) {
             RouteEntry previous = getPrevious();
+            if (previous != null) {
+                previous.refreshData(null);
+            }
             if (previous != null && previous.player != null) {
                 newPlayer = previous.apply(previous.player);
             }
@@ -144,6 +148,19 @@ public abstract class RouteEntry extends Observable { // TODO: custom Observable
 
     public boolean hasNext() {
         return getNext() != null;
+    }
+
+    protected static String lineToDepth(String s, int depth) {
+        if (s != null) {
+            String newS = "";
+            for (int i = 0; i < depth; i++) {
+                newS += "\t";
+            }
+            newS += s;
+            return newS;
+        } else {
+            return null;
+        }
     }
 
     @Override

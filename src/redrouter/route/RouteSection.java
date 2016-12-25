@@ -22,6 +22,7 @@ import java.util.List;
 import redrouter.data.EncounterArea;
 import redrouter.data.SingleBattler;
 import redrouter.data.Trainer;
+import redrouter.io.PrintSettings;
 
 /**
  * A route section contains a list of route entries
@@ -123,6 +124,21 @@ public class RouteSection extends RouteEntry {
             str += re.toString();
         }
 
+        return str;
+    }
+
+    @Override
+    public String writeToString(int depth, PrintSettings ps) {
+        if (ps == null) {
+            ps = new PrintSettings();
+        }
+        String str = lineToDepth("S: " + info, depth);
+        for (RouteEntry child : children) {
+            String childStr = child.writeToString(depth + 1, ps);
+            if (childStr != null) {
+                str += "\n" + child.writeToString(depth + 1, ps);
+            }
+        }
         return str;
     }
 

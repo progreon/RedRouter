@@ -20,6 +20,7 @@ package redrouter.route;
 import redrouter.data.Player;
 import redrouter.data.SingleBattler;
 import redrouter.data.Trainer;
+import redrouter.io.PrintSettings;
 
 /**
  * TODO: share exp!
@@ -34,6 +35,7 @@ public class RouteBattle extends RouteEntry {
     private final Player[] playerBeforeEvery;
     private final Player[] playerAfterEvery;
 
+    // TODO: description instead of info => new RouteEntryInfo(opponent.name, description) ??
     public RouteBattle(RouteSection parentSection, RouteEntryInfo info, Trainer opponent) {
         super(parentSection, info);
         this.opponent = opponent;
@@ -49,11 +51,16 @@ public class RouteBattle extends RouteEntry {
 
     public RouteBattle(RouteSection parentSection, RouteEntryInfo info, Trainer opponent, int[][] competingPartyMon) {
         this(parentSection, info, opponent);
-        if (competingPartyMon.length == entries.length) {
+        if (competingPartyMon != null && competingPartyMon.length == entries.length) {
             for (int i = 0; i < entries.length; i++) {
-                entries[i] = new RouteBattleEntry[competingPartyMon[i].length];
-                for (int j = 0; j < competingPartyMon[i].length; j++) {
-                    entries[i][j] = new RouteBattleEntry(competingPartyMon[i][j]);
+                if (competingPartyMon[i].length == 0) {
+                    entries[i] = new RouteBattleEntry[1];
+                    entries[i][0] = new RouteBattleEntry(0);
+                } else {
+                    entries[i] = new RouteBattleEntry[competingPartyMon[i].length];
+                    for (int j = 0; j < competingPartyMon[i].length; j++) {
+                        entries[i][j] = new RouteBattleEntry(competingPartyMon[i][j]);
+                    }
                 }
             }
         }
@@ -102,6 +109,33 @@ public class RouteBattle extends RouteEntry {
 //            s += "\n\n\t" + info;
 //        }
         return s;
+    }
+
+    @Override
+    public String writeToString(int depth, PrintSettings ps) {
+        if (ps == null) {
+            ps = new PrintSettings();
+        }
+        String str = "B: ";
+        String alias = opponent.getIndexString().replaceAll(" ", "");
+        str += alias;
+        String options = "";
+        for (int i = 0; i < entries.length; i++) {
+            if (entries[i].length == 1 && entries[i][0].partyIndex == 0) {
+
+            } else {
+                for (int j = 0; j < entries[i].length; j++) {
+                    options += " " + i + ":" + entries[i][j].partyIndex;
+                }
+            }
+        }
+        if (!options.isEmpty()) {
+            str += " ::" + options;
+        }
+        // TODO optional description
+        str += " :: " + info.description;
+
+        return lineToDepth(str, depth);
     }
 
     public class RouteBattleEntry {
