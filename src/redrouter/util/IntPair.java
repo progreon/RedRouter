@@ -15,35 +15,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package redrouter.view.route;
-
-import java.awt.Point;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
+package redrouter.util;
 
 /**
  *
  * @author Marco Willems
  */
-public abstract class InfoDialog extends JDialog {
+public class IntPair {
 
-    protected JPanel panel;
-    private final Point mouseLocation;
+    public int int1;
+    public int int2;
 
-    public InfoDialog(Point mouseLocation) {
-        this.mouseLocation = mouseLocation;
+    public IntPair(int int1, int int2) {
+        this.int1 = int1;
+        this.int2 = int2;
     }
 
-    protected final void initAndDisplay() {
-        initPanel();
-        this.setContentPane(panel);
-        this.setUndecorated(true);
-        this.pack();
-        this.setModal(false);
-        this.setLocation(new Point(mouseLocation.x, mouseLocation.y - this.getHeight()));
-        this.setFocusable(false);
+    @Override
+    public String toString() {
+        return "<" + int1 + ";" + int2 + ">";
     }
-
-    protected abstract void initPanel();
 
 }

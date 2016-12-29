@@ -28,6 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import redrouter.Settings;
+import redrouter.util.PokemonLevelPair;
 
 /**
  * The main factory class for the application
@@ -41,6 +42,7 @@ public class RouterData {
     private final Map<String, EncounterArea> areas = new HashMap<>();
     private final List<EncounterArea> areasByID = new ArrayList<>();
     private final Map<String, Location> locations = new HashMap<>();
+    private Location defaultLocation = null;
     private final Map<String, Pokemon> pokemonByName = new HashMap<>();
     private final Map<Integer, Pokemon> pokemonByID = new HashMap<>();
     private final Map<String, Move> moves = new HashMap<>();
@@ -75,8 +77,8 @@ public class RouterData {
         List<EncounterArea> l = new ArrayList<>();
         for (EncounterArea ea : areasByID) {
             boolean contains = false;
-            for (EncounterArea.Slot s : ea.slots) {
-                if (s.pkmn == pkmn) {
+            for (PokemonLevelPair plp : ea.slots) {
+                if (plp.pkmn == pkmn) {
                     contains = true;
                 }
             }
@@ -89,6 +91,10 @@ public class RouterData {
 
     public Location getLocation(String name) {
         return locations.get(Location.getIndexString(name));
+    }
+
+    public Location getDefaultLocation() {
+        return defaultLocation;
     }
 
     public Move getMove(String name) {
@@ -163,6 +169,9 @@ public class RouterData {
         Location location = new Location(this, locationString, file, line);
         if (!locations.containsKey(location.getIndexString())) {
             locations.put(location.getIndexString(), location);
+            if (defaultLocation == null) {
+                defaultLocation = location;
+            }
             return location;
         } else {
             return null;

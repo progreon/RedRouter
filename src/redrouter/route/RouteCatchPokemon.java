@@ -17,7 +17,7 @@
  */
 package redrouter.route;
 
-import redrouter.data.Player;
+import redrouter.data.Location;
 import redrouter.io.PrintSettings;
 
 /**
@@ -25,15 +25,10 @@ import redrouter.io.PrintSettings;
  *
  * @author Marco Willems
  */
-public class RouteShopping extends RouteEntry {
+public class RouteCatchPokemon extends RouteEntry {
 
-    public RouteShopping(RouteEntryInfo info) {
-        super(info);
-    }
-
-    @Override
-    protected Player apply(Player p) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public RouteCatchPokemon(RouteEntryInfo info, Location location) {
+        super(info, location);
     }
 
     @Override

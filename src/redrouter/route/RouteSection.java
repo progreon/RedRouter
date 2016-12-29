@@ -19,10 +19,12 @@ package redrouter.route;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import redrouter.data.EncounterArea;
-import redrouter.data.SingleBattler;
 import redrouter.data.Trainer;
 import redrouter.io.PrintSettings;
+import redrouter.util.IntPair;
+import redrouter.util.PokemonCountPair;
 
 /**
  * A route section contains a list of route entries
@@ -31,25 +33,25 @@ import redrouter.io.PrintSettings;
  */
 public class RouteSection extends RouteEntry {
 
-    public RouteSection(RouteSection parentSection, RouteEntryInfo info, List<RouteEntry> children) {
-        super(parentSection, info, children == null ? new ArrayList<>() : children);
+    public RouteSection(RouteEntryInfo info, List<RouteEntry> children) {
+        super(info, children == null ? new ArrayList<>() : children);
     }
 
-    public RouteSection(RouteSection parentSection, RouteEntryInfo info) {
-        this(parentSection, info, null);
+    public RouteSection(RouteEntryInfo info) {
+        this(info, null);
     }
 
-    public RouteSection(RouteSection parentSection, String title) {
-        this(parentSection, new RouteEntryInfo(title), null);
+    public RouteSection(String title) {
+        this(new RouteEntryInfo(title), null);
     }
 
-    public RouteSection(RouteSection parentSection, String title, String description) {
-        this(parentSection, new RouteEntryInfo(title, description), null);
+    public RouteSection(String title, String description) {
+        this(new RouteEntryInfo(title, description), null);
     }
 
     public RouteEntry addEntry(RouteEntry entry) {
         super.children.add(entry);
-        entry.parent = this;
+        entry.setParentSection(this);
         return entry;
     }
 
@@ -59,55 +61,55 @@ public class RouteSection extends RouteEntry {
     }
 
     public RouteBattle addNewBattle(RouteEntryInfo info, Trainer opponent) {
-        RouteBattle r = new RouteBattle(this, info, opponent);
+        RouteBattle r = new RouteBattle(info, opponent);
         addEntry(r);
         return r;
     }
 
     public RouteBattle addNewBattle(RouteEntryInfo info, Trainer opponent, int[][] competingPartyMon) {
-        RouteBattle r = new RouteBattle(this, info, opponent, competingPartyMon);
+        RouteBattle r = new RouteBattle(info, opponent, competingPartyMon);
         addEntry(r);
         return r;
     }
 
     public RouteDirections addNewDirections(String description) {
-        RouteDirections r = new RouteDirections(this, description);
+        RouteDirections r = new RouteDirections(description);
         addEntry(r);
         return r;
     }
 
     public RouteDirections addNewDirections(RouteEntryInfo info) {
-        RouteDirections r = new RouteDirections(this, info);
+        RouteDirections r = new RouteDirections(info);
         addEntry(r);
         return r;
     }
 
-    public RouteEncounter addNewEncounter(String description, EncounterArea area, List<SingleBattler> choices, int preference) {
-        RouteEncounter r = new RouteEncounter(this, new RouteEntryInfo(null, description), area, choices, preference);
+    public RouteEncounter addNewEncounter(String description, EncounterArea area, IntPair[] slotPreferences) {
+        RouteEncounter r = new RouteEncounter(new RouteEntryInfo(null, description), area, slotPreferences);
         addEntry(r);
         return r;
     }
 
-    public RouteEncounter addNewEncounter(String description, EncounterArea area, int[] choices, int preference) {
-        RouteEncounter r = new RouteEncounter(this, new RouteEntryInfo(null, description), area, choices, preference);
+    public RouteEncounter addNewEncounter(String description, EncounterArea area, Set<PokemonCountPair> preferences) {
+        RouteEncounter r = new RouteEncounter(new RouteEntryInfo(null, description), area, preferences);
         addEntry(r);
         return r;
     }
 
     public RouteOr addNewOr(RouteEntryInfo info) {
-        RouteOr r = new RouteOr(this, info);
+        RouteOr r = new RouteOr(info);
         addEntry(r);
         return r;
     }
 
     public RouteSection addNewSection(String title, String description) {
-        RouteSection r = new RouteSection(this, title, description);
+        RouteSection r = new RouteSection(title, description);
         addEntry(r);
         return r;
     }
 
     public RouteSection addNewSection(RouteEntryInfo info) {
-        RouteSection r = new RouteSection(this, info);
+        RouteSection r = new RouteSection(info);
         addEntry(r);
         return r;
     }

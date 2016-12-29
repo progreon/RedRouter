@@ -37,7 +37,7 @@ import redrouter.route.RouteBattle;
 public class RouteBattleTreeNode extends RouteEntryTreeNode {
 
     public RouteBattleTreeNode(RouteTree tree, RouteBattle routeBattle) {
-        super(tree, routeBattle);
+        super(tree, routeBattle, false, true);
     }
 
 //    private JPanel getBattlerCell(Battler b, boolean isOpponent) {
@@ -129,8 +129,6 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
 //        pnlOpponents.setBorder(BorderFactory.createLineBorder(Color.black, 1));
         pnlOpponents.setBorder(BorderFactory.createMatteBorder(1, 2, 1, 2, Color.black));
         view.add(pnlOpponents, BorderLayout.SOUTH);
-
-        view.add(makePlayerInfoButton(), BorderLayout.EAST);
     }
 
 }

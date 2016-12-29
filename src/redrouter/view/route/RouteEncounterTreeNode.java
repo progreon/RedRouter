@@ -19,42 +19,51 @@ package redrouter.view.route;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import redrouter.data.Battler;
 import redrouter.route.RouteEncounter;
+import redrouter.util.PokemonCountPair;
+import redrouter.view.dialogs.editroute.EditDialog;
+import redrouter.view.dialogs.editroute.RouteEncounterEdit;
 
 /**
+ * TODO link with wild encounters
  *
  * @author Marco Willems
  */
 public class RouteEncounterTreeNode extends RouteEntryTreeNode {
 
     public RouteEncounterTreeNode(RouteTree tree, RouteEncounter routeEncounter) {
-        super(tree, routeEncounter);
+        super(tree, routeEncounter, true);
     }
 
     @Override
     protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         RouteEncounter re = (RouteEncounter) routeEntry;
-        String text = re.info + "\n";
+        String text = re + "\n";
+        text += "Defeated preferred pokemon: ";
+        int count = 0;
+        for (PokemonCountPair pcp : re.getPreferences()) {
+            if (pcp.getCount() > 0) {
+                text += pcp.getCount() + "x " + pcp.plp + ", ";
+                count++;
+            }
+        }
+        if (count > 0) {
+            text = text.substring(0, text.length() - 2);
+        }
         JLabel lbl = new JLabel();
         setLabelText(lbl, text, availableWidth);
-        view.add(lbl);
         JPanel southPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         southPanel.setOpaque(false);
-        southPanel.add(new JLabel("Defeated pokemon:"));
-        List<Battler> choices = new ArrayList<>();
-//        choices.add(Battler.NULL);
-        choices.add(null);
-        choices.addAll(re.getChoices());
-        JComboBox<Battler> cmbChoices = new JComboBox<>(choices.toArray(new Battler[0]));
-        cmbChoices.setSelectedIndex(re.getPreference() + 1);
-        southPanel.add(cmbChoices);
+        southPanel.add(lbl);
         view.add(southPanel, BorderLayout.SOUTH);
+    }
+
+    @Override
+    protected EditDialog getEditDialog() {
+        RouteEncounter re = (RouteEncounter) routeEntry;
+        return new RouteEncounterEdit(re, re.getPreferences());
     }
 
 }

@@ -19,8 +19,12 @@ package redrouter.route;
 
 import java.util.List;
 import java.util.Observable;
+import java.util.Stack;
+import redrouter.data.Location;
 import redrouter.data.Player;
+import redrouter.data.SingleBattler;
 import redrouter.io.Writable;
+import redrouter.util.WildEncounters;
 
 /**
  * TODO: keep pointer to next node for performance of refresh()?
@@ -29,53 +33,138 @@ import redrouter.io.Writable;
  */
 public abstract class RouteEntry extends Observable implements Writable { // TODO: custom Observable class
 
+    public final static String TREE_UPDATED = "Tree updated";
+
     public RouteEntryInfo info;
-    public RouteSection parent;
+    private RouteSection parent;
     public final List<RouteEntry> children;
+
+    private Location location; // TODO: move to player class?
+    private WildEncounters wildEncounters;
 
     protected Player player = null; // instance of the player when entering this entry
 
-    public RouteEntry(RouteSection parentSection, RouteEntryInfo info) {
-        this(parentSection, info, null);
+    public RouteEntry(RouteEntryInfo info) {
+        this(info, null, null);
     }
 
-    public RouteEntry(RouteSection parentSection, RouteEntryInfo info, List<RouteEntry> children) {
-        this.parent = parentSection;
+    public RouteEntry(RouteEntryInfo info, Location location) {
+        this(info, null, location);
+    }
+
+    public RouteEntry(RouteEntryInfo info, List<RouteEntry> children) {
+        this(info, children, null);
+    }
+
+    public RouteEntry(RouteEntryInfo info, List<RouteEntry> children, Location location) {
+        this.parent = null;
         this.info = info;
         this.children = children;
+        this.location = location;
+        this.wildEncounters = new WildEncounters(getLocation());
 //        refreshData(null);
+    }
+
+    public final Location getLocation() {
+        if (this.location == null) {
+            RouteEntry prev = getPrevious();
+            if (prev != null) {
+                return prev.getLocation();
+            } else {
+                return null;
+            }
+        } else {
+            return this.location;
+        }
+    }
+
+    public final void setLocation(Location location) {
+        if (this.location != location || location == null) {
+            this.location = location;
+            this.wildEncounters = new WildEncounters(getLocation());
+            refreshData(null);
+        }
+    }
+
+    private void refreshLocationData() {
+        this.wildEncounters = new WildEncounters(getLocation());
+        RouteEntry next = getNext();
+        while (next != null && next.location == null) {
+            next.setLocation(null); // TODO Too much refreshData()? => location in player class!
+            next = next.getNext();
+        }
+        refreshData(null);
+    }
+
+    public RouteSection getParentSection() {
+        return this.parent;
+    }
+
+    // TODO don't do this here but in a move function?
+    public void setParentSection(RouteSection parentSection) {
+        if (this.parent != parentSection) {
+            this.parent = parentSection;
+            refreshLocationData();
+        }
     }
 
     public Player getPlayer() {
         return this.player;
     }
 
+    public WildEncounters getWildEncounters() {
+        return this.wildEncounters;
+    }
+
+    // TODO fix this!! (part B)
     public final void refreshData(Player newPlayer) {
         if (newPlayer == null) {
             newPlayer = this.player;
         }
+        // First lets go up to find a player object to work with
         if (newPlayer == null) {
-            RouteEntry previous = getPrevious();
-            if (previous != null) {
-                previous.refreshData(null);
+            Stack<RouteEntry> sPrev = new Stack<>();
+            RouteEntry prev = getPrevious();
+            while (prev != null && prev.player == null) {
+                sPrev.push(prev);
+                prev = prev.getPrevious();
             }
-            if (previous != null && previous.player != null) {
-                newPlayer = previous.apply(previous.player);
-            }
+            if (prev != null) {
+                newPlayer = prev.player;
+                newPlayer = prev.apply(newPlayer);
+                while (!sPrev.isEmpty()) {
+                    prev = sPrev.pop();
+                    newPlayer = prev.apply(newPlayer);
+                }
+            } // else return
         }
-        Player appliedPlayer = apply(newPlayer);
-        RouteEntry next = getNext(); // TODO: not optimal to use getNext!
-//        if (next != null && !appliedPlayer.equals(next.player)) { // TODO: ?
-        if (next != null) { // only notify observers when the whole tree is updated!
-            next.refreshData(appliedPlayer);
-        } else {
-            notifyObservers("Tree updated"); // TODO (RouteEntryTreeNode:165)
+        // Then apply this entry to the player if we found it
+        if (newPlayer != null) {
+            Player appliedPlayer = apply(newPlayer);
+            // Then propagate the applied player down
+            RouteEntry next = getNext(); // TODO: not optimal to use getNext!
+//            if (next != null && !appliedPlayer.equals(next.player)) { // TODO: ? (+ location check?)
+            if (next != null) { // only notify observers when the whole tree is updated!
+                next.refreshData(appliedPlayer); // TODO remove (tail) recursion (list all nexts and apply one by one)
+            } else {
+                super.setChanged();
+                notifyObservers(TREE_UPDATED);
+            }
         }
     }
 
     protected Player apply(Player p) {
         this.player = p;
-        return this.player;
+        // Applying wild encounters
+        if (player != null && this.wildEncounters != null && player.getFrontBattler() != null) {
+            Player newPlayer = this.player.getDeepCopy();
+            for (SingleBattler sb : this.wildEncounters.getBattledBattlers()) {
+                newPlayer.getFrontBattler().defeatBattler(sb);
+            }
+            return newPlayer;
+        } else {
+            return this.player;
+        }
     }
 
     public boolean hasChildren() {

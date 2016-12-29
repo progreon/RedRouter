@@ -27,7 +27,7 @@ import redrouter.route.RouteSwapPokemon;
 public class RouteSwapPokemonTreeNode extends RouteEntryTreeNode {
 
     public RouteSwapPokemonTreeNode(RouteTree tree, RouteSwapPokemon routeEntry) {
-        super(tree, routeEntry);
+        super(tree, routeEntry, true);
     }
 
     @Override

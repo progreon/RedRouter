@@ -17,94 +17,78 @@
  */
 package redrouter.route;
 
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import redrouter.data.SingleBattler;
 import redrouter.data.EncounterArea;
 import redrouter.data.Player;
 import redrouter.io.PrintSettings;
+import redrouter.util.IntPair;
+import redrouter.util.PokemonCountPair;
 
 /**
- * TODO: rework this completely!
+ * TODO: allow for location wide preferences
  *
  * @author Marco Willems
  */
 public class RouteEncounter extends RouteEntry {
 
-    private final List<SingleBattler> choices;
-    private final int preference;
-    // Use this for DSUM later, maybe?
+    private Set<PokemonCountPair> preferences;
     private final EncounterArea area;
-    private final int[] slots;
 
-    public RouteEncounter(RouteSection parentSection, RouteEntryInfo info, EncounterArea area, List<SingleBattler> choices) {
-        this(parentSection, info, area, choices, -1);
+    // Use this for DSUM later, maybe?
+    private int[] slots;
+
+    public RouteEncounter(RouteEntryInfo info, EncounterArea area, Set<PokemonCountPair> preferences) {
+        this(info, area);
+        for (PokemonCountPair pip : preferences) {
+            if (area.contains(pip.plp)) {
+                this.preferences.add(pip);
+            }
+        }
     }
 
-    public RouteEncounter(RouteSection parentSection, RouteEntryInfo info, EncounterArea area, List<SingleBattler> choices, int preference) {
-        super(parentSection, info);
+    public RouteEncounter(RouteEntryInfo info, EncounterArea area, IntPair[] slotPreferences) {
+        this(info, area);
+        for (IntPair ip : slotPreferences) {
+            if (ip.int1 > 0 && ip.int1 < area.slots.length) {
+                this.preferences.add(new PokemonCountPair(area.slots[ip.int1], ip.int2));
+            }
+        }
+    }
+
+    private RouteEncounter(RouteEntryInfo info, EncounterArea area) {
+        super(info, area.location);
         this.area = area;
-        if (choices == null && area != null) {
-            this.choices = area.getUniqueBattlers();
-            this.slots = new int[area.slots.length];
-            for (int i = 0; i < this.slots.length; i++) {
-                this.slots[i] = i;
-            }
-        } else {
-            this.choices = choices;
-            if (area != null) {
-                this.slots = area.getSlots(choices);
-            } else {
-                this.slots = new int[0];
-            }
-        }
-        if (preference >= this.choices.size() || preference < -1) {
-            this.preference = -1;
-        } else {
-            this.preference = preference;
-        }
-    }
-
-    public RouteEncounter(RouteSection parentSection, RouteEntryInfo info, EncounterArea area, int[] slots) {
-        this(parentSection, info, area, slots, -1);
-    }
-
-    public RouteEncounter(RouteSection parentSection, RouteEntryInfo info, EncounterArea area, int[] slots, int preference) {
-        super(parentSection, info);
-        this.area = area;
-        if (slots == null || slots.length > area.slots.length) {
-            this.slots = new int[area.slots.length];
-            for (int i = 0; i < this.slots.length; i++) {
-                this.slots[i] = i;
-            }
-        } else {
-            this.slots = slots;
-        }
-        this.choices = area.getBattlers(slots);
-        if (preference >= this.slots.length || preference < -1) {
-            this.preference = -1;
-        } else {
-            this.preference = preference;
-        }
+        this.preferences = new TreeSet<>();
     }
 
     public EncounterArea getArea() {
         return this.area;
     }
 
-    public List<SingleBattler> getChoices() {
-        return this.choices;
+    public Set<PokemonCountPair> getPreferences() {
+        return this.preferences;
     }
 
-    public int getPreference() {
-        return this.preference;
+    public void updatePreferences(Set<PokemonCountPair> preferences) {
+        this.preferences = new TreeSet<>();
+        for (PokemonCountPair pip : preferences) {
+            if (area.contains(pip.plp)) {
+                this.preferences.add(pip);
+            }
+        }
+        refreshData(null);
     }
 
     @Override
     protected Player apply(Player p) {
         Player newPlayer = super.apply(p).getDeepCopy();
 
-        if (this.preference >= 0) {
-            newPlayer.getFrontBattler().defeatBattler(this.choices.get(this.preference), 1);
+        for (PokemonCountPair pcp : preferences) {
+            for (int i = 0; i < pcp.getCount(); i++) {
+                newPlayer.getFrontBattler().defeatBattler(new SingleBattler(pcp.plp.pkmn, area, pcp.plp.level));
+            }
         }
 
         return newPlayer;
@@ -112,15 +96,14 @@ public class RouteEncounter extends RouteEntry {
 
     @Override
     public String toString() {
-        String str = info + " Choices: ";
+        String str = info + "\nPreferences: ";
 
-        for (int i = 0; i < choices.size(); i++) {
-            str += choices.get(i) + ", ";
+        for (PokemonCountPair pcp : preferences) {
+            str += pcp.plp + ", ";
         }
-        if (choices.size() > 0) {
+        if (preferences.size() > 0) {
             str = str.substring(0, str.length() - 2);
         }
-
         return str;
     }
 
@@ -130,8 +113,8 @@ public class RouteEncounter extends RouteEntry {
             ps = new PrintSettings();
         }
         String str = "E: " + this.area.toString() + " ::";
-        for (int i = 0; i < slots.length; i++) {
-            str += " " + slots[i] + ":" + (preference == i ? 1 : 0);
+        for (PokemonCountPair pcp : preferences) {
+            str += " " + area.getSlots(pcp.plp)[0] + ":" + pcp.getCount();
         }
         // TODO description
         str = lineToDepth(str, depth);

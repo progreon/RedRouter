@@ -38,7 +38,7 @@ public class RouteTree extends JTree {
 
     public final Route route;
 
-    protected boolean isEditMode = false;
+    private boolean isEditMode = false;
     public final Color backgroundColor = new Color(225, 225, 175);
     public final Color nodeBackgroundColor = new Color(200, 150, 75);
     public final Color nodeSelectedColor = new Color(170, 125, 65);
@@ -75,8 +75,11 @@ public class RouteTree extends JTree {
         return this.isEditMode;
     }
 
-    public void setIsEditMode(boolean isEditMode) {
-        this.isEditMode = isEditMode;
+    public void setEditMode(boolean isEditMode) {
+        if (this.isEditMode != isEditMode) {
+            this.isEditMode = isEditMode;
+            refresh();
+        }
     }
 
     private void initTree() {

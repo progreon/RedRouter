@@ -27,7 +27,7 @@ import redrouter.route.RouteDirections;
 public class RouteDirectionsTreeNode extends RouteEntryTreeNode {
 
     public RouteDirectionsTreeNode(RouteTree tree, RouteDirections routeDirections) {
-        super(tree, routeDirections);
+        super(tree, routeDirections, true);
     }
 
     @Override

@@ -15,10 +15,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package redrouter.view.route;
+package redrouter.view.dialogs;
 
 import java.awt.BorderLayout;
-import java.awt.Point;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import redrouter.data.Battler;
@@ -32,15 +31,15 @@ public class PlayerInfoDialog extends InfoDialog {
 
     private final Player player;
 
-    public PlayerInfoDialog(Player player, Point mouseLocation) {
-        super(mouseLocation);
+    private JPanel mainPanel = null;
+
+    public PlayerInfoDialog(Player player) {
         this.player = player;
-        initAndDisplay();
+        initMainPanel();
     }
 
-    @Override
-    protected void initPanel() {
-        this.panel = new JPanel(new BorderLayout());
+    private void initMainPanel() {
+        mainPanel = new JPanel(new BorderLayout());
         String info = "<html><body>";
         if (player != null) {
             info += "<p style=\"font-size:16px\">" + player.name + "</p>";
@@ -58,7 +57,17 @@ public class PlayerInfoDialog extends InfoDialog {
         info += "</body></html>";
 
         JLabel lblInfo = new JLabel(info);
-        panel.add(lblInfo);
+        mainPanel.add(lblInfo);
+    }
+
+    @Override
+    protected JPanel getMainPanel() {
+        return mainPanel;
+    }
+
+    @Override
+    protected void refreshData() {
+        initMainPanel();
     }
 
 }

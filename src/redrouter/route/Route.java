@@ -35,6 +35,7 @@ public class Route extends RouteSection {
         super(null, title);
         this.rd = rd;
         super.player = new Player("Red", "The playable character", null);
+        this.setLocation(rd.getDefaultLocation());
     }
 
     public final void setPlayer(Player p) {
@@ -92,11 +93,6 @@ public class Route extends RouteSection {
         }
 
         return str;
-//        String str = lineToDepth("S: " + info, depth);
-//        for (RouteEntry child : children) {
-//            str += "\n" + child.writeToString(depth + 1, ps);
-//        }
-//        return str;
     }
 
 }

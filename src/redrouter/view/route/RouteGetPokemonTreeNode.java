@@ -27,7 +27,7 @@ import redrouter.route.RouteGetPokemon;
 public class RouteGetPokemonTreeNode extends RouteEntryTreeNode {
 
     public RouteGetPokemonTreeNode(RouteTree tree, RouteGetPokemon routeGetPokemon) {
-        super(tree, routeGetPokemon);
+        super(tree, routeGetPokemon, true);
     }
 
     @Override

@@ -15,35 +15,35 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package redrouter.route;
+package redrouter.view.dialogs;
 
-import redrouter.data.Player;
-import redrouter.io.PrintSettings;
+import java.awt.Point;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
 
 /**
- * TODO
  *
  * @author Marco Willems
  */
-public class RouteShopping extends RouteEntry {
+public abstract class InfoDialog extends JDialog {
 
-    public RouteShopping(RouteEntryInfo info) {
-        super(info);
+    public InfoDialog() {
+        this.setUndecorated(true);
+        this.setModal(false);
+        this.setFocusable(false);
+        this.setLocationRelativeTo(null);
     }
 
-    @Override
-    protected Player apply(Player p) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public final void display(Point mouseLocation) {
+        this.refreshData();
+        this.setContentPane(getMainPanel());
+        this.pack();
+        this.setLocation(new Point(mouseLocation.x, mouseLocation.y - this.getHeight()));
+        this.setVisible(true);
     }
 
-    @Override
-    public String toString() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    protected abstract JPanel getMainPanel();
 
-    @Override
-    public String writeToString(int depth, PrintSettings ps) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    protected abstract void refreshData();
 
 }

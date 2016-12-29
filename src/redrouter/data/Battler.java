@@ -43,6 +43,10 @@ public abstract class Battler implements Cloneable {
 
     public abstract Battler getDeepCopy();
 
+    public void defeatBattler(Battler b) {
+        defeatBattler(b, 1);
+    }
+
     // TODO: evolving?
     public void defeatBattler(Battler b, int participants) {
         addStatXP(b.pokemon.hp, b.pokemon.atk, b.pokemon.def, b.pokemon.spd, b.pokemon.spc, participants);
@@ -60,7 +64,7 @@ public abstract class Battler implements Cloneable {
     public abstract void resetStatXP();
 
     /**
-     * 
+     *
      * @param exp
      * @return true if evolving
      */
@@ -161,15 +165,6 @@ public abstract class Battler implements Cloneable {
     @Override
     public String toString() {
         String battler = pokemon.name + " Lv." + getLevel();
-//        String battler = (this == NULL ? "-----" : pokemon.name + " Lv." + getLevel());
-//        String moves = "";
-//        if (moveset.size() > 0) {
-//            for (Move m : moveset) {
-//                moves += "," + m.NAME;
-//            }
-//            moves = moves.substring(1);
-//        }
-//        battler += " (" + moves + ")";
 
         return battler;
     }

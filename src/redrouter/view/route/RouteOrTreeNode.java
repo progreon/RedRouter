@@ -27,7 +27,7 @@ import redrouter.route.RouteOr;
 public class RouteOrTreeNode extends RouteEntryTreeNode {
 
     public RouteOrTreeNode(RouteTree tree, RouteOr routeOr) {
-        super(tree, routeOr);
+        super(tree, routeOr, false);
     }
 
     @Override

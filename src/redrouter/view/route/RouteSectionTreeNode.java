@@ -29,7 +29,7 @@ import redrouter.route.RouteSection;
 public class RouteSectionTreeNode extends RouteEntryTreeNode {
 
     public RouteSectionTreeNode(RouteTree tree, RouteSection routeSection) {
-        super(tree, routeSection);
+        super(tree, routeSection, false);
     }
 
     @Override
@@ -41,9 +41,9 @@ public class RouteSectionTreeNode extends RouteEntryTreeNode {
         float maxFontSize = 18.0f;
         float level = 0.0f;
         RouteEntry entry = routeEntry;
-        while (entry.parent != null) {
+        while (entry.getParentSection() != null) {
             level++;
-            entry = entry.parent;
+            entry = entry.getParentSection();
         }
         float thisFontSize = Math.max(minFontSize, maxFontSize - level * 2);
         lbl.setFont(font.deriveFont(thisFontSize));

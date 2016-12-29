@@ -27,7 +27,7 @@ import redrouter.route.RouteShopping;
 public class RouteShoppingTreeNode extends RouteEntryTreeNode {
 
     public RouteShoppingTreeNode(RouteTree tree, RouteShopping routeOr) {
-        super(tree, routeOr);
+        super(tree, routeOr, true);
     }
 
     @Override

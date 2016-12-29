@@ -25,12 +25,12 @@ import redrouter.io.PrintSettings;
  */
 public class RouteDirections extends RouteEntry {
 
-    public RouteDirections(RouteSection parentSection, RouteEntryInfo info) {
-        super(parentSection, info);
+    public RouteDirections(RouteEntryInfo info) {
+        super(info);
     }
 
-    public RouteDirections(RouteSection parentSection, String description) {
-        this(parentSection, new RouteEntryInfo(null, description));
+    public RouteDirections(String description) {
+        this(new RouteEntryInfo(null, description));
     }
 
     @Override

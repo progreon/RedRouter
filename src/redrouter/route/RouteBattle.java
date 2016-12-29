@@ -36,8 +36,8 @@ public class RouteBattle extends RouteEntry {
     private final Player[] playerAfterEvery;
 
     // TODO: description instead of info => new RouteEntryInfo(opponent.name, description) ??
-    public RouteBattle(RouteSection parentSection, RouteEntryInfo info, Trainer opponent) {
-        super(parentSection, info);
+    public RouteBattle(RouteEntryInfo info, Trainer opponent) {
+        super(info);
         this.opponent = opponent;
 
         entries = new RouteBattleEntry[opponent.team.size()][];
@@ -47,10 +47,14 @@ public class RouteBattle extends RouteEntry {
         }
         playerBeforeEvery = new Player[opponent.team.size()];
         playerAfterEvery = new Player[opponent.team.size()];
+
+        if (opponent.location != null) {
+            setLocation(opponent.location);
+        }
     }
 
-    public RouteBattle(RouteSection parentSection, RouteEntryInfo info, Trainer opponent, int[][] competingPartyMon) {
-        this(parentSection, info, opponent);
+    public RouteBattle(RouteEntryInfo info, Trainer opponent, int[][] competingPartyMon) {
+        this(info, opponent);
         if (competingPartyMon != null && competingPartyMon.length == entries.length) {
             for (int i = 0; i < entries.length; i++) {
                 if (competingPartyMon[i].length == 0) {

@@ -19,9 +19,7 @@ package redrouter.view;
 
 import java.awt.Dimension;
 import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
 import redrouter.Settings;
-import redrouter.data.DVCalculator;
 import redrouter.data.RouterData;
 import redrouter.route.Route;
 import redrouter.route.RouteFactory;
@@ -35,29 +33,19 @@ public class RouterFrame extends JFrame {
     public RouterFrame(Settings settings) {
         this(new RouteFactory(new RouterData(settings)).getRedExaNidoRoute());
     }
-    
+
     public RouterFrame(Route route) {
-        this(route, new DVCalculator(route.rd, null));
-    }
-    
-    public RouterFrame(Route route, DVCalculator calc) {
         super(Settings.TITLE + ": " + route.rd.settings.game);
-        DVCalculatorPanel dvPanel = new DVCalculatorPanel(calc);
+        System.out.println(route.writeToString(0, null));
         RouteView routeView = new RouteView(route);
-        routeView.setPreferredSize(dvPanel.getPreferredSize());
-        JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("DV Calculator", dvPanel);
-        tabbedPane.addTab("Route", routeView);
-        this.setContentPane(tabbedPane);
-        tabbedPane.setSelectedIndex(1);
+        this.setContentPane(routeView);
+        this.setJMenuBar(new RouterMenuBar(this, routeView));
         this.pack();
-//        this.setSize(new Dimension(Settings.WIDTH, Settings.HEIGHT));
+        this.setSize(new Dimension(Settings.WIDTH, Settings.HEIGHT));
         this.setMinimumSize(new Dimension(this.getPreferredSize().width * 3 / 4, this.getPreferredSize().height * 3 / 4));
         this.setLocationRelativeTo(null);
 //        this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
-        System.out.println(route.writeToString(0, null));
     }
 
 }

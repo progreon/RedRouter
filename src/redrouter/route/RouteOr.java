@@ -31,8 +31,8 @@ public class RouteOr extends RouteEntry {
     private final HashMap<String, RouteSection> subRoutes; // name (ID) -> subroute
     private String selectedSubRouteName;
 
-    public RouteOr(RouteSection parentSection, RouteEntryInfo info) {
-        super(parentSection, info);
+    public RouteOr(RouteEntryInfo info) {
+        super(info);
         this.subRoutes = new HashMap<>();
         this.selectedSubRouteName = null;
     }
@@ -41,6 +41,7 @@ public class RouteOr extends RouteEntry {
         boolean contains = subRoutes.containsKey(subRouteName);
         if (!contains) {
             subRoutes.put(subRouteName, subRoute);
+            subRoute.setParentSection(getParentSection());
         }
         return !contains;
     }

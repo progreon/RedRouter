@@ -17,9 +17,10 @@
  */
 package redrouter.route;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import redrouter.data.*;
+import redrouter.util.PokemonCountPair;
 
 /**
  *
@@ -39,7 +40,6 @@ public class RouteFactory {
         if (exaNidoRoute == null) {
             initRedExaNidoRoute();
         }
-        System.out.println(exaNidoRoute);
         return exaNidoRoute;
     }
 
@@ -55,7 +55,7 @@ public class RouteFactory {
 
         RouteSection rsPalletA = new RouteSection(null, "Pallet Town");
         rsPalletA.addNewDirections("Exit out of your home, and head north towards Route 1. Prof. Oak will stop you and lead you back to his lab. After he and your rival are done talking, select the middle Pokeball on the table to get Squirtle. Name it a one character name, and go to head out of the lab. Your rival will stop you for a battle.");
-        RouteGetPokemon rgpPalletA = new RouteGetPokemon(null, new RouteEntryInfo("Get Squirtle"), new SingleBattler(rd.getPokemon("Squirtle"), null, 5));
+        RouteGetPokemon rgpPalletA = new RouteGetPokemon(new RouteEntryInfo("Get Squirtle"), new SingleBattler(rd.getPokemon("Squirtle"), null, 5));
         rsPalletA.addEntry(rgpPalletA);
         rsPalletA.addNewBattle(new RouteEntryInfo(rd.getTrainer("Rival 1").name, "Tail Whip x1-2, then Tackle until it faints."), rd.getTrainer("Rival 1"));
         rsPalletA.addNewDirections("Head out of the lab, and north to Route 1");
@@ -64,12 +64,12 @@ public class RouteFactory {
         RouteSection rsParcel = new RouteSection(null, "Getting the Parcel to Oak");
 
         RouteSection rsRoute1A = new RouteSection(null, "Route 1");
-        List<SingleBattler> r1Choices = new ArrayList<>();
-        r1Choices.add(new SingleBattler(rd.getPokemon("Rattata"), 2, null));
-        r1Choices.add(new SingleBattler(rd.getPokemon("Rattata"), 3, null));
-        r1Choices.add(new SingleBattler(rd.getPokemon("Pidgey"), 2, null));
-        r1Choices.add(new SingleBattler(rd.getPokemon("Pidgey"), 3, null));
-        rsRoute1A.addNewEncounter("You want to defeat an encounter here so that you have enough experience to get Lvl.8 at the Bug Catcher fight later. Only attempt to kill low level pokemon as higher levels take longer to kill.", rd.getEncounterArea(rd.getLocation("Route 1"), null), r1Choices, 0);
+        Set<PokemonCountPair> r1Choices = new TreeSet<>();
+        r1Choices.add(new PokemonCountPair(rd.getPokemon("Rattata"), 2, 1));
+        r1Choices.add(new PokemonCountPair(rd.getPokemon("Rattata"), 3));
+        r1Choices.add(new PokemonCountPair(rd.getPokemon("Pidgey"), 2));
+        r1Choices.add(new PokemonCountPair(rd.getPokemon("Pidgey"), 3));
+        rsRoute1A.addNewEncounter("You want to defeat an encounter here so that you have enough experience to get Lvl.8 at the Bug Catcher fight later. Only attempt to kill low level pokemon as higher levels take longer to kill.", rd.getEncounterArea(rd.getLocation("Route 1"), null), r1Choices);
         rsRoute1A.addNewDirections("Head north through the route to Viridian City.");
         rsParcel.addSection(rsRoute1A);
 
@@ -104,9 +104,9 @@ public class RouteFactory {
         // TODO: Catching entry!
         rsRoute22A.addNewDirections("Time for the Nidoran hunt. You want to catch a Lvl.3-4 Nidoran♂, and give it a one character name.");
         rsRoute22A.addNewDirections("Tackle Lvl.3 Nidorans once to make the catch easier, but just throw PokeBalls at Lvl.4 Nidorans. If you encounter a Lv. 5 Spearow, try to catch it (just throw Poke Balls). If you catch a Lvl.5 Spearow on the first ball, DSum off it by going 5 out, 6 in, 12 out, then the standard DSum (4 in, 2 out, 6 in, 11 out). If you waste at least half your Poke Balls against Spearow, Tackle Lv. 4 Nidorans once or twice to avoid running out.");
-        rsRoute22A.addNewDirections("After you have your Nidoran, head back east to Viridian City.");
-        RouteGetPokemon rgpRoute22A = new RouteGetPokemon(null, new RouteEntryInfo("Catch Nidoran"), new SingleBattler(rd.getPokemon("NidoranM"), null, 4));
+        RouteGetPokemon rgpRoute22A = new RouteGetPokemon(new RouteEntryInfo("Catch Nidoran"), new SingleBattler(rd.getPokemon("NidoranM"), rd.getLocation("Route 22").encounterAreas.get(0), 4));
         rsRoute22A.addEntry(rgpRoute22A);
+        rsRoute22A.addNewDirections("After you have your Nidoran, head back east to Viridian City.");
         rsNido.addSection(rsRoute22A);
 
         route.addSection(rsNido);
@@ -121,7 +121,7 @@ public class RouteFactory {
         rsViridianF.addNewDirections("Avoid the trainers and walk on the encounterless tiles. Pick up the Antidote on your way up.");
         rsViridianF.addNewBattle(new RouteEntryInfo(rd.getTrainer("Bug 1").name, "Tail Whip x2, then Tackle until it faints."), rd.getTrainer("Bug 1"));
         rsViridianF.addNewDirections("After the battle, exit the grass and open the menu: Squirtle <-> Nidoran, [use potion], [use antidote]");
-        RouteSwapPokemon rspiridianF = new RouteSwapPokemon(null, new RouteEntryInfo("Swap Squirtle with Nidoran"), 0, 1);
+        RouteSwapPokemon rspiridianF = new RouteSwapPokemon(new RouteEntryInfo("Swap Squirtle with Nidoran"), 0, 1);
         rsViridianF.addEntry(rspiridianF);
         rsViridianF.addNewDirections("Exit Viridian Forest and head north to Pewter City.");
         route.addSection(rsViridianF);

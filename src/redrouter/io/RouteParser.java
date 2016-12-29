@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 import redrouter.Settings;
-import redrouter.data.Battler;
 import redrouter.data.Location;
 import redrouter.data.Player;
 import redrouter.data.Pokemon;
@@ -40,6 +39,7 @@ import redrouter.route.RouteImage;
 import redrouter.route.RouteSection;
 import redrouter.route.RouteShopping;
 import redrouter.route.RouteSwapPokemon;
+import redrouter.util.IntPair;
 import redrouter.view.RouterFrame;
 
 /**
@@ -134,7 +134,7 @@ public class RouteParser {
                         line = line.substring(args[0].length()).trim();
                         sectionStack.peek().addEntry(getNewCatchPokemon(route, line, lineNo));
                         break;
-                    case "B:": // TODO share exp, ...
+                    case "B:":
                         line = line.substring(args[0].length()).trim();
                         sectionStack.peek().addEntry(getNewBattle(route, line, lineNo));
                         break;
@@ -281,16 +281,15 @@ public class RouteParser {
         } else {
             description = args[1].trim();
         }
-        return new RouteBattle(null, new RouteEntryInfo(opponent.name, description), opponent, competingPartyMon);
+        return new RouteBattle(new RouteEntryInfo(opponent.name, description), opponent, competingPartyMon);
     }
 
     private RouteDirections getNewDirections(Route route, String line, int lineNo) throws RouteParserException {
-        return new RouteDirections(null, line);
+        return new RouteDirections(line);
     }
 
     private RouteEncounter getNewEncounter(Route route, String line, int lineNo) throws RouteParserException {
         Location location; // TODO handle location = area + sub area!!
-        int preference = -1;
 
         String[] locArgs = line.split("::");
         if (locArgs.length != 2) {
@@ -302,15 +301,8 @@ public class RouteParser {
             throw new RouteParserException("Could not find location \"" + sLocation + "\"", lineNo);
         }
         IntPair[] slotPairs = parseIntPairs(locArgs[1].trim(), lineNo);
-        int[] slots = new int[slotPairs.length];
-        for (int i = 0; i < slots.length; i++) {
-            slots[i] = slotPairs[i].int1;
-            if (preference == -1 && slotPairs[i].int2 > 0) {
-                preference = i;
-            }
-        }
 
-        return new RouteEncounter(null, null, location.encounterAreas.get(0), slots, preference);
+        return new RouteEncounter(null, location.encounterAreas.get(0), slotPairs);
     }
 
     private RouteGetPokemon getNewCatchPokemon(Route route, String line, int lineNo) throws RouteParserException {
@@ -350,8 +342,7 @@ public class RouteParser {
             preference = 0;
         }
 
-        RouteGetPokemon rgp = new RouteGetPokemon(null, null, choices, preference);
-        return rgp;
+        return new RouteGetPokemon(null, choices, preference);
     }
 
     private RouteGetPokemon getNewGetPokemon(Route route, String line, int lineNo) throws RouteParserException {
@@ -385,7 +376,8 @@ public class RouteParser {
             }
             choices.add(new SingleBattler(p, level, null));
         }
-        return new RouteGetPokemon(null, null, choices, preference);
+
+        return new RouteGetPokemon(null, choices, preference);
     }
 
     private RouteImage getNewImage(Route route, String line, int lineNo) throws RouteParserException {
@@ -399,7 +391,7 @@ public class RouteParser {
         if (params.length > 1) {
             description = line.substring(params[0].length() + 2).trim();
         }
-        return new RouteSection(null, title, description);
+        return new RouteSection(title, description);
     }
 
     private RouteShopping getNewShopping(Route route, String line, int lineNo) throws RouteParserException {
@@ -430,7 +422,7 @@ public class RouteParser {
             description = args[1].trim();
         }
 
-        return new RouteSwapPokemon(null, new RouteEntryInfo(null, description), index1, index2);
+        return new RouteSwapPokemon(new RouteEntryInfo(null, description), index1, index2);
     }
 
     private RouteEntry getLastEntry(Route route) {
@@ -471,22 +463,6 @@ public class RouteParser {
         }
 
         return pairs;
-    }
-
-    private class IntPair {
-
-        int int1;
-        int int2;
-
-        public IntPair(int int1, int int2) {
-            this.int1 = int1;
-            this.int2 = int2;
-        }
-
-        @Override
-        public String toString() {
-            return int1 + ":" + int2;
-        }
     }
 
     public static class RouteParserException extends Exception {

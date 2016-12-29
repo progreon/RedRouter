@@ -34,19 +34,19 @@ public class RouteGetPokemon extends RouteEntry {
     private final List<SingleBattler> choices;
     private final int preference;
 
-    public RouteGetPokemon(RouteSection parentSection, RouteEntryInfo info, SingleBattler choice) {
-        super(parentSection, info);
+    public RouteGetPokemon(RouteEntryInfo info, SingleBattler choice) {
+        super(info);
         choices = new ArrayList<>();
         choices.add(choice);
         this.preference = 0;
     }
 
-    public RouteGetPokemon(RouteSection parentSection, RouteEntryInfo info, List<SingleBattler> choices) {
-        this(parentSection, info, choices, -1);
+    public RouteGetPokemon(RouteEntryInfo info, List<SingleBattler> choices) {
+        this(info, choices, -1);
     }
 
-    public RouteGetPokemon(RouteSection parentSection, RouteEntryInfo info, List<SingleBattler> choices, int preference) {
-        super(parentSection, info);
+    public RouteGetPokemon(RouteEntryInfo info, List<SingleBattler> choices, int preference) {
+        super(info);
         if (choices == null) {
             this.choices = new ArrayList<>();
             this.preference = -1;
@@ -56,6 +56,10 @@ public class RouteGetPokemon extends RouteEntry {
                 this.preference = -1;
             } else {
                 this.preference = preference;
+            }
+            if (choices.size() > 0 && choices.get(0).catchLocation != null) {
+                System.out.println("" + choices.get(0).catchLocation.location);
+                setLocation(choices.get(0).catchLocation.location);
             }
         }
     }

@@ -19,6 +19,7 @@ package redrouter.view;
 
 import redrouter.view.route.RouteTree;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import javax.swing.JPanel;
@@ -31,24 +32,45 @@ import redrouter.route.Route;
  */
 public class RouteView extends JPanel {
 
-    private final Route route;
+    private Route route;
     private RouteTree rt;
     private final JScrollPane scrTree;
 
     public RouteView(Route route) {
         super(new BorderLayout());
-        this.route = route;
-        rt = new RouteTree(route);
-        scrTree = new JScrollPane(rt);
+        scrTree = new JScrollPane();
+        setRoute(route);
         this.add(scrTree);
         scrTree.addComponentListener(new ComponentAdapter() {
 
             @Override
             public void componentResized(ComponentEvent e) {
-                super.componentResized(e); //To change body of generated methods, choose Tools | Templates.
-                rt.refresh();
+                refreshView();
             }
         });
+        this.setPreferredSize(new Dimension(600, 600));
+    }
+
+    public boolean isEditMode() {
+        return rt.isEditMode();
+    }
+
+    public void setEditMode(boolean isEditMode) {
+        rt.setEditMode(isEditMode);
+    }
+
+    public final Route getRoute() {
+        return this.route;
+    }
+
+    public final void setRoute(Route route) {
+        this.route = route;
+        rt = new RouteTree(route);
+        scrTree.setViewportView(rt);
+    }
+
+    private void refreshView() {
+        rt.refresh();
     }
 
 }
