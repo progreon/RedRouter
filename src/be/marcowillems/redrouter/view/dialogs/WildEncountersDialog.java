@@ -126,10 +126,8 @@ public class WildEncountersDialog extends SettingsDialog {
 
     @Override
     protected void save() {
-//        changed = false;
         WildEncounters we = getWildEncounters();
         if (we != null && we.encounterCounts != null) {
-            System.out.println("Saving encounters ...");
             int i = 0;
             for (Set<PokemonCountPair> spcp : we.encounterCounts.values()) {
                 for (PokemonCountPair pcp : spcp) {

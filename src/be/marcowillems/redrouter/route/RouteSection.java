@@ -17,7 +17,6 @@
  */
 package be.marcowillems.redrouter.route;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import be.marcowillems.redrouter.data.EncounterArea;
@@ -33,14 +32,6 @@ import be.marcowillems.redrouter.util.PokemonCountPair;
  */
 public class RouteSection extends RouteEntry {
 
-    public RouteSection(RouteEntryInfo info, List<RouteEntry> children) {
-        super(info, children == null ? new ArrayList<>() : children);
-    }
-
-    public RouteSection(RouteEntryInfo info) {
-        this(info, null);
-    }
-
     public RouteSection(String title) {
         this(new RouteEntryInfo(title), null);
     }
@@ -49,9 +40,19 @@ public class RouteSection extends RouteEntry {
         this(new RouteEntryInfo(title, description), null);
     }
 
+    public RouteSection(RouteEntryInfo info) {
+        this(info, null);
+    }
+
+    public RouteSection(RouteEntryInfo info, List<RouteEntry> children) {
+        super(info, false, children);
+    }
+
     public RouteEntry addEntry(RouteEntry entry) {
         super.children.add(entry);
         entry.setParentSection(this);
+        super.notifyDataUpdated();
+        super.notifyRoute();
         return entry;
     }
 

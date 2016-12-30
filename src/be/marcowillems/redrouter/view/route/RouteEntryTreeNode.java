@@ -29,8 +29,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Observable;
-import java.util.Observer;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -47,7 +45,7 @@ import be.marcowillems.redrouter.view.dialogs.editroute.EditDialog;
  *
  * @author Marco Willems
  */
-public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode implements Observer { // TODO: custom Observer class
+public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
 
     protected final RouteTree tree;
     protected RouteEntry routeEntry;
@@ -63,9 +61,6 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode implemen
     private JButton btnWildEncounters;
     private JButton btnPlayer;
 
-//    public RouteEntryTreeNode(RouteTree tree, RouteEntry routeEntry) {
-//        this(tree, routeEntry, false);
-//    }
     public RouteEntryTreeNode(RouteTree tree, RouteEntry routeEntry, boolean showButtons) {
         this(tree, routeEntry, showButtons, showButtons);
     }
@@ -75,7 +70,6 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode implemen
         this.routeEntry = routeEntry;
         this.showEncountersButton = showEncountersButton;
         this.showPlayerButton = showPlayerButton;
-        this.routeEntry.addObserver(this);
         Border marginBorder = BorderFactory.createEmptyBorder(4, 4, 4, 4);
         Border lineBorder = BorderFactory.createLineBorder(tree.nodeBorderColor, 2, false);
         Border emptyBorder = BorderFactory.createLineBorder(tree.getBackground(), 2, false);
@@ -240,9 +234,7 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode implemen
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if (ed.display(btnEdit.getLocationOnScreen())) {
-                        ed.routeEntry.refreshData(null);
-                    }
+                    ed.display(btnEdit.getLocationOnScreen());
                 }
             });
         }
@@ -288,10 +280,8 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode implemen
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    System.out.println("Opening wild encounters...");
                     if (red.display(btnWE.getLocationOnScreen())) {
-                        System.out.println("Refreshing tree...");
-                        routeEntry.refreshData(null);
+                        routeEntry.notifyWildEncountersUpdated();
                     }
                 }
             });
@@ -322,15 +312,6 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode implemen
         }
         pnlHeader.add(pnlRightButtons, BorderLayout.EAST);
         return pnlHeader;
-    }
-
-    @Override
-    public void update(Observable o, Object arg) {
-        if (o == this.routeEntry) {
-            if (arg instanceof String && ((String) arg).equals(RouteEntry.TREE_UPDATED)) { // TODO
-                this.tree.refresh();
-            }
-        }
     }
 
 }

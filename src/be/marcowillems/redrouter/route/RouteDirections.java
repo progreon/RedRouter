@@ -26,7 +26,7 @@ import be.marcowillems.redrouter.io.PrintSettings;
 public class RouteDirections extends RouteEntry {
 
     public RouteDirections(RouteEntryInfo info) {
-        super(info);
+        super(info, true);
     }
 
     public RouteDirections(String description) {

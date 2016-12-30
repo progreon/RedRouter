@@ -15,28 +15,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package be.marcowillems.redrouter.io;
+package be.marcowillems.redrouter.observers;
+
+import java.util.Observer;
 
 /**
- * TODO: make abstract class?
  *
  * @author Marco Willems
  */
-public abstract class Writable {
-
-    public abstract String writeToString(int depth, PrintSettings ps);
-
-    protected static String lineToDepth(String s, int depth) {
-        if (s != null) {
-            String newS = "";
-            for (int i = 0; i < depth; i++) {
-                newS += "\t";
-            }
-            newS += s;
-            return newS;
-        } else {
-            return null;
-        }
-    }
+public interface RouteObserver extends Observer {
 
 }

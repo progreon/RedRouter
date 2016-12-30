@@ -28,7 +28,7 @@ import be.marcowillems.redrouter.io.PrintSettings;
 public class RouteShopping extends RouteEntry {
 
     public RouteShopping(RouteEntryInfo info) {
-        super(info);
+        super(info, true);
     }
 
     @Override

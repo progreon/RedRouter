@@ -18,51 +18,119 @@
 package be.marcowillems.redrouter.route;
 
 import java.util.List;
-import java.util.Observable;
-import java.util.Stack;
 import be.marcowillems.redrouter.data.Location;
 import be.marcowillems.redrouter.data.Player;
 import be.marcowillems.redrouter.data.SingleBattler;
 import be.marcowillems.redrouter.io.Writable;
 import be.marcowillems.redrouter.util.WildEncounters;
+import java.util.ArrayList;
 
 /**
  * TODO: keep pointer to next node for performance of refresh()?
  *
  * @author Marco Willems
  */
-public abstract class RouteEntry extends Observable implements Writable { // TODO: custom Observable class
+public abstract class RouteEntry extends Writable {
 
-    public final static String TREE_UPDATED = "Tree updated";
+    private Route route = null;
 
     public RouteEntryInfo info;
-    private RouteSection parent;
-    public final List<RouteEntry> children;
+    private RouteSection parent = null;
+    public final boolean isLeafType; // TODO: is this needed, or only to initialize children?
+    protected final List<RouteEntry> children;
 
     private Location location; // TODO: move to player class?
     private WildEncounters wildEncounters;
 
-    protected Player player = null; // instance of the player when entering this entry
+    /**
+     * Instance of the player when entering this entry.
+     */
+    private Player player = null;
 
-    public RouteEntry(RouteEntryInfo info) {
-        this(info, null, null);
+    public RouteEntry(RouteEntryInfo info, boolean isLeafType) {
+        this(info, isLeafType, null, null);
     }
 
-    public RouteEntry(RouteEntryInfo info, Location location) {
-        this(info, null, location);
+    public RouteEntry(RouteEntryInfo info, boolean isLeafType, Location location) {
+        this(info, isLeafType, null, location);
     }
 
-    public RouteEntry(RouteEntryInfo info, List<RouteEntry> children) {
-        this(info, children, null);
+    public RouteEntry(RouteEntryInfo info, boolean isLeafType, List<RouteEntry> children) {
+        this(info, isLeafType, children, null);
     }
 
-    public RouteEntry(RouteEntryInfo info, List<RouteEntry> children, Location location) {
-        this.parent = null;
+    public RouteEntry(RouteEntryInfo info, boolean isLeafType, List<RouteEntry> children, Location location) {
         this.info = info;
-        this.children = children;
+        this.isLeafType = isLeafType;
+        this.children = (isLeafType ? null : (children == null ? new ArrayList<>() : children));
         this.location = location;
         this.wildEncounters = new WildEncounters(getLocation());
-//        refreshData(null);
+    }
+
+    protected Route getRoute() {
+        return this.route;
+    }
+
+    /**
+     * Sets the route object this entry belongs to, and updates it for its
+     * children.
+     *
+     * @param route
+     */
+    final void setRoute(Route route) {
+        if (this.route != route) {
+            this.route = route;
+            if (hasChildren()) {
+                for (RouteEntry child : this.children) {
+                    child.setRoute(route);
+                }
+            }
+            notifyDataUpdated();
+            notifyRoute();
+        }
+    }
+
+    protected void notifyRoute() {
+        if (this.route != null) {
+            route.notifyChanges();
+        }
+    }
+
+    protected void notifyDataUpdated() {
+        if (this.route != null) {
+            this.route.setDataUpdated();
+        }
+    }
+
+    protected void notifyInfoUpdated() {
+        if (this.route != null) {
+            this.route.setInfoUpdated();
+        }
+    }
+
+    public void notifyWildEncountersUpdated() {
+        notifyDataUpdated();
+        notifyRoute();
+    }
+
+    /**
+     * Gets all of its entries, including itself as the first one.
+     *
+     * @return
+     */
+    protected List<RouteEntry> getEntryList() {
+        List<RouteEntry> entryList = new ArrayList<>();
+        entryList.add(this);
+        if (hasChildren()) {
+            for (RouteEntry child : getChildren()) {
+                entryList.addAll(child.getEntryList());
+            }
+        }
+        return entryList;
+    }
+
+    public List<RouteEntry> getChildren() {
+        return this.children;
     }
 
     public final Location getLocation() {
@@ -82,7 +150,9 @@ public abstract class RouteEntry extends Observable implements Writable { // TOD
         if (this.location != location || location == null) {
             this.location = location;
             this.wildEncounters = new WildEncounters(getLocation());
-            refreshData(null);
+//            refreshData(null);
+            notifyDataUpdated();
+            notifyRoute();
         }
     }
 
@@ -93,7 +163,8 @@ public abstract class RouteEntry extends Observable implements Writable { // TOD
             next.setLocation(null); // TODO Too much refreshData()? => location in player class!
             next = next.getNext();
         }
-        refreshData(null);
+        notifyDataUpdated();
+        notifyRoute();
     }
 
     public RouteSection getParentSection() {
@@ -104,7 +175,10 @@ public abstract class RouteEntry extends Observable implements Writable { // TOD
     public void setParentSection(RouteSection parentSection) {
         if (this.parent != parentSection) {
             this.parent = parentSection;
+            this.setRoute(parent.getRoute());
             refreshLocationData();
+//            notifyDataUpdated();
+//            notifyRoute();
         }
     }
 
@@ -114,43 +188,6 @@ public abstract class RouteEntry extends Observable implements Writable { // TOD
 
     public WildEncounters getWildEncounters() {
         return this.wildEncounters;
-    }
-
-    // TODO fix this!! (part B)
-    public final void refreshData(Player newPlayer) {
-        if (newPlayer == null) {
-            newPlayer = this.player;
-        }
-        // First lets go up to find a player object to work with
-        if (newPlayer == null) {
-            Stack<RouteEntry> sPrev = new Stack<>();
-            RouteEntry prev = getPrevious();
-            while (prev != null && prev.player == null) {
-                sPrev.push(prev);
-                prev = prev.getPrevious();
-            }
-            if (prev != null) {
-                newPlayer = prev.player;
-                newPlayer = prev.apply(newPlayer);
-                while (!sPrev.isEmpty()) {
-                    prev = sPrev.pop();
-                    newPlayer = prev.apply(newPlayer);
-                }
-            } // else return
-        }
-        // Then apply this entry to the player if we found it
-        if (newPlayer != null) {
-            Player appliedPlayer = apply(newPlayer);
-            // Then propagate the applied player down
-            RouteEntry next = getNext(); // TODO: not optimal to use getNext!
-//            if (next != null && !appliedPlayer.equals(next.player)) { // TODO: ? (+ location check?)
-            if (next != null) { // only notify observers when the whole tree is updated!
-                next.refreshData(appliedPlayer); // TODO remove (tail) recursion (list all nexts and apply one by one)
-            } else {
-                super.setChanged();
-                notifyObservers(TREE_UPDATED);
-            }
-        }
     }
 
     protected Player apply(Player p) {
@@ -232,23 +269,6 @@ public abstract class RouteEntry extends Observable implements Writable { // TOD
             return this;
         } else {
             return children.get(children.size() - 1).getLastChild();
-        }
-    }
-
-    public boolean hasNext() {
-        return getNext() != null;
-    }
-
-    protected static String lineToDepth(String s, int depth) {
-        if (s != null) {
-            String newS = "";
-            for (int i = 0; i < depth; i++) {
-                newS += "\t";
-            }
-            newS += s;
-            return newS;
-        } else {
-            return null;
         }
     }
 

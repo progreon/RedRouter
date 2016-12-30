@@ -34,7 +34,7 @@ public class RouteSwapPokemon extends RouteEntry {
     }
 
     public RouteSwapPokemon(RouteEntryInfo info, int index1, int box1, int index2, int box2) {
-        super(info);
+        super(info, true);
         this.index1 = index1;
         this.index2 = index2;
         this.box1 = box1;

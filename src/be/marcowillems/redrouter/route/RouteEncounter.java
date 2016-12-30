@@ -58,7 +58,7 @@ public class RouteEncounter extends RouteEntry {
     }
 
     private RouteEncounter(RouteEntryInfo info, EncounterArea area) {
-        super(info, area.location);
+        super(info, true, area.location);
         this.area = area;
         this.preferences = new TreeSet<>();
     }
@@ -78,7 +78,8 @@ public class RouteEncounter extends RouteEntry {
                 this.preferences.add(pip);
             }
         }
-        refreshData(null);
+        super.notifyDataUpdated();
+        super.notifyRoute();
     }
 
     @Override

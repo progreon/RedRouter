@@ -28,11 +28,14 @@ import be.marcowillems.redrouter.io.PrintSettings;
  */
 public class RouteOr extends RouteEntry {
 
-    private final HashMap<String, RouteSection> subRoutes; // name (ID) -> subroute
+    /**
+     * name (ID) -> subroute
+     */
+    private final HashMap<String, RouteSection> subRoutes; // TODO: this.children are the subroutes?
     private String selectedSubRouteName;
 
     public RouteOr(RouteEntryInfo info) {
-        super(info);
+        super(info, true);
         this.subRoutes = new HashMap<>();
         this.selectedSubRouteName = null;
     }
@@ -42,6 +45,8 @@ public class RouteOr extends RouteEntry {
         if (!contains) {
             subRoutes.put(subRouteName, subRoute);
             subRoute.setParentSection(getParentSection());
+            super.notifyDataUpdated();
+            super.notifyRoute();
         }
         return !contains;
     }
@@ -60,8 +65,10 @@ public class RouteOr extends RouteEntry {
 
     public boolean selectSubRoute(String subRouteName) {
         boolean available = subRoutes.containsKey(subRouteName);
-        if (available) {
+        if (available && !selectedSubRouteName.equals(subRouteName)) {
             selectedSubRouteName = subRouteName;
+            super.notifyDataUpdated();
+            super.notifyRoute();
         }
         return available;
     }

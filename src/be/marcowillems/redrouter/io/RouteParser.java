@@ -43,6 +43,7 @@ import be.marcowillems.redrouter.util.IntPair;
 import be.marcowillems.redrouter.view.RouterFrame;
 
 /**
+ * TODO error messages push system
  *
  * @author Marco Willems
  */
@@ -77,6 +78,7 @@ public class RouteParser {
         if (lineNo < lines.size()) {
             String line = lines.get(lineNo);
             route = getNewRoute(line, lineNo);
+            route.disableRefresh();
             sectionStack.push(route);
             lineNo++;
         }
@@ -155,6 +157,9 @@ public class RouteParser {
             lineNo++;
         }
 
+        if (route != null) {
+            route.enableRefresh();
+        }
         return route;
     }
 
@@ -240,7 +245,8 @@ public class RouteParser {
 
         int[][] competingPartyMon = null;
         RouteEntry previousEntry = getLastEntry(route);
-        previousEntry.refreshData(null);
+        route.enableRefresh(); // A forced refresh
+        route.disableRefresh();
         Player prevPlayer = previousEntry.getPlayer();
 
         String[] args = line.split("::");
@@ -428,7 +434,7 @@ public class RouteParser {
     private RouteEntry getLastEntry(Route route) {
         RouteEntry last = route;
         while (last.hasChildren()) {
-            last = last.children.get(last.children.size() - 1);
+            last = last.getChildren().get(last.getChildren().size() - 1);
         }
         return last;
     }
@@ -477,10 +483,8 @@ public class RouteParser {
     public static void main(String[] args) throws RouteParserException {
         RouteParser parser = new RouteParser();
         Route route = parser.parseFile("route_example.txt");
-        System.out.println("=======================");
-        System.out.println(route.toString());
         new RouterFrame(route).setVisible(true);
-        System.out.println("=======================");
+        System.out.println("======================================");
         System.out.println(new RouteWriter().writeToString(route));
     }
 

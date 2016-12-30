@@ -22,6 +22,9 @@ import java.io.File;
 import be.marcowillems.redrouter.Settings;
 import be.marcowillems.redrouter.data.Player;
 import be.marcowillems.redrouter.data.RouterData;
+import be.marcowillems.redrouter.observers.RouteObservable;
+import be.marcowillems.redrouter.observers.RouteObserver;
+import java.util.Observable;
 
 /**
  *
@@ -31,18 +34,74 @@ public class Route extends RouteSection {
 
     public final RouterData rd;
 
+    public final static String TREE_UPDATED = "Tree updated";
+
+    private final RouteObservable routeObservable;
+    private boolean canRefresh = true;
+    private boolean dataUpdated = false;
+    private boolean infoUpdated = false;
+
+    private Player startPlayer;
+
     public Route(RouterData rd, String title) {
         super(null, title);
         this.rd = rd;
-        super.player = new Player("Red", "The playable character", null);
+        this.routeObservable = new RouteObservable();
+        this.startPlayer = new Player("Red", "The playable character", null);
         this.setLocation(rd.getDefaultLocation());
+        super.setRoute(this);
+    }
+
+    public boolean isThisObservable(Observable o) {
+        return o == routeObservable;
+    }
+
+    public void addObserver(RouteObserver observer) {
+        routeObservable.addObserver(observer);
     }
 
     public final void setPlayer(Player p) {
-        super.player = p;
-        refreshData(player);
+        if (this.startPlayer != p) {
+            this.startPlayer = p;
+            setDataUpdated();
+            notifyChanges();
+        }
     }
 
+    public void disableRefresh() {
+        canRefresh = false;
+    }
+
+    public void enableRefresh() {
+        canRefresh = true;
+        notifyChanges();
+    }
+
+    public void notifyChanges() {
+        if (canRefresh && (dataUpdated || infoUpdated)) {
+            if (dataUpdated) { // TODO only start updating from the first source!
+                Player p = startPlayer;
+                for (RouteEntry e : getEntryList()) {
+                    p = e.apply(p);
+                }
+            }
+            routeObservable.setChanged();
+            routeObservable.notifyObservers(TREE_UPDATED);
+            dataUpdated = false;
+            infoUpdated = false;
+        }
+    }
+
+    // TODO add a source!
+    void setDataUpdated() {
+        dataUpdated = true;
+    }
+
+    void setInfoUpdated() {
+        infoUpdated = true;
+    }
+
+    // IO stuff
     // TODO
     public void load(File file) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

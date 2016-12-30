@@ -17,6 +17,7 @@
  */
 package be.marcowillems.redrouter.view;
 
+import be.marcowillems.redrouter.observers.RouteObserver;
 import be.marcowillems.redrouter.view.route.RouteTree;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -25,12 +26,13 @@ import java.awt.event.ComponentEvent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import be.marcowillems.redrouter.route.Route;
+import java.util.Observable;
 
 /**
  *
  * @author Marco Willems
  */
-public class RouteView extends JPanel {
+public class RouteView extends JPanel implements RouteObserver {
 
     private Route route;
     private RouteTree rt;
@@ -45,7 +47,7 @@ public class RouteView extends JPanel {
 
             @Override
             public void componentResized(ComponentEvent e) {
-                refreshView();
+                rt.refresh();
             }
         });
         this.setPreferredSize(new Dimension(600, 600));
@@ -67,10 +69,16 @@ public class RouteView extends JPanel {
         this.route = route;
         rt = new RouteTree(route);
         scrTree.setViewportView(rt);
+        route.addObserver(this);
     }
 
-    private void refreshView() {
-        rt.refresh();
+    @Override
+    public void update(Observable o, Object arg) {
+        if (this.route.isThisObservable(o)) {
+            if (arg instanceof String && ((String) arg).equals(Route.TREE_UPDATED)) {
+                this.rt.refresh();
+            }
+        }
     }
 
 }

@@ -32,11 +32,10 @@ import be.marcowillems.redrouter.io.PrintSettings;
 public class RouteGetPokemon extends RouteEntry {
 
     private final List<SingleBattler> choices;
-    private final int preference;
+    private int preference;
 
     public RouteGetPokemon(RouteEntryInfo info, SingleBattler choice) {
-        super(info);
-        choices = new ArrayList<>();
+        this(info, new ArrayList<>());
         choices.add(choice);
         this.preference = 0;
     }
@@ -46,7 +45,7 @@ public class RouteGetPokemon extends RouteEntry {
     }
 
     public RouteGetPokemon(RouteEntryInfo info, List<SingleBattler> choices, int preference) {
-        super(info);
+        super(info, true);
         if (choices == null) {
             this.choices = new ArrayList<>();
             this.preference = -1;
@@ -58,7 +57,6 @@ public class RouteGetPokemon extends RouteEntry {
                 this.preference = preference;
             }
             if (choices.size() > 0 && choices.get(0).catchLocation != null) {
-                System.out.println("" + choices.get(0).catchLocation.location);
                 setLocation(choices.get(0).catchLocation.location);
             }
         }

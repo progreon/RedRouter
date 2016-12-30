@@ -25,10 +25,14 @@ import be.marcowillems.redrouter.route.Route;
 import be.marcowillems.redrouter.route.RouteFactory;
 
 /**
+ * TODO add stuff for the file-menu actions.
  *
  * @author Marco Willems
  */
 public class RouterFrame extends JFrame {
+
+//    private Map<Route, RouteView> openRoutes; // TODO: later, maybe, in tabbed pane?
+    private RouteView currentRouteView;
 
     public RouterFrame(Settings settings) {
         this(new RouteFactory(new RouterData(settings)).getRedExaNidoRoute());
@@ -36,16 +40,19 @@ public class RouterFrame extends JFrame {
 
     public RouterFrame(Route route) {
         super(Settings.TITLE + ": " + route.rd.settings.game);
-        System.out.println(route.writeToString(0, null));
-        RouteView routeView = new RouteView(route);
-        this.setContentPane(routeView);
-        this.setJMenuBar(new RouterMenuBar(this, routeView));
+        this.currentRouteView = new RouteView(route);
+        this.setContentPane(currentRouteView);
+        this.setJMenuBar(new RouterMenuBar(this, currentRouteView));
         this.pack();
         this.setSize(new Dimension(Settings.WIDTH, Settings.HEIGHT));
         this.setMinimumSize(new Dimension(this.getPreferredSize().width * 3 / 4, this.getPreferredSize().height * 3 / 4));
         this.setLocationRelativeTo(null);
 //        this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    public RouteView getCurrentRouteView() {
+        return currentRouteView;
     }
 
 }

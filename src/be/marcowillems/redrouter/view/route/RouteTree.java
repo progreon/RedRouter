@@ -72,7 +72,6 @@ public class RouteTree extends JTree {
         for (int i = 0; i < getRowCount(); i++) {
             expandRow(i);
         }
-        route.refreshData(null);
     }
 
     public void refresh() {
@@ -94,7 +93,7 @@ public class RouteTree extends JTree {
     private void initTree() {
         RouteEntryTreeNode root = newRouteEntryTreeNode(this, route);
         if (route.hasChildren()) {
-            for (RouteEntry re : route.children) {
+            for (RouteEntry re : route.getChildren()) {
                 addTreeNode(root, re);
             }
         }
@@ -104,7 +103,7 @@ public class RouteTree extends JTree {
     private void addTreeNode(RouteEntryTreeNode parent, RouteEntry entry) {
         RouteEntryTreeNode newNode = newRouteEntryTreeNode(this, entry);
         if (entry.hasChildren()) {
-            for (RouteEntry re : entry.children) {
+            for (RouteEntry re : entry.getChildren()) {
                 addTreeNode(newNode, re);
             }
         }

@@ -37,7 +37,7 @@ public class RouteBattle extends RouteEntry {
 
     // TODO: description instead of info => new RouteEntryInfo(opponent.name, description) ??
     public RouteBattle(RouteEntryInfo info, Trainer opponent) {
-        super(info);
+        super(info, true);
         this.opponent = opponent;
 
         entries = new RouteBattleEntry[opponent.team.size()][];

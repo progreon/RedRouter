@@ -28,7 +28,7 @@ import be.marcowillems.redrouter.io.PrintSettings;
 public class RouteCatchPokemon extends RouteEntry {
 
     public RouteCatchPokemon(RouteEntryInfo info, Location location) {
-        super(info, location);
+        super(info, true, location);
     }
 
     @Override

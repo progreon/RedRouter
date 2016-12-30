@@ -19,6 +19,7 @@ package be.marcowillems.redrouter.route;
 
 import be.marcowillems.redrouter.data.SingleBattler;
 import be.marcowillems.redrouter.data.RouterData;
+import be.marcowillems.redrouter.io.RouteWriter;
 import java.util.Set;
 import java.util.TreeSet;
 import be.marcowillems.redrouter.util.PokemonCountPair;
@@ -40,12 +41,14 @@ public class RouteFactory {
     public Route getRedExaNidoRoute() {
         if (exaNidoRoute == null) {
             initRedExaNidoRoute();
+            System.out.println(new RouteWriter().writeToString(exaNidoRoute));
         }
         return exaNidoRoute;
     }
 
     private void initRedExaNidoRoute() {
         Route route = new Route(rd, "Red Any% Glitchless - Exarion Route");
+        route.disableRefresh();
 
         RouteSection rsStart = new RouteSection(null, "New Game");
         rsStart.addNewDirections("Clear any existing save file by pressing Up + B + Select on the game title screen");
@@ -142,6 +145,7 @@ public class RouteFactory {
         rsRoute3.addNewDirections("Potion before the next fight ONLY if you're at 1 HP.");
         route.addSection(rsRoute3);
 
+        route.enableRefresh();
         exaNidoRoute = route;
     }
 
