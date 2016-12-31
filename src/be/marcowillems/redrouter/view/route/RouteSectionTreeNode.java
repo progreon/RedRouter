@@ -21,6 +21,7 @@ import java.awt.Font;
 import javax.swing.JLabel;
 import be.marcowillems.redrouter.route.RouteEntry;
 import be.marcowillems.redrouter.route.RouteSection;
+import javax.swing.JComponent;
 
 /**
  *
@@ -28,27 +29,42 @@ import be.marcowillems.redrouter.route.RouteSection;
  */
 public class RouteSectionTreeNode extends RouteEntryTreeNode {
 
+    private final JLabel lblInfo = new JLabel();
+    private String text = "";
+    private int availableWidth = 0;
+
     public RouteSectionTreeNode(RouteTree tree, RouteSection routeSection) {
         super(tree, routeSection, false);
+        this.text = ((RouteSection) routeEntry).info.toString();
+        setLabelText(lblInfo, text, availableWidth);
     }
 
     @Override
-    protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        String text = ((RouteSection) routeEntry).info.toString();
-        JLabel lbl = new JLabel();
-        Font font = lbl.getFont();
-        float minFontSize = font.getSize2D();
-        float maxFontSize = 18.0f;
-        float level = 0.0f;
-        RouteEntry entry = routeEntry;
-        while (entry.getParentSection() != null) {
-            level++;
-            entry = entry.getParentSection();
+    protected JComponent getSizedRenderComponent(RenderSettings rs) {
+        boolean update = false;
+        if (this.availableWidth != rs.availableWidth) {
+            this.availableWidth = rs.availableWidth;
+            update = true;
         }
-        float thisFontSize = Math.max(minFontSize, maxFontSize - level * 2);
-        lbl.setFont(font.deriveFont(thisFontSize));
-        setLabelText(lbl, text, availableWidth);
-        view.add(lbl);
+        if (tree.route.isEntryDataUpdated(routeEntry)) {
+            text = ((RouteSection) routeEntry).info.toString();
+            update = true;
+        }
+        if (update) {
+            Font font = lblInfo.getFont();
+            float minFontSize = font.getSize2D();
+            float maxFontSize = 18.0f;
+            float level = 0.0f;
+            RouteEntry entry = routeEntry;
+            while (entry.getParentSection() != null) {
+                level++;
+                entry = entry.getParentSection();
+            }
+            float thisFontSize = Math.max(minFontSize, maxFontSize - level * 2);
+            lblInfo.setFont(font.deriveFont(thisFontSize));
+            setLabelText(lblInfo, text, availableWidth);
+        }
+        return lblInfo;
     }
 
 }

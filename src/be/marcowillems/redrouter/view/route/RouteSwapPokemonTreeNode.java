@@ -19,6 +19,7 @@ package be.marcowillems.redrouter.view.route;
 
 import javax.swing.JLabel;
 import be.marcowillems.redrouter.route.RouteSwapPokemon;
+import javax.swing.JComponent;
 
 /**
  *
@@ -26,16 +27,31 @@ import be.marcowillems.redrouter.route.RouteSwapPokemon;
  */
 public class RouteSwapPokemonTreeNode extends RouteEntryTreeNode {
 
+    private final JLabel lblInfo = new JLabel();
+    private String text = "";
+    private int availableWidth = 0;
+
     public RouteSwapPokemonTreeNode(RouteTree tree, RouteSwapPokemon routeEntry) {
         super(tree, routeEntry, true);
+        this.text = routeEntry.toString();
+        setLabelText(lblInfo, text, availableWidth);
     }
 
     @Override
-    protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        String text = routeEntry.toString();
-        JLabel lbl = new JLabel();
-        setLabelText(lbl, text, availableWidth);
-        view.add(lbl);
+    protected JComponent getSizedRenderComponent(RenderSettings rs) {
+        boolean update = false;
+        if (this.availableWidth != rs.availableWidth) {
+            this.availableWidth = rs.availableWidth;
+            update = true;
+        }
+        if (tree.route.isEntryDataUpdated(routeEntry)) {
+            text = routeEntry.toString();
+            update = true;
+        }
+        if (update) {
+            setLabelText(lblInfo, text, availableWidth);
+        }
+        return lblInfo;
     }
 
 }

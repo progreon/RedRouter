@@ -166,7 +166,7 @@ public class RouteTree extends JTree {
                     // parent = jviewport, parent.parent = jscrollpane
                     preferredWidth = tree.getParent().getParent().getWidth() - (delta * node.getLevel()) - 20;
                 }
-                return node.getRender(preferredWidth, selected, expanded, leaf, row, hasFocus);
+                return node.getRender(new RenderSettings(preferredWidth, selected, expanded, leaf, row, hasFocus));
             } else {
                 return c;
             }

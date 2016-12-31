@@ -61,6 +61,9 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
     private JButton btnWildEncounters;
     private JButton btnPlayer;
 
+    private RenderSettings rsOld = null;
+    private JComponent sizedRenderComponent = null;
+
     public RouteEntryTreeNode(RouteTree tree, RouteEntry routeEntry, boolean showButtons) {
         this(tree, routeEntry, showButtons, showButtons);
     }
@@ -115,19 +118,30 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         return showEncountersButton || showPlayerButton;
     }
 
-    public JComponent getRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        view.removeAll();
+    public JComponent getRender(RenderSettings rs) {
+        view.removeAll(); // TODO don't remove everything but edit?
 
+        // Refresh render if needed
+        if (!rs.equals(rsOld)) {
+            sizedRenderComponent = getSizedRenderComponent(new RenderSettings(rs, rs.availableWidth - getBorderWidth() - 2));
+            sizedRenderComponent.setOpaque(false);
+
+            if (rsOld == null || rsOld.selected != rs.selected) {
+                if (rs.selected) {
+                    view.setBackground(tree.nodeSelectedColor);
+                } else {
+                    view.setBackground(tree.nodeBackgroundColor);
+                }
+            }
+        }
+
+        // Add all again
         if (showButtons() || tree.isEditMode()) {
             view.add(makeHeaderPanel(), BorderLayout.NORTH);
         }
-        doSizedRender(availableWidth - getBorderWidth() - 2, selected, expanded, leaf, row, hasFocus);
+        view.add(sizedRenderComponent, BorderLayout.CENTER);
 
-        if (selected) {
-            view.setBackground(tree.nodeSelectedColor);
-        } else {
-            view.setBackground(tree.nodeBackgroundColor);
-        }
+        // Calculate size
         int preferredHeight = 0;
         BorderLayout layout = (BorderLayout) view.getLayout();
         if (layout.getLayoutComponent(BorderLayout.NORTH) != null) {
@@ -145,12 +159,13 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         if (layout.getLayoutComponent(BorderLayout.SOUTH) != null) {
             preferredHeight += layout.getLayoutComponent(BorderLayout.SOUTH).getPreferredSize().height;
         }
+        view.setPreferredSize(new Dimension(rs.availableWidth, preferredHeight + getBorderHeight()));
 
-        view.setPreferredSize(new Dimension(availableWidth, preferredHeight + getBorderHeight()));
+        rsOld = rs;
         return view;
     }
 
-    protected abstract void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus);
+    protected abstract JComponent getSizedRenderComponent(RenderSettings rs);
 
     private int getBorderWidth() {
         return view.getInsets().left + view.getInsets().right;

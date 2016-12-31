@@ -21,8 +21,16 @@ import java.awt.Dimension;
 import javax.swing.JFrame;
 import be.marcowillems.redrouter.Settings;
 import be.marcowillems.redrouter.data.RouterData;
+import be.marcowillems.redrouter.io.PrintSettings;
+import be.marcowillems.redrouter.io.RouteParser;
+import be.marcowillems.redrouter.io.RouteParserException;
 import be.marcowillems.redrouter.route.Route;
 import be.marcowillems.redrouter.route.RouteFactory;
+import java.io.File;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 /**
  * TODO add stuff for the file-menu actions.
@@ -39,20 +47,80 @@ public class RouterFrame extends JFrame {
     }
 
     public RouterFrame(Route route) {
-        super(Settings.TITLE + ": " + route.rd.settings.game);
-        this.currentRouteView = new RouteView(route);
-        this.setContentPane(currentRouteView);
-        this.setJMenuBar(new RouterMenuBar(this, currentRouteView));
-        this.pack();
-        this.setSize(new Dimension(Settings.WIDTH, Settings.HEIGHT));
-        this.setMinimumSize(new Dimension(this.getPreferredSize().width * 3 / 4, this.getPreferredSize().height * 3 / 4));
+        openRoute(route);
         this.setLocationRelativeTo(null);
-//        this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
     public RouteView getCurrentRouteView() {
         return currentRouteView;
+    }
+
+    private void openRoute(Route route) {
+        if (route != null) {
+            this.setTitle(Settings.TITLE + ": " + route.rd.settings.game);
+//            JPanel pnlLoading = new JPanel();
+//            pnlLoading.add(new JLabel("Loading route \"" + route.info + "\" ..."));
+//            this.setContentPane(pnlLoading);
+//            this.revalidate();
+            this.currentRouteView = new RouteView(route);
+            this.setContentPane(currentRouteView);
+            this.setJMenuBar(new RouterMenuBar(this, currentRouteView));
+            if (!this.isVisible()) {
+                this.pack();
+                this.setSize(new Dimension(Settings.WIDTH, Settings.HEIGHT));
+            }
+            this.setMinimumSize(new Dimension(this.getPreferredSize().width * 3 / 4, this.getPreferredSize().height * 3 / 4));
+        } else {
+            this.setTitle(Settings.TITLE);
+            this.currentRouteView = null;
+            this.setContentPane(new JPanel());
+            this.setJMenuBar(new RouterMenuBar(this, currentRouteView));
+        }
+        this.revalidate();
+    }
+
+    // IO stuff
+    // TODO
+    public boolean close() {
+        openRoute(null);
+        return true;
+    }
+
+    public boolean load(File file) {
+        if (file == null) {
+            JFileChooser fc = new JFileChooser(new File("."));
+            int result = fc.showOpenDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                file = fc.getSelectedFile();
+                if (!file.exists()) {
+                    file = null;
+                }
+            }
+        }
+        if (file != null) {
+            try {
+                Route route = new RouteParser().parseFile(file);
+                if (close()) {
+                    openRoute(route);
+                    return true;
+                }
+            } catch (RouteParserException ex) {
+//                Logger.getLogger(RouterFrame.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Could not parse file", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        return false;
+    }
+
+    // TODO
+    public void save(File file) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    // TODO
+    public void printReadable(File file, PrintSettings printSettings) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

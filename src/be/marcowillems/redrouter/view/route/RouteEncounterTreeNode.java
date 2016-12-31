@@ -17,14 +17,12 @@
  */
 package be.marcowillems.redrouter.view.route;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import be.marcowillems.redrouter.route.RouteEncounter;
 import be.marcowillems.redrouter.util.PokemonCountPair;
 import be.marcowillems.redrouter.view.dialogs.editroute.EditDialog;
 import be.marcowillems.redrouter.view.dialogs.editroute.RouteEncounterEdit;
+import javax.swing.JComponent;
 
 /**
  * TODO link with wild encounters
@@ -33,14 +31,36 @@ import be.marcowillems.redrouter.view.dialogs.editroute.RouteEncounterEdit;
  */
 public class RouteEncounterTreeNode extends RouteEntryTreeNode {
 
+    private final JLabel lblInfo = new JLabel();
+    private String text = "";
+    private int availableWidth = 0;
+
     public RouteEncounterTreeNode(RouteTree tree, RouteEncounter routeEncounter) {
         super(tree, routeEncounter, true);
+        updateText();
+        setLabelText(lblInfo, text, availableWidth);
     }
 
     @Override
-    protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+    protected JComponent getSizedRenderComponent(RenderSettings rs) {
+        boolean update = false;
+        if (this.availableWidth != rs.availableWidth) {
+            this.availableWidth = rs.availableWidth;
+            update = true;
+        }
+        if (tree.route.isEntryDataUpdated(routeEntry)) {
+            updateText();
+            update = true;
+        }
+        if (update) {
+            setLabelText(lblInfo, text, availableWidth);
+        }
+        return lblInfo;
+    }
+
+    private void updateText() {
         RouteEncounter re = (RouteEncounter) routeEntry;
-        String text = re + "\n";
+        text = re + "\n";
         text += "Defeated preferred pokemon: ";
         int count = 0;
         for (PokemonCountPair pcp : re.getPreferences()) {
@@ -52,12 +72,6 @@ public class RouteEncounterTreeNode extends RouteEntryTreeNode {
         if (count > 0) {
             text = text.substring(0, text.length() - 2);
         }
-        JLabel lbl = new JLabel();
-        setLabelText(lbl, text, availableWidth);
-        JPanel southPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        southPanel.setOpaque(false);
-        southPanel.add(lbl);
-        view.add(southPanel, BorderLayout.SOUTH);
     }
 
     @Override

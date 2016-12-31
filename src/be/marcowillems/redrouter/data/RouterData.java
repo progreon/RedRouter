@@ -28,7 +28,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import be.marcowillems.redrouter.Settings;
+import be.marcowillems.redrouter.io.RouteParserException;
 import be.marcowillems.redrouter.util.PokemonLevelPair;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.nio.file.Files;
 
 /**
  * The main factory class for the application
@@ -122,7 +128,7 @@ public class RouterData {
     }
 
     private void initEncounters() {
-        List<String> lines = getLinesFromFile(settings.getEncountersFile());
+        List<String> lines = getLinesFromResourceFile(settings.getEncountersFile());
         try {
             for (int lno = 0; lno < lines.size(); lno++) {
                 String line = lines.get(lno);
@@ -150,7 +156,7 @@ public class RouterData {
     }
 
     private void initLocations() {
-        List<String> lines = getLinesFromFile(settings.getLocationsFile());
+        List<String> lines = getLinesFromResourceFile(settings.getLocationsFile());
         try {
             for (int lno = 0; lno < lines.size(); lno++) {
                 String line = lines.get(lno);
@@ -179,7 +185,7 @@ public class RouterData {
     }
 
     private void initMoves() {
-        List<String> lines = getLinesFromFile(settings.getMoveFile());
+        List<String> lines = getLinesFromResourceFile(settings.getMoveFile());
         try {
             for (int lno = 0; lno < lines.size(); lno++) {
                 String line = lines.get(lno);
@@ -209,23 +215,23 @@ public class RouterData {
         // TODO: input file!
         // rival 1
         List<SingleBattler> teamRival1 = makeTeam(new Pokemon[]{getPokemon("Bulbasaur")}, new int[]{5});
-        Trainer trRival1 = new Trainer(new Location(this, "Oak's Lab"), "Rival 1", null, teamRival1);
+        Trainer trRival1 = new Trainer(getLocation("Pallet Town"), "Rival 1", null, teamRival1);
         trainers.put(trRival1.getIndexString(), trRival1);
         // bug catcher 1 (forest)
         List<SingleBattler> teamBug1 = makeTeam(new Pokemon[]{getPokemon("Weedle")}, new int[]{9});
-        Trainer trBug1 = new Trainer(new Location(this, "Viridian Forest"), "Bug 1", null, teamBug1);
+        Trainer trBug1 = new Trainer(getLocation("Viridian Forest"), "Bug 1", null, teamBug1);
         trainers.put(trBug1.getIndexString(), trBug1);
         // brock
         List<SingleBattler> teamBrock = makeTeam(new Pokemon[]{getPokemon("Geodude"), getPokemon("Onix")}, new int[]{12, 14});
-        Trainer trBrock = new Trainer(new Location(this, "Pewter City"), "Brock", null, teamBrock);
+        Trainer trBrock = new Trainer(getLocation("Pewter City"), "Brock", null, teamBrock);
         trainers.put(trBrock.getIndexString(), trBrock);
         // bug catcher 2 (r3)
         List<SingleBattler> teamBug2 = makeTeam(new Pokemon[]{getPokemon("Caterpie"), getPokemon("Weedle"), getPokemon("Caterpie")}, new int[]{10, 10, 10});
-        Trainer trBug2 = new Trainer(new Location(this, "Route 3"), "Bug 2", null, teamBug2);
+        Trainer trBug2 = new Trainer(getLocation("Route 3"), "Bug 2", null, teamBug2);
         trainers.put(trBug2.getIndexString(), trBug2);
         // shorts guy (r3)
         List<SingleBattler> teamShorts = makeTeam(new Pokemon[]{getPokemon("Rattata"), getPokemon("Ekans")}, new int[]{11, 11});
-        Trainer trShorts = new Trainer(new Location(this, "Route 3"), "Shorts guy", null, teamShorts);
+        Trainer trShorts = new Trainer(getLocation("Route 3"), "Shorts guy", null, teamShorts);
         trainers.put(trShorts.getIndexString(), trShorts);
     }
 
@@ -244,7 +250,7 @@ public class RouterData {
     }
 
     private void initPokemon() {
-        List<String> lines = getLinesFromFile(settings.getPokemonFile());
+        List<String> lines = getLinesFromResourceFile(settings.getPokemonFile());
         try {
             int ID = 1;
             for (int lno = 0; lno < lines.size(); lno++) {
@@ -273,7 +279,7 @@ public class RouterData {
     }
 
     private void initMovesets() {
-        List<String> lines = getLinesFromFile(settings.getMovesetFile());
+        List<String> lines = getLinesFromResourceFile(settings.getMovesetFile());
 
         List<String> data = new ArrayList<>();
         int monAtLine = 0;
@@ -386,9 +392,26 @@ public class RouterData {
         tms.put("HM_05", moves.get("FLASH"));
     }
 
-    public static List<String> getLinesFromFile(String fileName) {
+    public static List<String> getLinesFromResourceFile(String fileName) {
+        return getLinesFromFile(ClassLoader.getSystemResourceAsStream(fileName));
+    }
+
+    public static List<String> getLinesFromFile(File file) throws FileNotFoundException, RouteParserException {
+        if (file.exists()) {
+            try {
+                if (!Files.probeContentType(file.toPath()).equals("text/plain")) {
+                    throw new RouteParserException("This file is not a plain text file: " + file.getAbsolutePath(), -1);
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return getLinesFromFile(new FileInputStream(file));
+    }
+
+    private static List<String> getLinesFromFile(InputStream inFile) {
         List<String> lines = new ArrayList<>();
-        BufferedReader br = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream(fileName)));
+        BufferedReader br = new BufferedReader(new InputStreamReader(inFile));
         try {
             String line = br.readLine();
             while (line != null) {

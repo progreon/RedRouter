@@ -29,6 +29,7 @@ import be.marcowillems.redrouter.data.Battler;
 import be.marcowillems.redrouter.data.Move;
 import be.marcowillems.redrouter.data.Move.DamageRange;
 import be.marcowillems.redrouter.route.RouteBattle;
+import javax.swing.JComponent;
 
 /**
  *
@@ -36,68 +37,61 @@ import be.marcowillems.redrouter.route.RouteBattle;
  */
 public class RouteBattleTreeNode extends RouteEntryTreeNode {
 
+    private final JLabel lblInfo = new JLabel();
+    private String text = "";
+    private JPanel pnlRender = new JPanel(new BorderLayout());
+    private JPanel pnlOpponents;
+    private int availableWidth = 0;
+
     public RouteBattleTreeNode(RouteTree tree, RouteBattle routeBattle) {
         super(tree, routeBattle, false, true);
-    }
-
-//    private JPanel getBattlerCell(Battler b, boolean isOpponent) {
-//        JPanel pnlCell = new JPanel(new BorderLayout(2, 2));
-////        pnlCell.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-//
-//        String text = "<html><body>";
-//        text += b.toString() + "<br>Health: " + b.getHP() + " hp<br>";
-//        if (isOpponent) {
-//            text += "Gives " + b.getExp(1) + " xp<br>";
-//        }
-//        text += "Crit: " + (((b.getPokemon().spd / 2) / 256.0) * 100.0) + "%";
-//        text += "</body></html";
-//        JLabel lbl = new JLabel(text);
-//        pnlCell.add(lbl);
-//        pnlCell.setOpaque(false);
-//        Border lineBorder = BorderFactory.createLineBorder(Color.black, 1);
-//        Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
-//        pnlCell.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
-//
-//        return pnlCell;
-//    }
-    private JPanel getMovesCell(Battler attacker, Battler defender, boolean isPlayerAttacker) {
-        JPanel pnlCell = new JPanel(new BorderLayout(2, 2));
-        if (attacker != null && defender != null) {
-            pnlCell.add(makeBattlerInfoButton(attacker, isPlayerAttacker), BorderLayout.NORTH);
-
-            String text = "<html><body>";
-            for (Move m : attacker.getMoveset()) {
-                text += m;
-                DamageRange dr = m.getDamageRange(attacker, defender);
-                if (dr.critMax != 0) {
-                    text += ": " + dr;
-                }
-                text += "<br>";
-            }
-            text += "</body></html";
-            JLabel lbl = new JLabel(text);
-            pnlCell.add(lbl);
-        }
-        pnlCell.setOpaque(false);
-//        Border lineBorder = BorderFactory.createLineBorder(Color.black, 1);
-        Border lineBorder = BorderFactory.createMatteBorder(1, 1, 2, 0, Color.black);
-        Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
-        pnlCell.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
-
-        return pnlCell;
+        updateText();
+        setLabelText(lblInfo, text, availableWidth);
+        updatePnlRender(true);
     }
 
     @Override
-    protected void doSizedRender(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        JLabel lbl = new JLabel();
-        RouteBattle rb = (RouteBattle) routeEntry;
-        String text = rb.info.toString() + "\n";
-        text += (rb.opponent.info == null ? "" : "\tInfo: " + rb.opponent.info + "\n");
-        setLabelText(lbl, text, availableWidth);
-        view.add(lbl);
+//    protected JComponent getSizedRenderComponent(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+    protected JComponent getSizedRenderComponent(RenderSettings rs) {
+        boolean updateInfo = false;
+        boolean updateData = false;
+        if (this.availableWidth != rs.availableWidth) {
+            this.availableWidth = rs.availableWidth;
+            updateInfo = true;
+        }
+        if (tree.route.isInfoUpdated() || updateInfo) {
+            updateText();
+            setLabelText(lblInfo, text, availableWidth);
+        }
+        if (tree.route.isEntryDataUpdated(routeEntry)) {
+            updateData = true;
+        }
+        if (updateInfo || updateData) {
+            updatePnlRender(updateData);
+        }
 
-        // TODO: stages, badge boosts
-        JPanel pnlOpponents = new JPanel();
+        return pnlRender;
+    }
+
+    private void updateText() {
+        RouteBattle rb = (RouteBattle) routeEntry;
+        text = rb.info.toString() + "\n";
+        text += (rb.opponent.info == null ? "" : "\tInfo: " + rb.opponent.info + "\n");
+    }
+
+    private void updatePnlRender(boolean updateData) {
+        pnlRender.removeAll();
+        pnlRender.add(lblInfo, BorderLayout.CENTER);
+        if (updateData) {
+            updatePnlOpponents();
+        }
+        pnlRender.add(pnlOpponents, BorderLayout.SOUTH);
+    }
+
+    // TODO: stages, badge boosts
+    private void updatePnlOpponents() {
+        RouteBattle rb = (RouteBattle) routeEntry;
+        pnlOpponents = new JPanel();
         pnlOpponents.setLayout(new BoxLayout(pnlOpponents, BoxLayout.Y_AXIS));
         for (int i = 0; i < rb.opponent.team.size(); i++) {
             Color bg = new Color(215, 215, 215, 150);
@@ -128,7 +122,53 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
         pnlOpponents.setOpaque(false);
 //        pnlOpponents.setBorder(BorderFactory.createLineBorder(Color.black, 1));
         pnlOpponents.setBorder(BorderFactory.createMatteBorder(1, 2, 1, 2, Color.black));
-        view.add(pnlOpponents, BorderLayout.SOUTH);
     }
 
+    private JPanel getMovesCell(Battler attacker, Battler defender, boolean isPlayerAttacker) {
+        JPanel pnlCell = new JPanel(new BorderLayout(2, 2));
+        if (attacker != null && defender != null) {
+            pnlCell.add(makeBattlerInfoButton(attacker, isPlayerAttacker), BorderLayout.NORTH);
+
+            String text = "<html><body>";
+            for (Move m : attacker.getMoveset()) {
+                text += m;
+                DamageRange dr = m.getDamageRange(attacker, defender);
+                if (dr.critMax != 0) {
+                    text += ": " + dr;
+                }
+                text += "<br>";
+            }
+            text += "</body></html";
+            JLabel lbl = new JLabel(text);
+            pnlCell.add(lbl);
+        }
+        pnlCell.setOpaque(false);
+//        Border lineBorder = BorderFactory.createLineBorder(Color.black, 1);
+        Border lineBorder = BorderFactory.createMatteBorder(1, 1, 2, 0, Color.black);
+        Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+        pnlCell.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
+
+        return pnlCell;
+    }
+
+//    private JPanel getBattlerCell(Battler b, boolean isOpponent) {
+//        JPanel pnlCell = new JPanel(new BorderLayout(2, 2));
+////        pnlCell.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+//
+//        String text = "<html><body>";
+//        text += b.toString() + "<br>Health: " + b.getHP() + " hp<br>";
+//        if (isOpponent) {
+//            text += "Gives " + b.getExp(1) + " xp<br>";
+//        }
+//        text += "Crit: " + (((b.getPokemon().spd / 2) / 256.0) * 100.0) + "%";
+//        text += "</body></html";
+//        JLabel lbl = new JLabel(text);
+//        pnlCell.add(lbl);
+//        pnlCell.setOpaque(false);
+//        Border lineBorder = BorderFactory.createLineBorder(Color.black, 1);
+//        Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+//        pnlCell.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
+//
+//        return pnlCell;
+//    }
 }

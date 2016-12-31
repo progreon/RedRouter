@@ -40,7 +40,8 @@ import be.marcowillems.redrouter.route.RouteSection;
 import be.marcowillems.redrouter.route.RouteShopping;
 import be.marcowillems.redrouter.route.RouteSwapPokemon;
 import be.marcowillems.redrouter.util.IntPair;
-import be.marcowillems.redrouter.view.RouterFrame;
+import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * TODO error messages push system
@@ -61,10 +62,16 @@ public class RouteParser {
         trainers = new HashMap<>();
     }
 
-    public Route parseFile(String filePath) throws RouteParserException {
+    public Route parseFile(File file) throws RouteParserException {
         Route route = null;
 
-        List<String> lines = RouterData.getLinesFromFile(filePath);
+        List<String> lines;
+        try {
+            lines = RouterData.getLinesFromFile(file);
+        } catch (FileNotFoundException ex) {
+//            Logger.getLogger(RouteParser.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RouteParserException("File not found: " + file.getAbsolutePath(), -1);
+        }
         int lineNo = 0;
         boolean ignore = false;
         Stack<RouteSection> sectionStack = new Stack<>();
@@ -159,6 +166,8 @@ public class RouteParser {
 
         if (route != null) {
             route.enableRefresh();
+        } else {
+            throw new RouteParserException("This file ain't contain no route!", -1);
         }
         return route;
     }
@@ -471,21 +480,11 @@ public class RouteParser {
         return pairs;
     }
 
-    public static class RouteParserException extends Exception {
-
-//        private int lineNo;
-        public RouteParserException(String message, int lineNo) {
-            super(message + " at line: " + lineNo);
-        }
-
-    }
-
-    public static void main(String[] args) throws RouteParserException {
-        RouteParser parser = new RouteParser();
-        Route route = parser.parseFile("route_example.txt");
-        new RouterFrame(route).setVisible(true);
-        System.out.println("======================================");
-        System.out.println(new RouteWriter().writeToString(route));
-    }
-
+//    public static void main(String[] args) throws RouteParserException {
+//        RouteParser parser = new RouteParser();
+//        Route route = parser.parseFile("route_example.txt");
+//        new RouterFrame(route).setVisible(true);
+//        System.out.println("======================================");
+//        System.out.println(new RouteWriter().writeToString(route));
+//    }
 }

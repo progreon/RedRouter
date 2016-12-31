@@ -52,8 +52,24 @@ public class RouterMenuBar extends JMenuBar {
         mnFile.setMnemonic('f');
         mnFile.add(new JMenuItem("New Route... [TODO]"));
         mnFile.add(new JSeparator());
-        mnFile.add(new JMenuItem("Load Route... [TODO]"));
-        mnFile.add(new JMenuItem("Close Route [TODO]"));
+        JMenuItem mniLoad = new JMenuItem("Load Route... [TODO]");
+        mniLoad.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                routerFrame.load(null);
+            }
+        });
+        mnFile.add(mniLoad);
+        JMenuItem mniClose = new JMenuItem("Close Route [TODO]");
+        mniClose.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                routerFrame.close();
+            }
+        });
+        mnFile.add(mniClose);
         mnFile.add(new JSeparator());
         mnFile.add(new JMenuItem("Save [TODO]"));
         mnFile.add(new JMenuItem("Save As... [TODO]"));
@@ -69,20 +85,24 @@ public class RouterMenuBar extends JMenuBar {
         JMenu mnEdit = new JMenu("Edit");
         mnEdit.setMnemonic('e');
         JCheckBoxMenuItem chkEditing = new JCheckBoxMenuItem("Editing mode");
-        chkEditing.setState(routeView.isEditMode());
-        chkEditing.addItemListener(new ItemListener() {
+        if (routeView != null) {
+            chkEditing.setState(routeView.isEditMode());
+            chkEditing.addItemListener(new ItemListener() {
 
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (routeView != null) {
-                    if (e.getStateChange() == ItemEvent.DESELECTED && routeView.isEditMode()) {
-                        routeView.setEditMode(false);
-                    } else if (e.getStateChange() == ItemEvent.SELECTED && !routeView.isEditMode()) {
-                        routeView.setEditMode(true);
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    if (routeView != null) {
+                        if (e.getStateChange() == ItemEvent.DESELECTED && routeView.isEditMode()) {
+                            routeView.setEditMode(false);
+                        } else if (e.getStateChange() == ItemEvent.SELECTED && !routeView.isEditMode()) {
+                            routeView.setEditMode(true);
+                        }
                     }
                 }
-            }
-        });
+            });
+        } else {
+            mnEdit.setEnabled(false);
+        }
         mnEdit.add(chkEditing);
 
         this.add(mnEdit);

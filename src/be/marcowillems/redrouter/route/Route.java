@@ -22,8 +22,11 @@ import java.io.File;
 import be.marcowillems.redrouter.Settings;
 import be.marcowillems.redrouter.data.Player;
 import be.marcowillems.redrouter.data.RouterData;
+import be.marcowillems.redrouter.io.RouteParserException;
 import be.marcowillems.redrouter.observers.RouteObservable;
 import be.marcowillems.redrouter.observers.RouteObserver;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 
 /**
@@ -42,12 +45,15 @@ public class Route extends RouteSection {
     private boolean infoUpdated = false;
 
     private Player startPlayer;
+    private List<RouteEntry> entryList;
 
     public Route(RouterData rd, String title) {
         super(null, title);
         this.rd = rd;
         this.routeObservable = new RouteObservable();
         this.startPlayer = new Player("Red", "The playable character", null);
+        this.entryList = new ArrayList<>();
+        this.entryList.add(this);
         this.setLocation(rd.getDefaultLocation());
         super.setRoute(this);
     }
@@ -79,9 +85,10 @@ public class Route extends RouteSection {
 
     public void notifyChanges() {
         if (canRefresh && (dataUpdated || infoUpdated)) {
+            updateEntryList();
             if (dataUpdated) { // TODO only start updating from the first source!
                 Player p = startPlayer;
-                for (RouteEntry e : getEntryList()) {
+                for (RouteEntry e : this.entryList) {
                     p = e.apply(p);
                 }
             }
@@ -97,24 +104,32 @@ public class Route extends RouteSection {
         dataUpdated = true;
     }
 
+    public boolean isDataUpdated() {
+        return dataUpdated;
+    }
+
+    // TODO add a source!
     void setInfoUpdated() {
         infoUpdated = true;
     }
 
-    // IO stuff
-    // TODO
-    public void load(File file) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean isInfoUpdated() {
+        return infoUpdated;
     }
 
-    // TODO
-    public void save(File file) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean isRouteUpdated() {
+        return dataUpdated || infoUpdated;
     }
 
-    // TODO
-    public void printReadable(File file, PrintSettings printSettings) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean isEntryDataUpdated(RouteEntry entry) {
+        // TODO
+        return isRouteUpdated();
+    }
+
+    private void updateEntryList() {
+        if (canRefresh) {
+            this.entryList = getEntryList();
+        }
     }
 
     @Override
