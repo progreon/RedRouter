@@ -50,7 +50,9 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
     protected final RouteTree tree;
     protected RouteEntry routeEntry;
     private final boolean showEncountersButton;
+    private WildEncountersDialog WildEncD = null;
     private final boolean showPlayerButton;
+    private EditDialog editDialog = null;
 
     protected JPanel view;
     private final Border border;
@@ -122,7 +124,7 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         view.removeAll(); // TODO don't remove everything but edit?
 
         // Refresh render if needed
-        if (!rs.equals(rsOld)) {
+        if (!rs.equals(rsOld) || tree.route.isEntryDataUpdated(routeEntry)) {
             sizedRenderComponent = getSizedRenderComponent(new RenderSettings(rs, rs.availableWidth - getBorderWidth() - 2));
             sizedRenderComponent.setOpaque(false);
 
@@ -242,17 +244,19 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
     }
 
     private JButton makeEditButton() {
-        EditDialog ed = getEditDialog();
         JButton btnEdit = new JButton("Edit");
-        if (ed != null) {
-            btnEdit.addActionListener(new ActionListener() {
+        btnEdit.addActionListener(new ActionListener() {
 
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    ed.display(btnEdit.getLocationOnScreen());
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (editDialog == null) {
+                    editDialog = getEditDialog();
                 }
-            });
-        }
+                if (editDialog != null) {
+                    editDialog.display(btnEdit.getLocationOnScreen());
+                }
+            }
+        });
         btnEdit.setMargin(new Insets(0, 5, 0, 5));
         return btnEdit;
     }
@@ -290,12 +294,14 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         JButton btnWE = new JButton("Encounters");
         btnWE.setMargin(new Insets(0, 5, 0, 5));
         if (routeEntry.getLocation() != null) {
-            WildEncountersDialog red = new WildEncountersDialog(routeEntry);
             btnWE.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if (red.display(btnWE.getLocationOnScreen())) {
+                    if (WildEncD == null) {
+                        WildEncD = new WildEncountersDialog(routeEntry);
+                    }
+                    if (WildEncD.display(btnWE.getLocationOnScreen())) {
                         routeEntry.notifyWildEncountersUpdated();
                     }
                 }
