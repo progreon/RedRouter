@@ -61,7 +61,10 @@ public class RouterData {
 
     public RouterData(Settings settings) {
         this.settings = settings;
+        // TODO: order?
         initPokemon();
+//        initItems();
+        initEvolutions();
         initLocations();
         initEncounters();
         initMoves();
@@ -153,6 +156,63 @@ public class RouterData {
         } else {
             return null;
         }
+    }
+
+    private void initEvolutions() {
+        List<String> lines = getLinesFromResourceFile(settings.getEvolutionsFile());
+        try {
+            for (int lno = 0; lno < lines.size(); lno++) {
+                String line = lines.get(lno);
+                if (!line.equals("") && !line.substring(0, 2).equals("//")) {
+                    if (!addEvolution(line, settings.getEvolutionsFile(), lno)) {
+                        throw new ParserException(line, lno, "Failed while adding evolution!");
+                    }
+                }
+            }
+        } catch (ParserException ex) {
+            Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private boolean addEvolution(String evolutionString, String file, int line) throws ParserException {
+        String[] args = evolutionString.trim().split("#");
+        if (args.length < 2) {
+            // TODO throw error
+            return false;
+        }
+        Pokemon p = getPokemon(args[0]);
+        if (p == null) {
+            // TODO throw error
+            return false;
+        }
+        Map<Evolution.Key, Pokemon> evos = new HashMap<>();
+
+        for (int i = 1; i < args.length; i++) {
+            String args2[] = args[i].split(":");
+            if (args2.length != 2) {
+                // TODO throw error
+                return false;
+            }
+            Pokemon evo = getPokemon(args2[0]);
+            if (evo == null) {
+                // TODO throw error
+                return false;
+            }
+            Evolution.Key key;
+            try {
+                int level = Integer.parseInt(args2[1]);
+                key = new Evolution.Level(level);
+                evos.put(key, evo);
+            } catch (NumberFormatException nfe) {
+                // TODO!!
+//            Item item = getItem(args2[1]);
+//            key = new Evolution.Item(item);
+            }
+        }
+        Evolution e = new Evolution(evos);
+        p.setEvolution(e);
+
+        return true;
     }
 
     private void initLocations() {

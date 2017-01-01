@@ -93,15 +93,57 @@ public class CombinedBattler extends Battler {
     }
 
     @Override
-    public boolean addXP(int exp) {
-        for (SingleBattler sb : possibleBattlers) {
-            sb.addXP(exp);
+    public Battler addXP(int exp) {
+        // TODO meh...
+        SingleBattler newB = (SingleBattler) possibleBattlers.get(0).addXP(exp);
+        Pokemon p = newB.pokemon;
+        possibleBattlers.set(0, newB);
+        List<Integer> toRemove = new ArrayList<>();
+        for (int i = 1; i < possibleBattlers.size(); i++) {
+            newB = (SingleBattler) possibleBattlers.get(i).addXP(exp);
+            if (p == newB.pokemon) {
+                possibleBattlers.set(i, newB);
+            } else {
+                toRemove.add(i); // TODO raise warning?
+            }
         }
-        return false; // TODO return true if evolving?
+//        for (SingleBattler sb : possibleBattlers) {
+//            sb.addXP(exp);
+//        }
+        // TODO: remove?
+        return this;
     }
 
     @Override
-    public boolean checkEvolve() {
+    public boolean learnTmMove(Move newMove, Move oldMove) {
+        boolean success = false;
+        for (SingleBattler sb : possibleBattlers) {
+            success |= sb.learnTmMove(newMove, oldMove);
+        }
+        return success;
+    }
+
+    @Override
+    public Battler useCandy(int count) {
+        // TODO meh...
+        SingleBattler newB = (SingleBattler) possibleBattlers.get(0).useCandy(count);
+        Pokemon p = newB.pokemon;
+        possibleBattlers.set(0, newB);
+        List<Integer> toRemove = new ArrayList<>();
+        for (int i = 1; i < possibleBattlers.size(); i++) {
+            newB = (SingleBattler) possibleBattlers.get(i).useCandy(count);
+            if (p == newB.pokemon) {
+                possibleBattlers.set(i, newB);
+            } else {
+                toRemove.add(i); // TODO raise warning?
+            }
+        }
+        // TODO: remove?
+        return this;
+    }
+
+    @Override
+    protected boolean checkEvolve() {
         for (SingleBattler sb : possibleBattlers) {
             sb.checkEvolve();
         }

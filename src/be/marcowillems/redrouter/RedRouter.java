@@ -33,8 +33,10 @@ public class RedRouter {
 //            RouterFrame routerFrame = new RouterFrame(gcd.settings);
 //            routerFrame.setVisible(true);
 //        }
-        RouterFrame rf = new RouterFrame(new Settings(Settings.GAME_RED));
+        RouterFrame rf = new RouterFrame(null);
         rf.setVisible(true);
+//        Settings settings = new Settings(Settings.GAME_RED);
+//        rf.openRoute(new RouteFactory(new RouterData(settings)).getRedExaNidoRoute());
     }
 
     /**

@@ -99,6 +99,7 @@ public class SingleBattler extends Battler {
     /**
      * Use this constructor if it's a RNG manip'd pokemon
      *
+     * @param catchLocation
      * @param pokemon
      * @param level
      * @param atkDV
@@ -106,8 +107,8 @@ public class SingleBattler extends Battler {
      * @param spdDV
      * @param spcDV
      */
-    public SingleBattler(Pokemon pokemon, int level, int atkDV, int defDV, int spdDV, int spcDV) {
-        super(pokemon, null);
+    public SingleBattler(EncounterArea catchLocation, Pokemon pokemon, int level, int atkDV, int defDV, int spdDV, int spcDV) {
+        super(pokemon, catchLocation);
         this.level = level;
         this.isTrainerMon = false;
         initDefaultMoveSet(pokemon, level);
@@ -168,11 +169,14 @@ public class SingleBattler extends Battler {
         return newBattler;
     }
 
-    // TODO: evolve condition (item, ...)
     @Override
-    public Battler evolve(Item item) {
-        if (pokemon.evolution != null) {
-            SingleBattler evo = new SingleBattler(pokemon.evolution, catchLocation, level);
+    public SingleBattler evolve(Item item) {
+        return evolve(new Evolution.Item(item));
+    }
+
+    private SingleBattler evolve(Evolution.Key key) {
+        if (pokemon.evolution != null && pokemon.evolution.get(key) != null) {
+            SingleBattler evo = new SingleBattler(pokemon.evolution.get(key), catchLocation, level);
             evo.moveset = moveset;
             evo.possibleDVs = possibleDVs;
             evo.hpXP = hpXP;
@@ -206,7 +210,7 @@ public class SingleBattler extends Battler {
     }
 
     @Override
-    public boolean addXP(int exp) {
+    public Battler addXP(int exp) {
         levelExp += exp;
         int totExp = pokemon.expGroup.getTotalExp(level, levelExp);
         int newLevel = pokemon.expGroup.getLevel(totExp);
@@ -229,11 +233,46 @@ public class SingleBattler extends Battler {
                 }
             }
         }
-        return false; // TODO: return true if evolving
+        SingleBattler evolution = evolve(new Evolution.Level(level));
+        if (evolution != null) {
+            return evolution;
+        } else {
+            return this;
+        }
     }
 
     @Override
-    public boolean checkEvolve() {
+    public boolean learnTmMove(Move newMove, Move oldMove) {
+        boolean success = false;
+        List<Move> moves = getMoveset();
+        if (pokemon.getTmMoves().contains(newMove) && !moves.contains(newMove)) {
+            if (oldMove == null || moves.contains(oldMove)) {
+                int i = 0;
+                while (i < moveset.length && oldMove != moveset[i] && moveset[i] != null) {
+                    i++;
+                } // only remove the move if no more room!
+                moveset[i] = newMove;
+                success = true;
+            }
+        } else {
+            System.out.println(toString() + " can't learn " + newMove + " as a tM.");
+        }
+        return success;
+    }
+
+    @Override
+    public Battler useCandy(int count) {
+        SingleBattler newBattler = this;
+        for (int i = 0; i < count; i++) {
+            if (level < 100) {
+                newBattler = (SingleBattler) newBattler.addXP(pokemon.expGroup.getDeltaExp(level, level + 1));
+            }
+        }
+        return newBattler;
+    }
+
+    @Override
+    protected boolean checkEvolve() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

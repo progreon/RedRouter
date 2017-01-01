@@ -91,27 +91,41 @@ public class Move {
     }
 
     // TODO boosts!
-    public DamageRange getDamageRange(Battler attacker, Battler defender) {
-        Range damageRange = getDamageRange(attacker, defender, false);
-        Range critRange = getDamageRange(attacker, defender, true);
+    public DamageRange getDamageRange(Player playerA, Player playerB, Battler attacker, Battler defender) {
+        Range damageRange = getDamageRange(playerA, playerB, attacker, defender, false);
+        Range critRange = getDamageRange(playerA, playerB, attacker, defender, true);
         return new DamageRange(damageRange.getMin(), damageRange.getMax(), critRange.getMin(), critRange.getMax());
     }
 
     // TODO: confusion & night shade damage
     // TODO: boosts
     // See: http://upcarchive.playker.info/0/upokecenter/content/pokemon-red-version-blue-version-and-yellow-version-damage-calculation-process.html
-    private Range getDamageRange(Battler attacker, Battler defender, boolean isCrit) {
+    private Range getDamageRange(Player playerA, Player playerB, Battler attacker, Battler defender, boolean isCrit) {
         if (power == 0) {
             return new Range(0, 0); // TODO: special cases?
         }
+        int atkBadge = 0;
+        int defBadge = 0;
+        if (playerA != null && Types.isPhysical(type) && playerA.atkBadge) {
+            atkBadge = 1;
+        }
+        if (playerA != null && !Types.isPhysical(type) && playerA.spcBadge) {
+            atkBadge = 1;
+        }
+        if (playerB != null && Types.isPhysical(type) && playerB.defBadge) {
+            defBadge = 1;
+        }
+        if (playerB != null && !Types.isPhysical(type) && playerB.spcBadge) {
+            defBadge = 1;
+        }
         // (1), (2), (4)
         Range atkRange = Types.isPhysical(type) ? attacker.getAtk() : attacker.getSpc();
-        int minAttack = isCrit ? atkRange.getMin() : getStatWithBoosts(atkRange.getMin(), 0, 0);
-        int maxAttack = isCrit ? atkRange.getMax() : getStatWithBoosts(atkRange.getMax(), 0, 0);
+        int minAttack = isCrit ? atkRange.getMin() : getStatWithBoosts(atkRange.getMin(), atkBadge, 0);
+        int maxAttack = isCrit ? atkRange.getMax() : getStatWithBoosts(atkRange.getMax(), atkBadge, 0);
         // TODO: (3) attacker is burned
         Range defRange = Types.isPhysical(type) ? defender.getDef() : defender.getSpc();
-        int minDefense = getStatWithBoosts(defRange.getMin(), 0, 0);
-        int maxDefense = getStatWithBoosts(defRange.getMax(), 0, 0);
+        int minDefense = getStatWithBoosts(defRange.getMin(), defBadge, 0);
+        int maxDefense = getStatWithBoosts(defRange.getMax(), defBadge, 0);
         // TODO: (5) Selfdestruct & Explosion
         // (6) ??
         if (minAttack > 255) {
@@ -133,7 +147,7 @@ public class Move {
         maxAttack = maxAttack == 0 ? 1 : maxAttack;
         minDefense = minDefense == 0 ? 1 : minDefense;
         maxDefense = maxDefense == 0 ? 1 : maxDefense;
-        
+
         // (10)
         int damage = (attacker.getLevel() * (isCrit ? 2 : 1)) % 256;
         damage = (damage * 2 / 5 + 2);

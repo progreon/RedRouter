@@ -17,6 +17,7 @@
  */
 package be.marcowillems.redrouter.route;
 
+import be.marcowillems.redrouter.data.Battler;
 import be.marcowillems.redrouter.data.Player;
 import be.marcowillems.redrouter.data.SingleBattler;
 import be.marcowillems.redrouter.data.Trainer;
@@ -87,11 +88,28 @@ public class RouteBattle extends RouteEntry {
             }
             for (int j = 0; j < entries[i].length; j++) {
                 if (!entries[i][j].isFainted()) {
-                    newPlayer.team.get(entries[i][j].partyIndex).defeatBattler(sb, n);
+                    Battler updatedBattler = newPlayer.team.get(entries[i][j].partyIndex).defeatBattler(sb, n);
+                    newPlayer.team.set(entries[i][j].partyIndex, updatedBattler);
                 }
             }
 
             playerAfterEvery[i] = newPlayer;
+        }
+
+        if (opponent.name.equals("Brock")) {
+            newPlayer.atkBadge = true;
+        }
+
+        if (opponent.name.equals("Surge")) {
+            newPlayer.defBadge = true;
+        }
+
+        if (opponent.name.equals("Koga")) {
+            newPlayer.spdBadge = true;
+        }
+
+        if (opponent.name.equals("Blaine")) {
+            newPlayer.spcBadge = true;
         }
 
         return newPlayer;

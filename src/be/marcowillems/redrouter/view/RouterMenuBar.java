@@ -52,7 +52,7 @@ public class RouterMenuBar extends JMenuBar {
         mnFile.setMnemonic('f');
         mnFile.add(new JMenuItem("New Route... [TODO]"));
         mnFile.add(new JSeparator());
-        JMenuItem mniLoad = new JMenuItem("Load Route... [TODO]");
+        JMenuItem mniLoad = new JMenuItem("Load Route...");
         mniLoad.addActionListener(new ActionListener() {
 
             @Override
@@ -61,7 +61,7 @@ public class RouterMenuBar extends JMenuBar {
             }
         });
         mnFile.add(mniLoad);
-        JMenuItem mniClose = new JMenuItem("Close Route [TODO]");
+        JMenuItem mniClose = new JMenuItem("Close Route");
         mniClose.addActionListener(new ActionListener() {
 
             @Override

@@ -22,7 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 import be.marcowillems.redrouter.Settings;
+import be.marcowillems.redrouter.data.EncounterArea;
 import be.marcowillems.redrouter.data.Location;
+import be.marcowillems.redrouter.data.Move;
 import be.marcowillems.redrouter.data.Player;
 import be.marcowillems.redrouter.data.Pokemon;
 import be.marcowillems.redrouter.data.RouterData;
@@ -36,15 +38,17 @@ import be.marcowillems.redrouter.route.RouteEntry;
 import be.marcowillems.redrouter.route.RouteEntryInfo;
 import be.marcowillems.redrouter.route.RouteGetPokemon;
 import be.marcowillems.redrouter.route.RouteImage;
+import be.marcowillems.redrouter.route.RouteLearnTmMove;
 import be.marcowillems.redrouter.route.RouteSection;
 import be.marcowillems.redrouter.route.RouteShopping;
 import be.marcowillems.redrouter.route.RouteSwapPokemon;
+import be.marcowillems.redrouter.route.RouteUseCandies;
 import be.marcowillems.redrouter.util.IntPair;
 import java.io.File;
 import java.io.FileNotFoundException;
 
 /**
- * TODO error messages push system
+ * TODO error messages push system TODO handle multiple (white)spaces
  *
  * @author Marco Willems
  */
@@ -103,6 +107,7 @@ public class RouteParser {
 
         while (lineNo < lines.size() && !ignore) {
             String line = lines.get(lineNo);
+            lineNo++;
             if (line.startsWith("===")) {
                 ignore = true;
                 continue;
@@ -127,6 +132,18 @@ public class RouteParser {
                 line = line.trim();
                 String[] args = line.split(" ");
                 switch (args[0]) {
+                    case "Candy:": // TEMPORARY
+                        line = line.substring(args[0].length()).trim();
+                        sectionStack.peek().addEntry(getNewUseCandies(route, line, lineNo));
+                        break;
+                    case "TM:": // TEMPORARY
+                        line = line.substring(args[0].length()).trim();
+                        sectionStack.peek().addEntry(getNewLearnTmMove(route, line, lineNo));
+                        break;
+                    case "M:":
+                        line = line.substring(args[0].length()).trim();
+                        sectionStack.peek().addEntry(getNewManipPokemon(route, line, lineNo));
+                        break;
                     case "GetP:":
                         line = line.substring(args[0].length()).trim();
                         sectionStack.peek().addEntry(getNewGetPokemon(route, line, lineNo));
@@ -160,8 +177,6 @@ public class RouteParser {
                         break;
                 }
             }
-
-            lineNo++;
         }
 
         if (route != null) {
@@ -173,21 +188,26 @@ public class RouteParser {
     }
 
     private void addNewTrainer(Route route, String line, int lineNo) throws RouteParserException {
-        Location location = null;
         String name;
+        Location location = null;
         String alias;
         List<SingleBattler> team = new ArrayList<>();
 
-        String[] argName = line.split("::");
-        if (argName.length != 2) {
-            // TODO throw exception
+        String[] trArgs = line.split("::");
+        if (trArgs.length > 3) {
+            throw new RouteParserException("Too many arguments for trainer", lineNo);
         }
-        name = argName[0].trim();
-        line = argName[1].trim();
+        name = trArgs[0].trim();
+        if (trArgs.length == 3) {
+            location = parseLocation(route, trArgs[1].trim(), lineNo);
+            line = trArgs[2].trim();
+        } else {
+            line = trArgs[1].trim();
+        }
 
         String[] args = line.split(" ");
         if (args.length < 2) {
-            // TODO throw exception
+            throw new RouteParserException("Please give an alias and at least one pokemon", lineNo);
         }
         alias = args[0];
         for (int i = 1; i < args.length; i++) {
@@ -197,16 +217,16 @@ public class RouteParser {
             }
             Pokemon p = route.rd.getPokemon(pokeArgs[0]);
             if (p == null) {
-                // TODO throw exception
+                throw new RouteParserException("Could not find pokemon \"" + pokeArgs[0] + "\"", lineNo);
             }
             int level = -1;
             try {
                 level = Integer.parseInt(pokeArgs[1]);
             } catch (NumberFormatException nfe) {
-                // TODO throw exception
+                throw new RouteParserException("Could not parse the pokemon level in \"" + args[i] + "\"", lineNo);
             }
             if (level <= 1) {
-                // TODO throw exception
+                throw new RouteParserException("The pokemon level must be greater than 1", lineNo);
             }
             team.add(new SingleBattler(p, level, null));
         }
@@ -249,7 +269,7 @@ public class RouteParser {
 
     private RouteBattle getNewBattle(Route route, String line, int lineNo) throws RouteParserException {
         String alias;
-        String description;
+        String description = null;
         Trainer opponent;
 
         int[][] competingPartyMon = null;
@@ -259,8 +279,8 @@ public class RouteParser {
         Player prevPlayer = previousEntry.getPlayer();
 
         String[] args = line.split("::");
-        if (args.length < 2 || args.length > 3) {
-            throw new RouteParserException("Expected 2 or 3 arguments in between \"::\"", lineNo);
+        if (args.length < 1 || args.length > 3) {
+            throw new RouteParserException("Expected 1 to 3 arguments in between \"::\"", lineNo);
         }
         alias = args[0].trim();
         opponent = trainers.get(alias);
@@ -287,13 +307,13 @@ public class RouteParser {
             for (int i = 0; i < competingPartyMon.length; i++) {
                 competingPartyMon[i] = new int[partyCount[i]];
             }
-            int[] partyCount2 = new int[partyCount.length];
+            int[] partyCount2 = new int[partyCount.length]; // TODO ??
             for (IntPair partyArg : partyArgs) {
                 competingPartyMon[partyArg.int1][partyCount2[partyArg.int1]] = partyArg.int2;
             }
 
             description = args[2].trim();
-        } else {
+        } else if (args.length == 2) {
             description = args[1].trim();
         }
         return new RouteBattle(new RouteEntryInfo(opponent.name, description), opponent, competingPartyMon);
@@ -304,24 +324,28 @@ public class RouteParser {
     }
 
     private RouteEncounter getNewEncounter(Route route, String line, int lineNo) throws RouteParserException {
-        Location location; // TODO handle location = area + sub area!!
+        EncounterArea ea; // TODO handle location = area + sub area!!
+        RouteEntryInfo info = null;
 
         String[] locArgs = line.split("::");
-        if (locArgs.length != 2) {
-            throw new RouteParserException("Please provide 2 arguments with '::' in between!", lineNo);
+        if (locArgs.length < 2 || locArgs.length > 3) {
+            throw new RouteParserException("Please provide 2 or 3 arguments with '::' in between!", lineNo);
         }
         String sLocation = locArgs[0].trim();
-        location = route.rd.getLocation(sLocation);
-        if (location == null) {
+        ea = parseEncounterArea(route, sLocation, lineNo);
+        if (ea == null) {
             throw new RouteParserException("Could not find location \"" + sLocation + "\"", lineNo);
         }
         IntPair[] slotPairs = parseIntPairs(locArgs[1].trim(), lineNo);
+        if (locArgs.length == 3) {
+            info = new RouteEntryInfo(null, locArgs[2].trim());
+        }
 
-        return new RouteEncounter(null, location.encounterAreas.get(0), slotPairs);
+        return new RouteEncounter(info, ea, slotPairs);
     }
 
     private RouteGetPokemon getNewCatchPokemon(Route route, String line, int lineNo) throws RouteParserException {
-        Location location; // TODO handle location = area + sub area!!
+        EncounterArea ea; // TODO handle location = area + sub area!!
         List<SingleBattler> choices = new ArrayList<>();
         int preference = -1;
 
@@ -330,10 +354,7 @@ public class RouteParser {
             throw new RouteParserException("Please provide 2 arguments with '::' in between!", lineNo);
         }
         String sLocation = locArgs[0].trim();
-        location = route.rd.getLocation(sLocation);
-        if (location == null) {
-            throw new RouteParserException("Could not find location \"" + sLocation + "\"", lineNo);
-        }
+        ea = parseEncounterArea(route, sLocation, lineNo);
         String[] slots = locArgs[1].trim().split(" ");
         if (slots.length == 0) {
             throw new RouteParserException("Please list some slots!", lineNo);
@@ -351,7 +372,7 @@ public class RouteParser {
             } catch (NumberFormatException nfe) {
                 throw new RouteParserException("Could not parse slot number: \"" + slots[i] + "\"", lineNo);
             }
-            choices.add(location.encounterAreas.get(0).getBattler(slot));
+            choices.add(ea.getBattler(slot));
         }
         if (preference < 0) {
             preference = 0;
@@ -393,6 +414,73 @@ public class RouteParser {
         }
 
         return new RouteGetPokemon(null, choices, preference);
+    }
+
+    private RouteGetPokemon getNewManipPokemon(Route route, String line, int lineNo) throws RouteParserException {
+        EncounterArea ea; // TODO handle location = area + sub area!!
+        SingleBattler sb;
+        int atk, def, spd, spc;
+        RouteEntryInfo info = null;
+
+        String[] locArgs = line.split("::");
+        if (locArgs.length < 3 || locArgs.length > 4) {
+            throw new RouteParserException("Please provide 3 or 4 arguments with '::' in between!", lineNo);
+        }
+        String sLocation = locArgs[0].trim();
+        ea = parseEncounterArea(route, sLocation, lineNo);
+        String slotString = locArgs[1].trim();
+
+        int slot = 0;
+        try {
+            slot = Integer.parseInt(slotString);
+        } catch (NumberFormatException nfe) {
+            throw new RouteParserException("Could not parse slot number: \"" + slotString + "\"", lineNo);
+        }
+        sb = ea.getBattler(slot);
+        String[] dvs = locArgs[2].trim().split(" ");
+        if (dvs.length != 4) {
+            throw new RouteParserException("Please provide all 4 DV values!", lineNo);
+        }
+        try {
+            atk = Integer.parseInt(dvs[0]);
+            def = Integer.parseInt(dvs[1]);
+            spd = Integer.parseInt(dvs[2]);
+            spc = Integer.parseInt(dvs[3]);
+        } catch (NumberFormatException nfe) {
+            throw new RouteParserException("Please provide integers for DV values!", lineNo);
+        }
+        sb = new SingleBattler(ea, sb.pokemon, sb.level, atk, def, spd, spc);
+
+        if (locArgs.length == 4) {
+            info = new RouteEntryInfo(null, locArgs[3].trim());
+        }
+
+        return new RouteGetPokemon(info, sb);
+    }
+
+    // TEMPORARY
+    private RouteLearnTmMove getNewLearnTmMove(Route route, String line, int lineNo) throws RouteParserException {
+        Move newMove;
+        Move oldMove = null;
+        RouteEntryInfo info = null;
+
+        String[] params = line.split("::");
+        String moveName1 = params[0].trim();
+        newMove = route.rd.getMove(moveName1);
+        if (newMove == null) {
+            throw new RouteParserException("Could not find the move \"" + moveName1 + "\"", lineNo);
+        }
+        if (params.length > 1) {
+            String moveName2 = params[1].trim();
+            oldMove = route.rd.getMove(moveName2);
+            if (oldMove == null) {
+                throw new RouteParserException("Could not find the move \"" + moveName2 + "\"", lineNo);
+            }
+            info = new RouteEntryInfo(null, "Teach TM " + moveName1 + " over " + moveName2);
+        } else {
+            info = new RouteEntryInfo(null, "Teach TM " + moveName1);
+        }
+        return new RouteLearnTmMove(info, newMove, oldMove);
     }
 
     private RouteImage getNewImage(Route route, String line, int lineNo) throws RouteParserException {
@@ -440,6 +528,27 @@ public class RouteParser {
         return new RouteSwapPokemon(new RouteEntryInfo(null, description), index1, index2);
     }
 
+    // TEMPORARY
+    private RouteUseCandies getNewUseCandies(Route route, String line, int lineNo) throws RouteParserException {
+        RouteEntryInfo info = null;
+        int candyCount = 1;
+        String[] params = line.split("::");
+        String count = params[0].trim();
+        try {
+            candyCount = Integer.parseInt(count);
+        } catch (NumberFormatException nfe) {
+            throw new RouteParserException("Could not parse candy amount", lineNo);
+        }
+        if (params.length > 1) {
+            String description = params[1].trim();
+            info = new RouteEntryInfo(null, description);
+        }
+        if (info == null) {
+            info = new RouteEntryInfo(null, "Use " + candyCount + " candies");
+        }
+        return new RouteUseCandies(info, candyCount);
+    }
+
     private RouteEntry getLastEntry(Route route) {
         RouteEntry last = route;
         while (last.hasChildren()) {
@@ -478,6 +587,53 @@ public class RouteParser {
         }
 
         return pairs;
+    }
+
+    private EncounterArea parseEncounterArea(Route route, String toParse, int lineNo) throws RouteParserException {
+        EncounterArea ea;
+        String[] args = toParse.trim().split(":");
+        if (args.length > 2) {
+            throw new RouteParserException("Too many arguments for the location", lineNo);
+        }
+        Location loc = route.rd.getLocation(args[0].trim());
+        if (loc == null) {
+            throw new RouteParserException("Could not find the location", lineNo);
+        }
+        if (loc.encounterAreas.size() > 0) {
+            ea = loc.encounterAreas.get(0);
+        } else {
+            throw new RouteParserException("This location doesn't have an encounter area", lineNo);
+        }
+        if (args.length > 1) {
+            ea = route.rd.getEncounterArea(loc, args[1].trim());
+            if (ea == null) {
+                throw new RouteParserException("Could not find the sublocation", lineNo);
+            }
+        }
+        return ea;
+    }
+
+    private Location parseLocation(Route route, String toParse, int lineNo) throws RouteParserException {
+        Location loc;
+        String[] args = toParse.trim().split(":");
+        if (args.length > 2) {
+            throw new RouteParserException("Too many arguments for the location", lineNo);
+        }
+        loc = route.rd.getLocation(args[0].trim());
+        if (loc == null) {
+            throw new RouteParserException("Could not find the location", lineNo);
+        }
+        EncounterArea ea = null;
+        if (loc.encounterAreas.size() > 0) {
+            ea = loc.encounterAreas.get(0);
+        }
+        if (args.length > 1) {
+            ea = route.rd.getEncounterArea(loc, args[1].trim());
+            if (ea == null) {
+                throw new RouteParserException("Could not find the sublocation", lineNo);
+            }
+        }
+        return loc;
     }
 
 //    public static void main(String[] args) throws RouteParserException {

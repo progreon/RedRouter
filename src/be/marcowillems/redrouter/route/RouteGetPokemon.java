@@ -38,6 +38,9 @@ public class RouteGetPokemon extends RouteEntry {
         this(info, new ArrayList<>());
         choices.add(choice);
         this.preference = 0;
+        if (choice.catchLocation != null) {
+            setLocation(choice.catchLocation.location);
+        }
     }
 
     public RouteGetPokemon(RouteEntryInfo info, List<SingleBattler> choices) {

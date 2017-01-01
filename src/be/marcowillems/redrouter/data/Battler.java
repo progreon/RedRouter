@@ -43,20 +43,15 @@ public abstract class Battler implements Cloneable {
 
     public abstract Battler getDeepCopy();
 
-    public void defeatBattler(Battler b) {
-        defeatBattler(b, 1);
+    public Battler defeatBattler(Battler b) {
+        return defeatBattler(b, 1);
     }
 
-    // TODO: evolving?
-    public void defeatBattler(Battler b, int participants) {
+    public Battler defeatBattler(Battler b, int participants) {
         addStatXP(b.pokemon.hp, b.pokemon.atk, b.pokemon.def, b.pokemon.spd, b.pokemon.spc, participants);
-        addXP(b.getExp(participants).getMin());
-//        if (checkEvolve()) {
-//            evolve(null);
-//        }
+        return addXP(b.getExp(participants).getMin());
     }
 
-    // TODO: evolve condition (item, ...)
     public abstract Battler evolve(Item item);
 
     public abstract void addStatXP(int hp, int atk, int def, int spd, int spc, int nrOfPkmn);
@@ -66,16 +61,31 @@ public abstract class Battler implements Cloneable {
     /**
      *
      * @param exp
-     * @return true if evolving
+     * @return modified Battler (not a deep copy)
      */
-    public abstract boolean addXP(int exp);
+    public abstract Battler addXP(int exp);
+
+    /**
+     *
+     * @param newMove
+     * @param oldMove can be null
+     * @return
+     */
+    public abstract boolean learnTmMove(Move newMove, Move oldMove);
+
+    /**
+     *
+     * @param count
+     * @return modified Battler (not a deep copy)
+     */
+    public abstract Battler useCandy(int count);
 
     /**
      * TODO
      *
      * @return
      */
-    public abstract boolean checkEvolve();
+    protected abstract boolean checkEvolve();
 
     public abstract List<Move> getMoveset();
 

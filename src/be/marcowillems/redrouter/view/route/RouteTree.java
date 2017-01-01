@@ -27,6 +27,8 @@ import be.marcowillems.redrouter.route.RouteSwapPokemon;
 import be.marcowillems.redrouter.route.RouteEntry;
 import be.marcowillems.redrouter.route.RouteSection;
 import be.marcowillems.redrouter.route.RouteGetPokemon;
+import be.marcowillems.redrouter.route.RouteLearnTmMove;
+import be.marcowillems.redrouter.route.RouteUseCandies;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
@@ -127,6 +129,10 @@ public class RouteTree extends JTree {
             return new RouteShoppingTreeNode(tree, (RouteShopping) entry);
         } else if (entry instanceof RouteSwapPokemon) {
             return new RouteSwapPokemonTreeNode(tree, (RouteSwapPokemon) entry);
+        } else if (entry instanceof RouteLearnTmMove) {
+            return new RouteLearnTmMoveTreeNode(tree, (RouteLearnTmMove) entry);
+        } else if (entry instanceof RouteUseCandies) {
+            return new RouteUseCandiesTreeNode(tree, (RouteUseCandies) entry);
         } else {
             return null;
         }

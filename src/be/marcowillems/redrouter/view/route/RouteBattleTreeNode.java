@@ -28,7 +28,10 @@ import javax.swing.border.Border;
 import be.marcowillems.redrouter.data.Battler;
 import be.marcowillems.redrouter.data.Move;
 import be.marcowillems.redrouter.data.Move.DamageRange;
+import be.marcowillems.redrouter.data.Player;
 import be.marcowillems.redrouter.route.RouteBattle;
+import be.marcowillems.redrouter.util.Range;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 
 /**
@@ -51,7 +54,6 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
     }
 
     @Override
-//    protected JComponent getSizedRenderComponent(int availableWidth, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
     protected JComponent getSizedRenderComponent(RenderSettings rs) {
         boolean updateInfo = false;
         boolean updateData = false;
@@ -127,12 +129,35 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
     private JPanel getMovesCell(Battler attacker, Battler defender, boolean isPlayerAttacker) {
         JPanel pnlCell = new JPanel(new BorderLayout(2, 2));
         if (attacker != null && defender != null) {
-            pnlCell.add(makeBattlerInfoButton(attacker, isPlayerAttacker), BorderLayout.NORTH);
+            // Who is faster?
+            int spdBBA = (isPlayerAttacker ? (routeEntry.getPlayer().spdBadge ? 1 : 0) : 0);
+            int spdBBB = (!isPlayerAttacker ? (routeEntry.getPlayer().spdBadge ? 1 : 0) : 0);
+            Range rSpdA = attacker.getSpd(spdBBA, 0);
+            Range rSpdB = defender.getSpd(spdBBB, 0);
+            boolean isFaster = false;
+            boolean maybeFaster = true;
+            if (rSpdA.getMin() > rSpdB.getMax()) {
+                isFaster = true;
+                maybeFaster = false;
+            } else if (rSpdB.getMin() > rSpdA.getMax()) {
+                maybeFaster = false;
+            }
+
+            // Info button
+            JButton btnBattlerInfo = makeBattlerInfoButton(attacker, isPlayerAttacker);
+            if (maybeFaster) {
+                btnBattlerInfo.setText(btnBattlerInfo.getText() + " (F)");
+            } else if (isFaster) {
+                btnBattlerInfo.setText(btnBattlerInfo.getText() + " F");
+            }
+            pnlCell.add(btnBattlerInfo, BorderLayout.NORTH);
 
             String text = "<html><body>";
             for (Move m : attacker.getMoveset()) {
                 text += m;
-                DamageRange dr = m.getDamageRange(attacker, defender);
+                Player playerA = (isPlayerAttacker ? routeEntry.getPlayer() : null);
+                Player playerB = (!isPlayerAttacker ? routeEntry.getPlayer() : null);
+                DamageRange dr = m.getDamageRange(playerA, playerB, attacker, defender);
                 if (dr.critMax != 0) {
                     text += ": " + dr;
                 }

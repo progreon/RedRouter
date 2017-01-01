@@ -37,10 +37,10 @@ public class Player {
     private final ItemSlot[] bagItems = new ItemSlot[20];
     private final ItemSlot[] pcItems = new ItemSlot[50]; // TODO
 
-    boolean atkBadge = false;
-    boolean defBadge = false;
-    boolean spdBadge = false;
-    boolean spcBadge = false;
+    public boolean atkBadge = false;
+    public boolean defBadge = false;
+    public boolean spdBadge = false;
+    public boolean spcBadge = false;
 
     public Player(String name, String info, List<Battler> team) {
         this.name = name;

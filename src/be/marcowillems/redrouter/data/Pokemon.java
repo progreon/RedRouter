@@ -33,7 +33,7 @@ public class Pokemon {
 
     public final int ID;
     // TODO: Map: EV_Action (level/trade/stone, level) => Evolution
-    public Pokemon evolution = null;
+    public Evolution evolution = null;
     public final String name;
     public final Types.Type type1;
     public final Types.Type type2;
@@ -87,6 +87,10 @@ public class Pokemon {
                 throw new ParserException(file, line, "Could not parse stat exp parameters!");
             }
         }
+    }
+
+    public void setEvolution(Evolution evolution) {
+        this.evolution = evolution;
     }
 
     public Move[] getDefaultMoveset(int level) {

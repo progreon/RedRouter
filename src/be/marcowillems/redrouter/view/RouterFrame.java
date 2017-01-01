@@ -20,15 +20,13 @@ package be.marcowillems.redrouter.view;
 import java.awt.Dimension;
 import javax.swing.JFrame;
 import be.marcowillems.redrouter.Settings;
-import be.marcowillems.redrouter.data.RouterData;
 import be.marcowillems.redrouter.io.PrintSettings;
 import be.marcowillems.redrouter.io.RouteParser;
 import be.marcowillems.redrouter.io.RouteParserException;
 import be.marcowillems.redrouter.route.Route;
-import be.marcowillems.redrouter.route.RouteFactory;
 import java.io.File;
+import java.net.URISyntaxException;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -42,10 +40,6 @@ public class RouterFrame extends JFrame {
 //    private Map<Route, RouteView> openRoutes; // TODO: later, maybe, in tabbed pane?
     private RouteView currentRouteView;
 
-    public RouterFrame(Settings settings) {
-        this(new RouteFactory(new RouterData(settings)).getRedExaNidoRoute());
-    }
-
     public RouterFrame(Route route) {
         openRoute(route);
         this.setLocationRelativeTo(null);
@@ -56,13 +50,9 @@ public class RouterFrame extends JFrame {
         return currentRouteView;
     }
 
-    private void openRoute(Route route) {
+    public final void openRoute(Route route) {
         if (route != null) {
-            this.setTitle(Settings.TITLE + ": " + route.rd.settings.game);
-//            JPanel pnlLoading = new JPanel();
-//            pnlLoading.add(new JLabel("Loading route \"" + route.info + "\" ..."));
-//            this.setContentPane(pnlLoading);
-//            this.revalidate();
+            this.setTitle(Settings.TITLE + ": " + route.info + " (loading ...)");
             this.currentRouteView = new RouteView(route);
             this.setContentPane(currentRouteView);
             this.setJMenuBar(new RouterMenuBar(this, currentRouteView));
@@ -70,11 +60,13 @@ public class RouterFrame extends JFrame {
                 this.pack();
                 this.setSize(new Dimension(Settings.WIDTH, Settings.HEIGHT));
             }
+            this.setTitle(Settings.TITLE + ": " + route.info);
             this.setMinimumSize(new Dimension(this.getPreferredSize().width * 3 / 4, this.getPreferredSize().height * 3 / 4));
         } else {
             this.setTitle(Settings.TITLE);
             this.currentRouteView = null;
             this.setContentPane(new JPanel());
+            this.setSize(new Dimension(Settings.WIDTH, Settings.HEIGHT));
             this.setJMenuBar(new RouterMenuBar(this, currentRouteView));
         }
         this.revalidate();
@@ -89,7 +81,12 @@ public class RouterFrame extends JFrame {
 
     public boolean load(File file) {
         if (file == null) {
-            JFileChooser fc = new JFileChooser(new File("."));
+            JFileChooser fc;
+            try {
+                fc = new JFileChooser(RouterFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+            } catch (URISyntaxException ex) {
+                throw new RuntimeException(ex.getMessage());
+            }
             int result = fc.showOpenDialog(this);
             if (result == JFileChooser.APPROVE_OPTION) {
                 file = fc.getSelectedFile();
@@ -106,7 +103,6 @@ public class RouterFrame extends JFrame {
                     return true;
                 }
             } catch (RouteParserException ex) {
-//                Logger.getLogger(RouterFrame.class.getName()).log(Level.SEVERE, null, ex);
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Could not parse file", JOptionPane.ERROR_MESSAGE);
             }
         }
