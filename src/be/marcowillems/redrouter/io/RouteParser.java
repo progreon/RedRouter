@@ -20,7 +20,6 @@ package be.marcowillems.redrouter.io;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Stack;
 import be.marcowillems.redrouter.Settings;
 import be.marcowillems.redrouter.data.EncounterArea;
 import be.marcowillems.redrouter.data.Location;
@@ -48,11 +47,27 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 /**
- * TODO error messages push system TODO handle multiple (white)spaces
+ * TODO: error messages push system, TODO: handle multiple (white)spaces, TODO:
+ * don't generate default titles & descriptions here but in the entry
+ * constructors
  *
  * @author Marco Willems
  */
 public class RouteParser {
+
+    private final String gamePrefix = "Game:";
+    private final String trainerPrefix = "Trainer:";
+    private final String routePrefix = "Route:";
+    private final String battlePrefix = "B:";
+    private final String catchPokemonPrefix = "C:";
+    private final String directionsPrefix = "D:";
+    private final String encounterPrefix = "E:";
+    private final String getPokemonPrefix = "GetP:";
+    private final String manipPokemonPrefix = "M:";
+    private final String learnTMMovePrefix = "TM:";
+    private final String sectionPrefix = "S:";
+    private final String swapPokemonPrefix = "Swap:";
+    private final String useCandiesPrefix = "Candy:";
 
 //    private RouterData rd = null;
     private HashMap<String, Trainer> trainers; // alias => trainer
@@ -73,121 +88,76 @@ public class RouteParser {
         try {
             lines = RouterData.getLinesFromFile(file);
         } catch (FileNotFoundException ex) {
-//            Logger.getLogger(RouteParser.class.getName()).log(Level.SEVERE, null, ex);
             throw new RouteParserException("File not found: " + file.getAbsolutePath(), -1);
         }
+
+        RouterData rd = null;
         int lineNo = 0;
-        boolean ignore = false;
-        Stack<RouteSection> sectionStack = new Stack<>();
-
-        // For now: skip until route definition
-        while (lineNo < lines.size() && !lines.get(lineNo).startsWith("Route:")) {
+        while (lineNo < lines.size() && !isEnd(lines.get(lineNo)) && !lines.get(lineNo).startsWith(gamePrefix)) {
             lineNo++;
         }
+        if (lineNo < lines.size() && !isEnd(lines.get(lineNo))) {
+            String gameLine = lines.get(lineNo).replaceFirst(gamePrefix, "").trim();
+            switch (gameLine) {
+                case "Red":
+                    rd = new RouterData(new Settings(Settings.GAME_RED));
+                    break;
+                case "Blue":
+                    rd = new RouterData(new Settings(Settings.GAME_BLUE));
+                    break;
+                case "Yellow":
+                    rd = new RouterData(new Settings(Settings.GAME_YELLOW));
+                    break;
+                default:
+                    break;
+            }
+            if (rd == null) {
+                throw new RouteParserException("Game not available: \"" + gameLine + "\"", lineNo);
+            }
+        }
 
-        // First: initialize route (to set the rd object)
-        if (lineNo < lines.size()) {
+        while (lineNo < lines.size() && !isEnd(lines.get(lineNo)) && !lines.get(lineNo).startsWith(routePrefix)) {
             String line = lines.get(lineNo);
-            route = getNewRoute(line, lineNo);
-            route.disableRefresh();
-            sectionStack.push(route);
+            if (line.startsWith(trainerPrefix)) {
+                if (rd != null) {
+                    addNewTrainer(rd, line.replaceFirst(trainerPrefix, "").trim(), lineNo);
+                } else {
+                    throw new RouteParserException("Found a trainer before the game was set", lineNo);
+                }
+            }
             lineNo++;
         }
 
-        // Then start over to parse all
-        lineNo = 0;
-        while (lineNo < lines.size() && !lines.get(lineNo).startsWith("Route:")) {
-            String line = lines.get(lineNo);
-            if (line.startsWith("Trainer:")) {
-                addNewTrainer(route, line.substring(8).trim(), lineNo);
+        if (lineNo < lines.size() && !isEnd(lines.get(lineNo))) {
+            if (rd != null) {
+                String routeLine = lines.get(lineNo).replaceFirst(routePrefix, "").trim();
+                route = new Route(rd, routeLine);
+                route.disableRefresh();
+            } else {
+                throw new RouteParserException("Found the route before the game was set", lineNo);
             }
-            lineNo++;
-        }
-        lineNo++; // Skip the route line
-
-        while (lineNo < lines.size() && !ignore) {
-            String line = lines.get(lineNo);
-            lineNo++;
-            if (line.startsWith("===")) {
-                ignore = true;
-                continue;
-            }
-            int commentIndex = line.indexOf("//");
-            if (commentIndex != -1) {
-                line = line.substring(0, commentIndex);
-            }
-            if (!line.trim().isEmpty()) {
-                int depth = 0;
-                char[] chars = line.toCharArray();
-                while (chars[depth] == '\t') {
-                    depth++;
-                }
-                if (depth == 0) {
-                    throw new RouteParserException("Wrong indentation, use tabs!!", lineNo);
-                }
-                while (depth < sectionStack.size()) {
-                    sectionStack.pop();
-                }
-
-                line = line.trim();
-                String[] args = line.split(" ");
-                switch (args[0]) {
-                    case "Candy:": // TEMPORARY
-                        line = line.substring(args[0].length()).trim();
-                        sectionStack.peek().addEntry(getNewUseCandies(route, line, lineNo));
-                        break;
-                    case "TM:": // TEMPORARY
-                        line = line.substring(args[0].length()).trim();
-                        sectionStack.peek().addEntry(getNewLearnTmMove(route, line, lineNo));
-                        break;
-                    case "M:":
-                        line = line.substring(args[0].length()).trim();
-                        sectionStack.peek().addEntry(getNewManipPokemon(route, line, lineNo));
-                        break;
-                    case "GetP:":
-                        line = line.substring(args[0].length()).trim();
-                        sectionStack.peek().addEntry(getNewGetPokemon(route, line, lineNo));
-                        break;
-                    case "E:":
-                        line = line.substring(args[0].length()).trim();
-                        sectionStack.peek().addEntry(getNewEncounter(route, line, lineNo));
-                        break;
-                    case "SwapP:":
-                        line = line.substring(args[0].length()).trim();
-                        sectionStack.peek().addEntry(getNewSwapPokemon(route, line, lineNo));
-                        break;
-                    case "C:":
-                        line = line.substring(args[0].length()).trim();
-                        sectionStack.peek().addEntry(getNewCatchPokemon(route, line, lineNo));
-                        break;
-                    case "B:":
-                        line = line.substring(args[0].length()).trim();
-                        sectionStack.peek().addEntry(getNewBattle(route, line, lineNo));
-                        break;
-                    case "S:":
-                        line = line.substring(args[0].length()).trim();
-                        RouteSection section = getNewSection(route, line, lineNo);
-                        sectionStack.peek().addEntry(section);
-                        sectionStack.push(section);
-                        break;
-                    case "D:":
-                        line = line.substring(args[0].length()).trim();
-                    default:
-                        sectionStack.peek().addEntry(getNewDirections(route, line, lineNo));
-                        break;
-                }
-            }
-        }
-
-        if (route != null) {
-            route.enableRefresh();
         } else {
-            throw new RouteParserException("This file ain't contain no route!", -1);
+            throw new RouteParserException("This file ain't contain no route!", lineNo);
         }
+        lineNo++;
+
+        int subEntryLine = lineNo;
+        while (subEntryLine < lines.size()
+                && !isEnd(lines.get(subEntryLine))) {
+            if (!isEmptyOrComment(lines.get(subEntryLine))) {
+                String[] subEntryLines = getRelatedLineBundle(lines.toArray(new String[0]), subEntryLine);
+                addNewRouteEntry(route, route, subEntryLines, subEntryLine);
+                subEntryLine += subEntryLines.length;
+            } else {
+                subEntryLine++;
+            }
+        }
+
+        route.enableRefresh();
         return route;
     }
 
-    private void addNewTrainer(Route route, String line, int lineNo) throws RouteParserException {
+    private void addNewTrainer(RouterData rd, String line, int lineNo) throws RouteParserException {
         String name;
         Location location = null;
         String alias;
@@ -199,7 +169,7 @@ public class RouteParser {
         }
         name = trArgs[0].trim();
         if (trArgs.length == 3) {
-            location = parseLocation(route, trArgs[1].trim(), lineNo);
+            location = parseLocation(rd, trArgs[1].trim(), lineNo);
             line = trArgs[2].trim();
         } else {
             line = trArgs[1].trim();
@@ -215,7 +185,7 @@ public class RouteParser {
             if (pokeArgs.length != 2) {
                 throw new RouteParserException("Wrong syntax of pokemon argument: \"" + args[i] + "\"", lineNo);
             }
-            Pokemon p = route.rd.getPokemon(pokeArgs[0]);
+            Pokemon p = rd.getPokemon(pokeArgs[0]);
             if (p == null) {
                 throw new RouteParserException("Could not find pokemon \"" + pokeArgs[0] + "\"", lineNo);
             }
@@ -235,59 +205,78 @@ public class RouteParser {
         trainers.put(alias, trainer);
     }
 
-    private Route getNewRoute(String line, int lineNo) throws RouteParserException {
-        String[] args = line.split(" ");
-        // args[0]: "Route:" OK
-        // args[1]: "R|B|Y" CHECK
-        // args[2]: "::" CHECK
-        // args[3...]: "<title>" CHECK
+    private RouteEntry addNewRouteEntry(Route route, RouteSection parent, String[] lines, int lineNo) throws RouteParserException {
+        RouteEntry re = null;
 
-        if (args.length < 4) {
-            throw new RouteParserException("Too few arguments!", lineNo);
-        }
-        if (!args[2].equals("::")) {
-            throw new RouteParserException("Unrecognized token: \"" + args[2] + "\"", lineNo);
-        }
-        RouterData rd;
-        switch (args[1]) {
-            case "R":
-                rd = new RouterData(new Settings(Settings.GAME_RED));
+        String prefix = lines[0].trim().replaceFirst("(.*?:).*", "$1");
+        switch (prefix) {
+            case battlePrefix:
+                addNewBattle(route, parent, lines, lineNo);
                 break;
-            case "B":
-                rd = new RouterData(new Settings(Settings.GAME_BLUE));
+            case catchPokemonPrefix:
+                addNewCatchPokemon(route, parent, lines, lineNo);
                 break;
-            case "Y":
-                rd = new RouterData(new Settings(Settings.GAME_YELLOW));
+            case encounterPrefix:
+                addNewEncounter(route, parent, lines, lineNo);
                 break;
-            default:
-                throw new RouteParserException("Unrecognized game: \"" + args[1] + "\"", lineNo);
+            case getPokemonPrefix:
+                addNewGetPokemon(route, parent, lines, lineNo);
+                break;
+            case manipPokemonPrefix:
+                addNewManipPokemon(route, parent, lines, lineNo);
+                break;
+            case learnTMMovePrefix:
+                addNewLearnTmMove(route, parent, lines, lineNo);
+                break;
+            case sectionPrefix:
+                addNewSection(route, parent, lines, lineNo);
+                break;
+            case swapPokemonPrefix:
+                addNewSwapPokemon(route, parent, lines, lineNo);
+                break;
+            case useCandiesPrefix:
+                addNewUseCandies(route, parent, lines, lineNo);
+                break;
+            default: // directionsPrefix
+                addNewDirections(route, parent, lines, lineNo);
+                break;
         }
-        String routeHeader = "Route: R :: ";
-        String title = line.substring(routeHeader.length()).trim();
-        return new Route(rd, title);
+
+        return re;
     }
 
-    private RouteBattle getNewBattle(Route route, String line, int lineNo) throws RouteParserException {
-        String alias;
-        String description = null;
-        Trainer opponent;
+    private RouteBattle addNewBattle(Route route, RouteSection parent, String[] lines, int lineNo) throws RouteParserException {
+        lines = getNonEmptyLines(lines);
+        if (lines.length > 2) {
+            throw new RouteParserException("A battle entry can only have 1 extra description line", lineNo);
+        }
 
+        // TODO: attacks/pokemon
+        // B: <alias> [:: <opponentIndex>:<partyIndex> [..]]
+        //      [[<title> ::] [<description>]]
+        String battleLine = lines[0].replaceFirst(battlePrefix, "").trim();
+
+        String alias;
+        Trainer opponent;
+        RouteEntryInfo info;
+
+        // Handle battle line
         int[][] competingPartyMon = null;
         RouteEntry previousEntry = getLastEntry(route);
         route.enableRefresh(); // A forced refresh
         route.disableRefresh();
         Player prevPlayer = previousEntry.getPlayer();
 
-        String[] args = line.split("::");
-        if (args.length < 1 || args.length > 3) {
-            throw new RouteParserException("Expected 1 to 3 arguments in between \"::\"", lineNo);
+        String[] args = battleLine.split("::");
+        if (args.length < 1 || args.length > 2) {
+            throw new RouteParserException("Expected 1 or 2 arguments separated by \"::\"", lineNo);
         }
         alias = args[0].trim();
         opponent = trainers.get(alias);
         if (opponent == null) {
             throw new RouteParserException("Trainer \"" + alias + "\" could not be found!", lineNo);
         }
-        if (args.length == 3) {
+        if (args.length == 2) {
             int teamSize = opponent.team.size();
             int[] partyCount = new int[teamSize];
             IntPair[] partyArgs = parseIntPairs(args[1], lineNo);
@@ -311,25 +300,67 @@ public class RouteParser {
             for (IntPair partyArg : partyArgs) {
                 competingPartyMon[partyArg.int1][partyCount2[partyArg.int1]] = partyArg.int2;
             }
-
-            description = args[2].trim();
-        } else if (args.length == 2) {
-            description = args[1].trim();
         }
-        return new RouteBattle(new RouteEntryInfo(opponent.name, description), opponent, competingPartyMon);
+
+        // Handle description line
+        String title = opponent.name;
+        String description = null;
+        if (lines.length == 2) {
+            String descrLine = lines[1].trim();
+            String[] descrArgs = descrLine.split("::");
+            if (descrArgs.length > 1) {
+                if (!descrArgs[0].trim().isEmpty()) {
+                    title = descrArgs[0];
+                }
+                if (!descrArgs[1].trim().isEmpty()) {
+                    description = descrLine.replaceFirst(".*?::", "").trim();
+                }
+            } else {
+                description = descrLine;
+            }
+        }
+        info = new RouteEntryInfo(title, description);
+
+        RouteBattle rb = new RouteBattle(info, opponent, competingPartyMon);
+        parent.addEntry(rb);
+        return rb;
     }
 
-    private RouteDirections getNewDirections(Route route, String line, int lineNo) throws RouteParserException {
-        return new RouteDirections(line);
+    private RouteDirections addNewDirections(Route route, RouteSection parent, String[] lines, int lineNo) throws RouteParserException {
+        lines = getNonEmptyLines(lines);
+
+        // TODO: location
+        // D: [<location> ::] <description>
+        //      [...]
+        String description = lines[0].trim();
+        if (description.startsWith(directionsPrefix)) {
+            description = description.replaceFirst(directionsPrefix, "").trim();
+        }
+        for (int i = 1; i < lines.length; i++) {
+            description += "\n\t" + lines[i].trim();
+        }
+        RouteDirections rd = new RouteDirections(description);
+        parent.addEntry(rd);
+        return rd;
     }
 
-    private RouteEncounter getNewEncounter(Route route, String line, int lineNo) throws RouteParserException {
+    private RouteEncounter addNewEncounter(Route route, RouteSection parent, String[] lines, int lineNo) throws RouteParserException {
+        lines = getNonEmptyLines(lines);
+        if (lines.length > 2) {
+            throw new RouteParserException("An encounter entry can only have 1 extra description line", lineNo);
+        }
+
+        // E: <encounter area> :: <preferred slot>:<count> [..]
+        //      [<description>]
+        String encounterLine = lines[0].replaceFirst(encounterPrefix, "").trim();
+
         EncounterArea ea; // TODO handle location = area + sub area!!
-        RouteEntryInfo info = null;
+        RouteEntryInfo info;
 
-        String[] locArgs = line.split("::");
-        if (locArgs.length < 2 || locArgs.length > 3) {
-            throw new RouteParserException("Please provide 2 or 3 arguments with '::' in between!", lineNo);
+        // Handle encounter line
+        String[] locArgs = encounterLine.split("::");
+        if (locArgs.length != 2) {
+            throw new RouteParserException("Please provide 2 arguments with '::' in between", lineNo);
         }
         String sLocation = locArgs[0].trim();
         ea = parseEncounterArea(route, sLocation, lineNo);
@@ -337,19 +368,37 @@ public class RouteParser {
             throw new RouteParserException("Could not find location \"" + sLocation + "\"", lineNo);
         }
         IntPair[] slotPairs = parseIntPairs(locArgs[1].trim(), lineNo);
-        if (locArgs.length == 3) {
-            info = new RouteEntryInfo(null, locArgs[2].trim());
-        }
 
-        return new RouteEncounter(info, ea, slotPairs);
+        // Handle description line
+        String title = ea.toString();
+        String description = null;
+        if (lines.length == 2) {
+            description = lines[1].trim();;
+        }
+        info = new RouteEntryInfo(title, description);
+
+        RouteEncounter re = new RouteEncounter(info, ea, slotPairs);
+        parent.addEntry(re);
+        return re;
     }
 
-    private RouteGetPokemon getNewCatchPokemon(Route route, String line, int lineNo) throws RouteParserException {
+    private RouteGetPokemon addNewCatchPokemon(Route route, RouteSection parent, String[] lines, int lineNo) throws RouteParserException {
+        lines = getNonEmptyLines(lines);
+        if (lines.length > 2) {
+            throw new RouteParserException("A catch entry can only have 1 extra description line", lineNo);
+        }
+
+        // C: <encounter area> :: [#]<slot> [..]
+        //      [[<title> ::] [<description>]]
+        String catchLine = lines[0].replaceFirst(catchPokemonPrefix, "").trim();
+
+        RouteEntryInfo info = null;
         EncounterArea ea; // TODO handle location = area + sub area!!
         List<SingleBattler> choices = new ArrayList<>();
         int preference = -1;
 
-        String[] locArgs = line.split("::");
+        // Handle encounter line
+        String[] locArgs = catchLine.split("::");
         if (locArgs.length != 2) {
             throw new RouteParserException("Please provide 2 arguments with '::' in between!", lineNo);
         }
@@ -378,14 +427,49 @@ public class RouteParser {
             preference = 0;
         }
 
-        return new RouteGetPokemon(null, choices, preference);
+        // Handle description line
+        String title = null;
+        String description = null;
+        if (lines.length == 2) {
+            String descrLine = lines[1].trim();
+            String[] descrArgs = descrLine.split("::");
+            if (descrArgs.length > 1) {
+                if (!descrArgs[0].trim().isEmpty()) {
+                    title = descrArgs[0];
+                }
+                if (!descrArgs[1].trim().isEmpty()) {
+                    description = descrLine.replaceFirst(".*?::", "").trim();
+                }
+            } else {
+                description = descrLine;
+            }
+        }
+        if (title != null || description != null) {
+            info = new RouteEntryInfo(title, description);
+        }
+
+        RouteGetPokemon rgp = new RouteGetPokemon(info, choices, preference);
+        parent.addEntry(rgp);
+        return rgp;
     }
 
-    private RouteGetPokemon getNewGetPokemon(Route route, String line, int lineNo) throws RouteParserException {
-        String[] args = line.split(" ");
+    private RouteGetPokemon addNewGetPokemon(Route route, RouteSection parent, String[] lines, int lineNo) throws RouteParserException {
+        lines = getNonEmptyLines(lines);
+        if (lines.length > 2) {
+            throw new RouteParserException("A get pokemon entry can only have 1 extra description line", lineNo);
+        }
+
+        // TODO: location
+        // GetP: [<location> ::] [#]<<pokemon>:<level>> [..]
+        //      [[<title> ::] [<description>]]
+        String getpLine = lines[0].replaceFirst(getPokemonPrefix, "").trim();
+
+        RouteEntryInfo info = null;
         List<SingleBattler> choices = new ArrayList<>();
         int preference = -1;
 
+        // Handle get pokemon line
+        String[] args = getpLine.split(" ");
         for (int i = 0; i < args.length; i++) {
             if (args[i].startsWith("#")) {
                 if (preference < 0) {
@@ -413,18 +497,51 @@ public class RouteParser {
             choices.add(new SingleBattler(p, level, null));
         }
 
-        return new RouteGetPokemon(null, choices, preference);
+        // Handle description line
+        String title = null;
+        String description = null;
+        if (lines.length == 2) {
+            String descrLine = lines[1].trim();
+            String[] descrArgs = descrLine.split("::");
+            if (descrArgs.length > 1) {
+                if (!descrArgs[0].trim().isEmpty()) {
+                    title = descrArgs[0];
+                }
+                if (!descrArgs[1].trim().isEmpty()) {
+                    description = descrLine.replaceFirst(".*?::", "").trim();
+                }
+            } else {
+                description = descrLine;
+            }
+        }
+        if (title != null || description != null) {
+            info = new RouteEntryInfo(title, description);
+        }
+
+        RouteGetPokemon rgp = new RouteGetPokemon(info, choices, preference);
+        parent.addEntry(rgp);
+        return rgp;
     }
 
-    private RouteGetPokemon getNewManipPokemon(Route route, String line, int lineNo) throws RouteParserException {
+    private RouteGetPokemon addNewManipPokemon(Route route, RouteSection parent, String[] lines, int lineNo) throws RouteParserException {
+        lines = getNonEmptyLines(lines);
+        if (lines.length > 2) {
+            throw new RouteParserException("A manip entry can only have 1 extra description line", lineNo);
+        }
+
+        // M: <encounter area> :: <slot> :: <atk> <def> <spd> <spc>
+        //      [[<title> ::] [<description>]]
+        String manipLine = lines[0].replaceFirst(manipPokemonPrefix, "").trim();
+
+        RouteEntryInfo info = null;
         EncounterArea ea; // TODO handle location = area + sub area!!
         SingleBattler sb;
         int atk, def, spd, spc;
-        RouteEntryInfo info = null;
 
-        String[] locArgs = line.split("::");
+        // Handle manip line
+        String[] locArgs = manipLine.split("::");
         if (locArgs.length < 3 || locArgs.length > 4) {
-            throw new RouteParserException("Please provide 3 or 4 arguments with '::' in between!", lineNo);
+            throw new RouteParserException("Please provide 3 arguments with \"::\" in between!", lineNo);
         }
         String sLocation = locArgs[0].trim();
         ea = parseEncounterArea(route, sLocation, lineNo);
@@ -451,20 +568,47 @@ public class RouteParser {
         }
         sb = new SingleBattler(ea, sb.pokemon, sb.level, atk, def, spd, spc);
 
-        if (locArgs.length == 4) {
-            info = new RouteEntryInfo(null, locArgs[3].trim());
+        // Handle description line
+        String title = "Manip " + sb;
+        String description = null;
+        if (lines.length == 2) {
+            String descrLine = lines[1].trim();
+            String[] descrArgs = descrLine.split("::");
+            if (descrArgs.length > 1) {
+                if (!descrArgs[0].trim().isEmpty()) {
+                    title = descrArgs[0];
+                }
+                if (!descrArgs[1].trim().isEmpty()) {
+                    description = descrLine.replaceFirst(".*?::", "").trim();
+                }
+            } else {
+                description = descrLine;
+            }
         }
+        info = new RouteEntryInfo(title, description);
 
-        return new RouteGetPokemon(info, sb);
+        RouteGetPokemon rgp = new RouteGetPokemon(info, sb);
+        parent.addEntry(rgp);
+        return rgp;
     }
 
     // TEMPORARY
-    private RouteLearnTmMove getNewLearnTmMove(Route route, String line, int lineNo) throws RouteParserException {
+    private RouteLearnTmMove addNewLearnTmMove(Route route, RouteSection parent, String[] lines, int lineNo) throws RouteParserException {
+        lines = getNonEmptyLines(lines);
+        if (lines.length > 2) {
+            throw new RouteParserException("A tm entry can only have 1 extra description line", lineNo);
+        }
+
+        // TM: <tm move> [:: <old move>]
+        //      [[<title> ::] [<description>]]
+        String tmLine = lines[0].replaceFirst(learnTMMovePrefix, "").trim();
+
+        RouteEntryInfo info = null;
         Move newMove;
         Move oldMove = null;
-        RouteEntryInfo info = null;
 
-        String[] params = line.split("::");
+        // Handle tm line
+        String[] params = tmLine.split("::");
         String moveName1 = params[0].trim();
         newMove = route.rd.getMove(moveName1);
         if (newMove == null) {
@@ -476,41 +620,90 @@ public class RouteParser {
             if (oldMove == null) {
                 throw new RouteParserException("Could not find the move \"" + moveName2 + "\"", lineNo);
             }
-            info = new RouteEntryInfo(null, "Teach TM " + moveName1 + " over " + moveName2);
-        } else {
-            info = new RouteEntryInfo(null, "Teach TM " + moveName1);
         }
-        return new RouteLearnTmMove(info, newMove, oldMove);
+
+        // Handle description line
+        String title = null;
+        String description = "Teach TM " + newMove;
+        if (oldMove != null) {
+            description += " over " + oldMove;
+        }
+        if (lines.length == 2) {
+            String descrLine = lines[1].trim();
+            String[] descrArgs = descrLine.split("::");
+            if (descrArgs.length > 1) {
+                if (!descrArgs[0].trim().isEmpty()) {
+                    title = descrArgs[0];
+                }
+                if (!descrArgs[1].trim().isEmpty()) {
+                    description = descrLine.replaceFirst(".*?::", "").trim();
+                }
+            } else {
+                description = descrLine;
+            }
+        }
+        info = new RouteEntryInfo(title, description);
+
+        RouteLearnTmMove rtm = new RouteLearnTmMove(info, newMove, oldMove);
+        parent.addEntry(rtm);
+        return rtm;
     }
 
     private RouteImage getNewImage(Route route, String line, int lineNo) throws RouteParserException {
         return null;
     }
 
-    private RouteSection getNewSection(Route route, String line, int lineNo) throws RouteParserException {
-        String[] params = line.split("::");
-        String title = params[0].trim();
-        String description = null;
-        if (params.length > 1) {
-            description = line.substring(params[0].length() + 2).trim();
+    private RouteSection addNewSection(Route route, RouteSection parent, String[] lines, int lineNo) throws RouteParserException {
+        // TODO: location
+        // S: [<location> ::] <title>
+        //      [<route entry>]
+        //      [..]
+//        Location location;
+        String title;
+
+        String sectionLine = lines[0].replaceFirst(sectionPrefix, "").trim();
+
+        // Handle section line
+        title = sectionLine;
+        RouteSection rs = new RouteSection(title);
+        parent.addEntry(rs);
+
+        int subEntryLine = 1;
+        while (subEntryLine < lines.length
+                && !isEnd(lines[subEntryLine])) {
+            if (!isEmptyOrComment(lines[subEntryLine])) {
+                String[] subEntryLines = getRelatedLineBundle(lines, subEntryLine);
+                addNewRouteEntry(route, rs, subEntryLines, lineNo + subEntryLine);
+                subEntryLine += subEntryLines.length;
+            } else {
+                subEntryLine++;
+            }
         }
-        return new RouteSection(title, description);
+
+        return rs;
     }
 
     private RouteShopping getNewShopping(Route route, String line, int lineNo) throws RouteParserException {
         return null;
     }
 
-    private RouteSwapPokemon getNewSwapPokemon(Route route, String line, int lineNo) throws RouteParserException {
+    private RouteSwapPokemon addNewSwapPokemon(Route route, RouteSection parent, String[] lines, int lineNo) throws RouteParserException {
+        lines = getNonEmptyLines(lines);
+        if (lines.length > 2) {
+            throw new RouteParserException("A swap entry can only have 1 extra description line", lineNo);
+        }
+
+        // TODO pc boxes
+        // Swap: <party id1> <party id1>
+        //      [[<title> ::] [<description>]]
+        String swapLine = lines[0].replaceFirst(swapPokemonPrefix, "").trim();
+
+        RouteEntryInfo info = null;
         int index1 = -1;
         int index2 = -1;
-        String description = null;
 
-        String[] args = line.split("::");
-        if (args.length > 2) {
-            throw new RouteParserException("Swap only takes a maximum of 2 parameters separated by \"::\"", lineNo);
-        }
-        String[] indices = args[0].trim().split(" ");
+        // Handle swap line
+        String[] indices = swapLine.split(" ");
         if (indices.length != 2) {
             throw new RouteParserException("Swap needs 2 indeces!", lineNo);
         }
@@ -521,32 +714,123 @@ public class RouteParser {
             throw new RouteParserException("Could not parse indices!", lineNo);
         }
 
-        if (args.length > 1) {
-            description = args[1].trim();
+        // Handle description line
+        String title = null;
+        String description = null;
+        if (lines.length == 2) {
+            String descrLine = lines[1].trim();
+            String[] descrArgs = descrLine.split("::");
+            if (descrArgs.length > 1) {
+                if (!descrArgs[0].trim().isEmpty()) {
+                    title = descrArgs[0];
+                }
+                if (!descrArgs[1].trim().isEmpty()) {
+                    description = descrLine.replaceFirst(".*?::", "").trim();
+                }
+            } else {
+                description = descrLine;
+            }
+        }
+        if (title != null || description != null) {
+            info = new RouteEntryInfo(title, description);
         }
 
-        return new RouteSwapPokemon(new RouteEntryInfo(null, description), index1, index2);
+        RouteSwapPokemon rsp = new RouteSwapPokemon(info, index1, index2);
+        parent.addEntry(rsp);
+        return rsp;
     }
 
     // TEMPORARY
-    private RouteUseCandies getNewUseCandies(Route route, String line, int lineNo) throws RouteParserException {
+    private RouteUseCandies addNewUseCandies(Route route, RouteSection parent, String[] lines, int lineNo) throws RouteParserException {
+        lines = getNonEmptyLines(lines);
+        if (lines.length > 2) {
+            throw new RouteParserException("A candy entry can only have 1 extra description line", lineNo);
+        }
+
+        // TODO: optional amount?
+        // Candy: <amount>
+        //      [[<title> ::] [<description>]]
+        String candyLine = lines[0].replaceFirst(useCandiesPrefix, "").trim();
+
         RouteEntryInfo info = null;
         int candyCount = 1;
-        String[] params = line.split("::");
-        String count = params[0].trim();
+
+        // Handle candy line
+        String count = candyLine.trim();
         try {
             candyCount = Integer.parseInt(count);
         } catch (NumberFormatException nfe) {
             throw new RouteParserException("Could not parse candy amount", lineNo);
         }
-        if (params.length > 1) {
-            String description = params[1].trim();
-            info = new RouteEntryInfo(null, description);
+
+        // Handle description line
+        String title = null;
+        String description = "Use " + candyCount + " candies";
+        if (lines.length == 2) {
+            String descrLine = lines[1].trim();
+            String[] descrArgs = descrLine.split("::");
+            if (descrArgs.length > 1) {
+                if (!descrArgs[0].trim().isEmpty()) {
+                    title = descrArgs[0];
+                }
+                if (!descrArgs[1].trim().isEmpty()) {
+                    description = descrLine.replaceFirst(".*?::", "").trim();
+                }
+            } else {
+                description = descrLine;
+            }
         }
-        if (info == null) {
-            info = new RouteEntryInfo(null, "Use " + candyCount + " candies");
+        info = new RouteEntryInfo(title, description);
+
+        RouteUseCandies ruc = new RouteUseCandies(info, candyCount);
+        parent.addEntry(ruc);
+        return ruc;
+    }
+
+    private String[] getRelatedLineBundle(String[] lines, int startLine) {
+        if (lines.length >= startLine) {
+            int l = startLine;
+            int depth = getDepth(lines[l]);
+            while (l + 1 < lines.length
+                    && !isEnd(lines[l + 1])
+                    && (isEmptyOrComment(lines[l + 1]) || getDepth(lines[l + 1]) > depth)) {
+                l++;
+            }
+            String[] bundle = new String[l - (startLine - 1)];
+            for (int i = 0; i < bundle.length; i++) {
+                bundle[i] = lines[startLine + i];
+            }
+            return bundle;
+        } else {
+            return new String[0];
         }
-        return new RouteUseCandies(info, candyCount);
+    }
+
+    private int getDepth(String line) {
+        int depth = 0;
+        char[] chars = line.toCharArray();
+        while (depth < chars.length && chars[depth] == '\t') {
+            depth++;
+        }
+        return depth;
+    }
+
+    private boolean isEmptyOrComment(String line) {
+        return line.trim().isEmpty() || line.trim().startsWith("//");
+    }
+
+    private boolean isEnd(String line) {
+        return line.trim().startsWith("===");
+    }
+
+    private String[] getNonEmptyLines(String[] lines) {
+        List<String> newLines = new ArrayList<>();
+        for (String line : lines) {
+            if (!isEmptyOrComment(line)) {
+                newLines.add(line.replaceFirst("//.*", ""));
+            }
+        }
+        return newLines.toArray(new String[0]);
     }
 
     private RouteEntry getLastEntry(Route route) {
@@ -613,13 +897,13 @@ public class RouteParser {
         return ea;
     }
 
-    private Location parseLocation(Route route, String toParse, int lineNo) throws RouteParserException {
+    private Location parseLocation(RouterData rd, String toParse, int lineNo) throws RouteParserException {
         Location loc;
         String[] args = toParse.trim().split(":");
         if (args.length > 2) {
             throw new RouteParserException("Too many arguments for the location", lineNo);
         }
-        loc = route.rd.getLocation(args[0].trim());
+        loc = rd.getLocation(args[0].trim());
         if (loc == null) {
             throw new RouteParserException("Could not find the location", lineNo);
         }
@@ -628,7 +912,7 @@ public class RouteParser {
             ea = loc.encounterAreas.get(0);
         }
         if (args.length > 1) {
-            ea = route.rd.getEncounterArea(loc, args[1].trim());
+            ea = rd.getEncounterArea(loc, args[1].trim());
             if (ea == null) {
                 throw new RouteParserException("Could not find the sublocation", lineNo);
             }

@@ -177,6 +177,7 @@ public class SingleBattler extends Battler {
     private SingleBattler evolve(Evolution.Key key) {
         if (pokemon.evolution != null && pokemon.evolution.get(key) != null) {
             SingleBattler evo = new SingleBattler(pokemon.evolution.get(key), catchLocation, level);
+            // TODO: evolution moves?
             evo.moveset = moveset;
             evo.possibleDVs = possibleDVs;
             evo.hpXP = hpXP;

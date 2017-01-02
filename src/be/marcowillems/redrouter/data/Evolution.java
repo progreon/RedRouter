@@ -17,9 +17,9 @@
  */
 package be.marcowillems.redrouter.data;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 /**
  *
@@ -30,7 +30,7 @@ public class Evolution {
     private final Map<Key, Pokemon> options;
 
     public Evolution(Key key, Pokemon pokemon) {
-        options = new HashMap<>();
+        options = new TreeMap<>();
         options.put(key, pokemon);
     }
 
@@ -39,7 +39,20 @@ public class Evolution {
     }
 
     public Pokemon get(Key key) {
-        return (options == null ? null : options.get(key));
+        if (options != null) {
+            Pokemon p = options.get(key);
+            if (p == null && key instanceof Level) {
+                int level = (int) key.value;
+                for (Key k : options.keySet()) {
+                    if (p == null && k instanceof Level && level > (int) k.value) {
+                        p = options.get(k);
+                    }
+                }
+            }
+            return p;
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -52,7 +65,7 @@ public class Evolution {
     }
 
     // TODO other condition types?
-    public static abstract class Key {
+    public static abstract class Key implements Comparable<Key> {
 
         protected final Object value;
 
@@ -91,6 +104,15 @@ public class Evolution {
             return (int) value + "";
         }
 
+        @Override
+        public int compareTo(Key o) {
+            if (o instanceof Level) {
+                return (int) this.value - (int) o.value;
+            } else {
+                return -1;
+            }
+        }
+
     }
 
     public static class Item extends Key {
@@ -107,6 +129,15 @@ public class Evolution {
         @Override
         public String toString() {
             return (String) value;
+        }
+
+        @Override
+        public int compareTo(Key o) {
+            if (o instanceof Level) {
+                return 1;
+            } else {
+                return ((String) value).compareTo((String) o.value);
+            }
         }
 
     }

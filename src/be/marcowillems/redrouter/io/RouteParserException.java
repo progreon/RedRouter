@@ -25,7 +25,7 @@ public class RouteParserException extends Exception {
 
 //    private int lineNo;
     public RouteParserException(String message, int lineNo) {
-        super(message + (lineNo >= 0 ? " at line: " + lineNo : ""));
+        super(message + (lineNo >= 0 ? " at line: " + (lineNo + 1) : ""));
     }
 
 }

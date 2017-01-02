@@ -60,7 +60,7 @@ public class CombinedBattler extends Battler {
             possibleBattlers.add(battler);
             return true;
         }
-        return false;
+        return false || equals;
     }
 
     public boolean combine(CombinedBattler battler) {
@@ -95,23 +95,23 @@ public class CombinedBattler extends Battler {
     @Override
     public Battler addXP(int exp) {
         // TODO meh...
+        Battler thisOrEvolved = this;
         SingleBattler newB = (SingleBattler) possibleBattlers.get(0).addXP(exp);
         Pokemon p = newB.pokemon;
-        possibleBattlers.set(0, newB);
-        List<Integer> toRemove = new ArrayList<>();
+        CombinedBattler newBattler = new CombinedBattler(newB);
+        int combinedCount = 1;
         for (int i = 1; i < possibleBattlers.size(); i++) {
             newB = (SingleBattler) possibleBattlers.get(i).addXP(exp);
             if (p == newB.pokemon) {
-                possibleBattlers.set(i, newB);
-            } else {
-                toRemove.add(i); // TODO raise warning?
+                if (newBattler.combine(newB)) {
+                    combinedCount++;
+                }
             }
         }
-//        for (SingleBattler sb : possibleBattlers) {
-//            sb.addXP(exp);
-//        }
-        // TODO: remove?
-        return this;
+        if (super.pokemon != p && combinedCount == possibleBattlers.size()) {
+            thisOrEvolved = newBattler;
+        }
+        return thisOrEvolved;
     }
 
     @Override
@@ -126,20 +126,20 @@ public class CombinedBattler extends Battler {
     @Override
     public Battler useCandy(int count) {
         // TODO meh...
+        Battler thisOrEvolved = this;
         SingleBattler newB = (SingleBattler) possibleBattlers.get(0).useCandy(count);
         Pokemon p = newB.pokemon;
-        possibleBattlers.set(0, newB);
-        List<Integer> toRemove = new ArrayList<>();
+        CombinedBattler newBattler = new CombinedBattler(newB);
+        if (super.pokemon != p) {
+            thisOrEvolved = newBattler;
+        }
         for (int i = 1; i < possibleBattlers.size(); i++) {
             newB = (SingleBattler) possibleBattlers.get(i).useCandy(count);
             if (p == newB.pokemon) {
-                possibleBattlers.set(i, newB);
-            } else {
-                toRemove.add(i); // TODO raise warning?
+                newBattler.combine(newB);
             }
         }
-        // TODO: remove?
-        return this;
+        return thisOrEvolved;
     }
 
     @Override

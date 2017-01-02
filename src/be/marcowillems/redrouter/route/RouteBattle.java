@@ -89,7 +89,9 @@ public class RouteBattle extends RouteEntry {
             for (int j = 0; j < entries[i].length; j++) {
                 if (!entries[i][j].isFainted()) {
                     Battler updatedBattler = newPlayer.team.get(entries[i][j].partyIndex).defeatBattler(sb, n);
-                    newPlayer.team.set(entries[i][j].partyIndex, updatedBattler);
+                    if (i == opponent.team.size() - 1) { // Only evolve at the end of the battle
+                        newPlayer.team.set(entries[i][j].partyIndex, updatedBattler);
+                    }
                 }
             }
 
