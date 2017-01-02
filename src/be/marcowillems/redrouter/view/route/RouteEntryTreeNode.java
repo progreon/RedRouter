@@ -181,6 +181,7 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         label.setText(wrappedHTMLText(text, 8, label.getFontMetrics(label.getFont()), labelWidth));
     }
 
+    // TODO don't need this?
     protected String wrappedHTMLText(String text, int tabSize, FontMetrics fm, int width) {
         String wrapped = "";
         String tabs = "";
@@ -227,7 +228,7 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
                         bif.dispose();
                     }
                     bif = new BattlerInfoDialog(b, isPlayerBattler);
-                    bif.display(e.getLocationOnScreen());
+                    bif.display((JButton) e.getSource());
                     //                    tree.requestFocus();
                 }
             }
@@ -273,16 +274,8 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
                         pif.dispose();
                     }
                     pif = new PlayerInfoDialog(routeEntry.getPlayer());
-                    pif.display(e.getLocationOnScreen());
+                    pif.display((JButton) e.getSource());
                     //                    tree.requestFocus();
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (pif != null) {
-                    pif.dispose();
-                    pif = null;
                 }
             }
         });
@@ -293,20 +286,18 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
     private JButton makeWildEncountersButton() {
         JButton btnWE = new JButton("Encounters");
         btnWE.setMargin(new Insets(0, 5, 0, 5));
-        if (routeEntry.getLocation() != null) {
-            btnWE.addActionListener(new ActionListener() {
+        btnWE.addActionListener(new ActionListener() {
 
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (WildEncD == null) {
-                        WildEncD = new WildEncountersDialog(routeEntry);
-                    }
-                    if (WildEncD.display(btnWE.getLocationOnScreen())) {
-                        routeEntry.notifyWildEncountersUpdated();
-                    }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (WildEncD == null) {
+                    WildEncD = new WildEncountersDialog(routeEntry);
                 }
-            });
-        }
+                if (WildEncD.display((JButton) e.getSource())) {
+                    routeEntry.notifyWildEncountersUpdated();
+                }
+            }
+        });
         return btnWE;
     }
 

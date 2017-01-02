@@ -26,13 +26,19 @@ import java.awt.event.ComponentEvent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import be.marcowillems.redrouter.route.Route;
+import java.awt.Point;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.Observable;
+import javax.swing.ScrollPaneConstants;
 
 /**
  *
  * @author Marco Willems
  */
 public class RouteView extends JPanel implements RouteObserver {
+
+    private static final int SCROLL_SPEED = 30;
 
     private Route route;
     private RouteTree rt;
@@ -41,12 +47,36 @@ public class RouteView extends JPanel implements RouteObserver {
     public RouteView(Route route) {
         super(new BorderLayout());
         scrTree = new JScrollPane();
+        scrTree.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        scrTree.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        MouseWheelListener[] mwls = scrTree.getMouseWheelListeners();
+        for (MouseWheelListener mwl : mwls) {
+            scrTree.removeMouseWheelListener(mwl);
+        }
+        scrTree.addMouseWheelListener(new MouseWheelListener() {
+
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                Point p = scrTree.getViewport().getViewPosition();
+                int vHeight = scrTree.getViewport().getView().getHeight();
+                int vpHeight = scrTree.getViewport().getHeight();
+                p.y += e.getPreciseWheelRotation() * SCROLL_SPEED;
+                if (p.y < 0) {
+                    p.y = 0;
+                }
+                if (p.y + vpHeight > vHeight) {
+                    p.y = vHeight - vpHeight;
+                }
+                scrTree.getViewport().setViewPosition(p);
+            }
+        });
         setRoute(route);
         this.add(scrTree);
         scrTree.addComponentListener(new ComponentAdapter() {
 
             @Override
             public void componentResized(ComponentEvent e) {
+                // TODO: keep the center in the center
                 rt.refresh();
             }
         });

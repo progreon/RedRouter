@@ -38,16 +38,16 @@ public abstract class SettingsDialog extends JDialog {
     protected boolean changed;
 
     public SettingsDialog() {
-        this.setUndecorated(true);
+//        this.setUndecorated(true);
         this.setModal(true);
         this.setLocationRelativeTo(null);
         this.buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
-        JButton btnSave = new JButton("Close");
-        btnSave.addActionListener((ActionEvent e) -> {
+        JButton btnClose = new JButton("Close");
+        btnClose.addActionListener((ActionEvent e) -> {
             save();
-            SettingsDialog.this.setVisible(false);
+            setVisible(false);
         });
-        buttonPanel.add(btnSave);
+        buttonPanel.add(btnClose);
         this.addWindowListener(new WindowAdapter() {
 
             @Override
@@ -62,14 +62,18 @@ public abstract class SettingsDialog extends JDialog {
 
     protected abstract void save();
 
-    public final boolean display(Point mouseLocation) {
+    public final boolean display(JButton source) {
         changed = false;
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(getContentPanel());
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
         this.setContentPane(mainPanel);
         this.pack();
-        this.setLocation(new Point((mouseLocation.x - this.getWidth() / 2), (mouseLocation.y - this.getHeight() / 2)));
+        int btnBottom = source.getLocationOnScreen().y + source.getHeight();
+        int btnLeft = source.getLocationOnScreen().x;
+        int dialogX = btnLeft - this.getWidth();
+        int dialogY = btnBottom - this.getHeight();
+        this.setLocation(dialogX, dialogY);
         this.setVisible(true);
         return changed;
     }

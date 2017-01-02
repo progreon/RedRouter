@@ -34,6 +34,7 @@ public class PlayerInfoDialog extends InfoDialog {
     private JPanel mainPanel = null;
 
     public PlayerInfoDialog(Player player) {
+        super(false);
         this.player = player;
         initMainPanel();
     }

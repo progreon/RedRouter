@@ -53,19 +53,22 @@ public class WildEncountersDialog extends SettingsDialog {
         return routeEntry.getWildEncounters();
     }
 
-    private void init() {
+    private void init() { // TODO: speed up?
         WildEncounters we = getWildEncounters();
         if (we != null) {
-            int width = 2;
-            contentPanel = new JPanel(new GridLayout(0, width, 5, 5));
-            contentPanel.add(new JLabel((we.loc == null ? "No location set" : we.loc.name)));
-            if (we.encounterCounts != null) {
-                contentPanel.add(new JLabel());
+            int height = 1;
+            if (we.encounterCounts != null && we.encounterCounts.size() > 1) {
+                height = 2;
+            }
+            contentPanel = new JPanel(new GridLayout(height, 0, 5, 5));
+            if (we.encounterCounts != null && !we.encounterCounts.isEmpty()) {
                 labels = new ArrayList<>();
                 spinners = new ArrayList<>();
                 for (Set<PokemonCountPair> spcp : we.encounterCounts.values()) {
                     for (PokemonCountPair pcp : spcp) {
-                        labels.add(new JLabel(pcp.plp.toString()));
+                        JLabel lblP = new JLabel(pcp.plp.toString());
+                        lblP.setToolTipText(pcp.plp.pkmn.getExp(pcp.plp.level, 1, false, false) + " xp");
+                        labels.add(lblP);
                         JSpinner sp = new JSpinner(new SpinnerNumberModel(pcp.getCount(), PokemonCountPair.MIN_COUNT, PokemonCountPair.MAX_COUNT, 1));
                         sp.addChangeListener(new ChangeListener() {
 
@@ -78,28 +81,23 @@ public class WildEncountersDialog extends SettingsDialog {
                     }
                 }
                 int i = 0;
-                int pos = 0;
+                JPanel areaPanel;
                 for (EncounterArea ea : we.encounterCounts.keySet()) {
-                    if (pos % width != 0) {
-                        contentPanel.add(new JLabel());
-                        pos++;
-                    }
-                    if (we.encounterCounts.size() > 1) {
-                        contentPanel.add(new JLabel(ea.subArea));
-                        contentPanel.add(new JLabel());
-                    }
-                    pos += 2;
+                    areaPanel = new JPanel(new GridLayout(0, 2, 5, 5));
+                    areaPanel.add(new JLabel(ea.toString()));
+                    areaPanel.add(new JLabel());
                     Set<PokemonCountPair> spcp = we.encounterCounts.get(ea);
                     for (PokemonCountPair pcp : spcp) {
                         JPanel pnlSetting = new JPanel(new FlowLayout(FlowLayout.RIGHT));
                         pnlSetting.add(labels.get(i));
                         pnlSetting.add(spinners.get(i));
-                        contentPanel.add(pnlSetting);
+                        areaPanel.add(pnlSetting);
                         i++;
-                        pos++;
                     }
+                    contentPanel.add(areaPanel);
                 }
             } else {
+                contentPanel.add(new JLabel((we.loc == null ? "No location set" : we.loc.name)));
                 contentPanel.add(new JLabel("(no encounters here)"));
             }
         }
