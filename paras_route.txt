@@ -54,6 +54,52 @@ Trainer: Gentleman 1 :: SS Anne :: gentleman1 growlithe:17 ponyta:17
 Trainer: Rival 3 :: SS Anne :: rival3 pidgeotto:19 raticate:16 kadabra:18 ivysaur:20
 // Vermilion Gym
 Trainer: Surge :: Vermilion City :: surge voltorb:21 pikachu:18 raichu:24
+// Route 9
+Trainer: Jr.TrainerF 2 :: Route 9 :: jrtrf2 oddish:18 bellsprout:18 oddish:18 bellsprout:18
+Trainer: Bug Catcher 6 :: Route 9 :: bug6 caterpie:20 weedle:20 venonat:20
+// Rock Tunnel
+Trainer: PokeManiac 1 :: Rock Tunnel :: maniac1 cubone:23 slowpoke:23
+Trainer: PokeManiac 2 :: Rock Tunnel :: maniac2 slowpoke:25
+Trainer: Jr.TrainerF 3 :: Rock Tunnel :: jrtrf3 oddish:22 bulbasaur:22
+Trainer: Hiker 2 :: Rock Tunnel :: hiker2 geodude:21 geodude:21 graveler:21
+Trainer: Jr.TrainerF 4 :: Rock Tunnel :: jrtrf4 meowth:20 oddish:20 pidgey:20
+Trainer: Gambler 1 :: Route 10 :: gambler1 growlithe:24 vulpix:24
+// Pokemon Tower
+Trainer: Rival 4 :: Pokemon Tower :: rival4 pidgeotto:25 gyarados:23 growlithe:22 kadabra:20 ivysaur:25
+Trainer: Channeler 1 :: Pokemon Tower :: channeler1 gastly:23 gastly:23
+Trainer: Channeler 2 :: Pokemon Tower :: channeler2 gastly:24
+Trainer: Channeler 3 :: Pokemon Tower :: channeler3 gastly:24
+Trainer: Rocket 2 :: Pokemon Tower :: rocket2 zubat:25 zubat:25 golbat:25
+Trainer: Rocket 3 :: Pokemon Tower :: rocket3 koffing:26 drowzee:26
+Trainer: Rocket 4 :: Pokemon Tower :: rocket4 zubat:23 rattata:23 raticate:23 zubat:23
+// Erika
+Trainer: Beauty 1 :: Celadon City :: beauty1 exeggcute:26
+Trainer: Erika :: Celadon City :: erika victreebel:29 tangela:24 vileplume:29
+// Silph
+Trainer: Rocket 5 :: Saffron City :: rocket5 arbok:33
+Trainer: Rival 5 :: Saffron City :: rival5 pidgeot:37 gyarados:38 growlithe:35 kadabra:35 venusaur:40
+Trainer: Rocket 6 :: Saffron City :: rocket6 cubone:32 drowzee:32 marowak:32
+Trainer: Giovanni Silph :: Saffron City :: giovannisilph nidorino:37 kangaskhan:35 rhyhorn:37 nidoqueen:41
+// Koga
+Trainer: Juggler 1 :: Fuchsia City :: juggler1 drowzee:31 drowzee:31 kadabra:31 drowzee:31
+Trainer: Juggler 2 :: Fuchsia City :: juggler2 drowzee:34 hypno:34
+Trainer: Koga :: Fuchsia City :: koga koffing:37 muk:39 koffing:37 weezing:43
+// Blaine
+Trainer: Blaine :: Cinnabar Island :: blaine growlithe:42 ponyta:40 rapidash:42 arcanine:47
+// Sabrina
+Trainer: Sabrina :: Saffron City :: sabrina kadabra:38 mrmime:37 venomoth:38 alakazam:43
+// Giovanni
+Trainer: CooltrainerM 1 :: Viridian City :: cool1 rhyhorn:43
+Trainer: Blackbelt 1 :: Viridian City :: blackbelt1 machoke:38 machop:38 machoke:38
+Trainer: Giovanni :: Viridian City :: giovanni rhyhorn:45 dugtrio:42 nidoqueen:44 nidoking:45 rhydon:50
+// Victory Road
+Trainer: Rival 6 :: Victory Road :: rival6 pidgeot:47 rhyhorn:45 gyarados:45 growlithe:47 alakazam:50 venusaur:53
+// E4
+Trainer: Lorelei :: Victory Road :: lorelei dewgong:54 cloyster:53 slowbro:54 jynx:56 lapras:56
+Trainer: Bruno :: Victory Road :: bruno onix:53 hitmonchan:55 hitmonlee:55 onix:56 machamp:58
+Trainer: Agatha :: Victory Road :: agatha gengar:56 golbat:56 haunter:55 arbok:58 gengar:60
+Trainer: Lance :: Victory Road :: lance gyarados:58 dragonair:56 dragonair:56 aerodactyl:60 dragonite:62
+Trainer: Rival 7 :: Victory Road :: rival7 pidgeot:61 alakazam:59 rhydon:61 gyarados:61 arcanine:63 venusaur:65
 
 
 // Route
@@ -130,6 +176,55 @@ Route: Red Any% Glitchless - Paras%
 	S: Vermilion Gym
 		B: surge
 	S: Route 9
+		B: jrtrf2
+		B: bug6
 	S: Rock Tunnel
+		B: maniac1
+		B: maniac2
+		B: jrtrf3
+		B: hiker2
+		B: jrtrf4
+	S: Route ?
+		B: gambler1
+	S: Pokemon Tower
+		B: rival4
+		B: channeler1
+		B: channeler2
+		B: channeler3
+		B: rocket2
+		B: rocket3
+		B: rocket4
+	S: Erika
+		B: beauty1
+		B: erika
+	S: Silph
+		B: rocket5
+		B: rival5
+		B: rocket6
+		B: giovannisilph
+	S: Koga
+		B: juggler1
+		B: juggler2
+		B: koga
+		Candy: 3
+	S: Cinnabar Mansion
+		Candy: 4
+	S: Blaine
+		B: blaine
+	S: Sabrina
+		B: sabrina
+	S: Giovanni
+		B: cool1
+		B: blackbelt1
+		B: giovanni
+	S: Victory Road
+		B: rival6
+	S: E4
+		B: lorelei
+		B: bruno
+		B: agatha
+		B: lance
+		B: rival7
+		D: END
 
 ===
