@@ -266,7 +266,7 @@ public class SingleBattler extends Battler {
         SingleBattler newBattler = this;
         for (int i = 0; i < count; i++) {
             if (level < 100) {
-                newBattler = (SingleBattler) newBattler.addXP(pokemon.expGroup.getDeltaExp(level, level + 1));
+                newBattler = (SingleBattler) newBattler.addXP(pokemon.expGroup.getDeltaExp(level, level + 1, levelExp));
             }
         }
         return newBattler;

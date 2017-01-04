@@ -81,7 +81,7 @@ Rapidash#Fire##192#65#100#70#105#80#Medium Fast
 Slowpoke#Water#Psychic#99#90#65#65#15#40#Medium Fast
 Slowbro#Water#Psychic#164#95#75#110#30#80#Medium Fast
 Magnemite#Electric##89#25#35#70#45#95#Medium Fast
-Magneton#Electric##169#50#60#95#70#120#Medium Fast
+Magneton#Electric##161#50#60#95#70#120#Medium Fast
 Farfetch'd#Normal#Flying#94#52#65#55#60#58#Medium Fast
 Doduo#Normal#Flying#96#35#85#45#75#35#Medium Fast
 Dodrio#Normal#Flying#158#60#110#70#100#60#Medium Fast
@@ -92,7 +92,7 @@ Muk#Poison##157#105#105#75#50#65#Medium Fast
 Shellder#Water##97#30#65#100#40#45#Slow
 Cloyster#Water#Ice#203#50#95#180#70#85#Slow
 Gastly#Ghost#Poison#95#30#35#30#80#100#Medium Slow
-Haunter#Ghost#Poison#26#45#50#45#95#115#Medium Slow
+Haunter#Ghost#Poison#126#45#50#45#95#115#Medium Slow
 Gengar#Ghost#Poison#190#60#65#60#110#130#Medium Slow
 Onix#Rock#Ground#108#35#45#160#70#30#Medium Fast
 Drowzee#Psychic##102#60#48#45#42#90#Medium Fast

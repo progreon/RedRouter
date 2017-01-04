@@ -21,6 +21,7 @@ import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import be.marcowillems.redrouter.data.Battler;
+import be.marcowillems.redrouter.util.Range;
 
 /**
  *
@@ -72,7 +73,9 @@ public class BattlerInfoDialog extends InfoDialog {
         info += "<td align=\"center\">" + battler.getSpc() + "</td></tr></table>";
         if (isPlayerBattler) {
             // TODO
-            info += "Exp. to next level: TODO";
+            int max = battler.pokemon.expGroup.getDeltaExp(battler.getLevel(), battler.getLevel() + 1, battler.getLevelExp().getMax());
+            int min = battler.pokemon.expGroup.getDeltaExp(battler.getLevel(), battler.getLevel() + 1, battler.getLevelExp().getMin());
+            info += "Exp. to next level: " + new Range(min, max);
         }
         info += "</body></html>";
 
