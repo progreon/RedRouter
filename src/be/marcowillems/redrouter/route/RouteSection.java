@@ -33,19 +33,11 @@ import be.marcowillems.redrouter.util.PokemonCountPair;
 public class RouteSection extends RouteEntry {
 
     public RouteSection(String title) {
-        this(new RouteEntryInfo(title), null);
+        this(title, null);
     }
 
-    public RouteSection(String title, String description) {
-        this(new RouteEntryInfo(title, description), null);
-    }
-
-    public RouteSection(RouteEntryInfo info) {
-        this(info, null);
-    }
-
-    public RouteSection(RouteEntryInfo info, List<RouteEntry> children) {
-        super(info, false, children);
+    public RouteSection(String title, List<RouteEntry> children) {
+        super(new RouteEntryInfo(title), false, children);
     }
 
     public RouteEntry addEntry(RouteEntry entry) {
@@ -79,12 +71,6 @@ public class RouteSection extends RouteEntry {
         return r;
     }
 
-    public RouteDirections addNewDirections(RouteEntryInfo info) {
-        RouteDirections r = new RouteDirections(info);
-        addEntry(r);
-        return r;
-    }
-
     public RouteEncounter addNewEncounter(String description, EncounterArea area, IntPair[] slotPreferences) {
         RouteEncounter r = new RouteEncounter(new RouteEntryInfo(null, description), area, slotPreferences);
         addEntry(r);
@@ -103,14 +89,8 @@ public class RouteSection extends RouteEntry {
         return r;
     }
 
-    public RouteSection addNewSection(String title, String description) {
-        RouteSection r = new RouteSection(title, description);
-        addEntry(r);
-        return r;
-    }
-
-    public RouteSection addNewSection(RouteEntryInfo info) {
-        RouteSection r = new RouteSection(info);
+    public RouteSection addNewSection(String title) {
+        RouteSection r = new RouteSection(title);
         addEntry(r);
         return r;
     }
@@ -118,9 +98,6 @@ public class RouteSection extends RouteEntry {
     @Override
     public String toString() {
         String str = "--" + info.title + "--";
-        if (info.description != null && !info.description.isEmpty()) {
-            str += "\n  " + info.description;
-        }
 
         for (RouteEntry re : super.children) {
             str += "\n";

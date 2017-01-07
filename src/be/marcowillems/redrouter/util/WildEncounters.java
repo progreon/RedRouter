@@ -82,4 +82,33 @@ public class WildEncounters {
         return bbs;
     }
 
+    public void reset() {
+        if (encounterCounts != null) {
+            for (EncounterArea ea : encounterCounts.keySet()) {
+                for (PokemonCountPair pcp : encounterCounts.get(ea)) {
+                    pcp.setCount(0);
+                }
+            }
+        }
+    }
+
+    public void setPreferences(Set<PokemonCountPair> preferences) {
+        if (encounterCounts != null) {
+            reset();
+            if (preferences != null) {
+                for (PokemonCountPair preference : preferences) {
+                    boolean done = false;
+                    for (EncounterArea ea : encounterCounts.keySet()) {
+                        for (PokemonCountPair pcp : encounterCounts.get(ea)) {
+                            if (pcp.plp.equals(preference.plp) && !done) {
+                                pcp.setCount(preference.getCount());
+                                done = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

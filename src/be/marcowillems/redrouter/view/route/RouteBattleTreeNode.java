@@ -77,7 +77,10 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
 
     private void updateText() {
         RouteBattle rb = (RouteBattle) routeEntry;
-        text = rb.info.toString() + "\n";
+        text = rb.info.title + "\n";
+        if (rb.info.description != null && !rb.info.description.equals("")) {
+            text += "\t" + rb.info.description + "\n";
+        }
         text += (rb.opponent.info == null ? "" : "\tInfo: " + rb.opponent.info + "\n");
     }
 

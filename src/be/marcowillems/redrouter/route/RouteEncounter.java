@@ -19,9 +19,7 @@ package be.marcowillems.redrouter.route;
 
 import java.util.Set;
 import java.util.TreeSet;
-import be.marcowillems.redrouter.data.SingleBattler;
 import be.marcowillems.redrouter.data.EncounterArea;
-import be.marcowillems.redrouter.data.Player;
 import be.marcowillems.redrouter.io.PrintSettings;
 import be.marcowillems.redrouter.util.IntPair;
 import be.marcowillems.redrouter.util.PokemonCountPair;
@@ -41,11 +39,7 @@ public class RouteEncounter extends RouteEntry {
 
     public RouteEncounter(RouteEntryInfo info, EncounterArea area, Set<PokemonCountPair> preferences) {
         this(info, area);
-        for (PokemonCountPair pip : preferences) {
-            if (area.contains(pip.plp)) {
-                this.preferences.add(pip);
-            }
-        }
+        updatePreferences(preferences);
     }
 
     public RouteEncounter(RouteEntryInfo info, EncounterArea area, IntPair[] slotPreferences) {
@@ -55,10 +49,16 @@ public class RouteEncounter extends RouteEntry {
                 this.preferences.add(new PokemonCountPair(area.slots[ip.int1], ip.int2));
             }
         }
+        updatePreferences(this.preferences);
     }
 
     private RouteEncounter(RouteEntryInfo info, EncounterArea area) {
         super(info, true, area.location);
+        if (info == null) {
+            this.info = new RouteEntryInfo(area + ": get experience");
+        } else if (info.title == null && info.description == null) {
+            this.info = new RouteEntryInfo(area + ": get experience");
+        }
         this.area = area;
         this.preferences = new TreeSet<>();
     }
@@ -71,30 +71,29 @@ public class RouteEncounter extends RouteEntry {
         return this.preferences;
     }
 
-    public void updatePreferences(Set<PokemonCountPair> preferences) {
-        this.preferences = new TreeSet<>();
-        for (PokemonCountPair pip : preferences) {
-            if (area.contains(pip.plp)) {
-                this.preferences.add(pip);
+    public final void updatePreferences(Set<PokemonCountPair> preferences) {
+        if (preferences != this.preferences) {
+            this.preferences = new TreeSet<>();
+            if (preferences != null) {
+                for (PokemonCountPair pip : preferences) {
+                    if (area.contains(pip.plp)) {
+                        this.preferences.add(pip);
+                    }
+                }
             }
         }
+        super.getWildEncounters().setPreferences(this.preferences);
         super.notifyDataUpdated();
         super.notifyRoute();
     }
 
-    @Override
-    protected Player apply(Player p) {
-        Player newPlayer = super.apply(p).getDeepCopy();
-
-        for (PokemonCountPair pcp : preferences) {
-            for (int i = 0; i < pcp.getCount(); i++) {
-                newPlayer.getFrontBattler().defeatBattler(new SingleBattler(pcp.plp.pkmn, area, pcp.plp.level));
-            }
-        }
-
-        return newPlayer;
-    }
-
+//    @Override
+//    protected Player apply(Player p) {
+//        Player newPlayer = super.apply(p).getDeepCopy();
+//
+//        return newPlayer;
+//    }
+//
     @Override
     public String toString() {
         String str = info + "\nPreferences: ";

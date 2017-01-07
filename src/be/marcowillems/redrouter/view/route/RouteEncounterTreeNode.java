@@ -59,18 +59,28 @@ public class RouteEncounterTreeNode extends RouteEntryTreeNode {
     }
 
     private void updateText() {
-        RouteEncounter re = (RouteEncounter) routeEntry;
-        text = re + "\n";
-        text += "Defeated preferred pokemon: ";
-        int count = 0;
-        for (PokemonCountPair pcp : re.getPreferences()) {
-            if (pcp.getCount() > 0) {
-                text += pcp.getCount() + "x " + pcp.plp + ", ";
-                count++;
+//        RouteEncounter re = (RouteEncounter) routeEntry;
+//        text = re + "\n";
+//        text += "Defeated preferred pokemon: ";
+//        int count = 0;
+//        for (PokemonCountPair pcp : re.getPreferences()) {
+//            if (pcp.getCount() > 0) {
+//                text += pcp.getCount() + "x " + pcp.plp + ", ";
+//                count++;
+//            }
+//        }
+//        if (count > 0) {
+//            text = text.substring(0, text.length() - 2);
+//        }
+        text = "";
+        if (routeEntry.info.title != null) {
+            text = routeEntry.info.title;
+            if (routeEntry.info.description != null) {
+                text += "\n\t";
             }
         }
-        if (count > 0) {
-            text = text.substring(0, text.length() - 2);
+        if (routeEntry.info.description != null) {
+            text += routeEntry.info.description;
         }
     }
 

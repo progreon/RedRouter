@@ -18,11 +18,9 @@
 package be.marcowillems.redrouter.route;
 
 import be.marcowillems.redrouter.io.PrintSettings;
-import java.io.File;
 import be.marcowillems.redrouter.Settings;
 import be.marcowillems.redrouter.data.Player;
 import be.marcowillems.redrouter.data.RouterData;
-import be.marcowillems.redrouter.io.RouteParserException;
 import be.marcowillems.redrouter.observers.RouteObservable;
 import be.marcowillems.redrouter.observers.RouteObserver;
 import java.util.ArrayList;
@@ -48,7 +46,7 @@ public class Route extends RouteSection {
     private List<RouteEntry> entryList;
 
     public Route(RouterData rd, String title) {
-        super(null, title);
+        super(title);
         this.rd = rd;
         this.routeObservable = new RouteObservable();
         this.startPlayer = new Player("Red", "The playable character", null);
@@ -129,6 +127,13 @@ public class Route extends RouteSection {
     private void updateEntryList() {
         if (canRefresh) {
             this.entryList = getEntryList();
+        }
+    }
+
+    public void resetEncounters() {
+        updateEntryList();
+        for (RouteEntry re : entryList) {
+            re.getWildEncounters().reset();
         }
     }
 

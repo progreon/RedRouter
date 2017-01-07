@@ -39,6 +39,17 @@ public class RouteSwapPokemon extends RouteEntry {
         this.index2 = index2;
         this.box1 = box1;
         this.box2 = box2;
+        if (info == null || info.description == null) {
+            String title = (info == null ? null : info.title);
+            String description;
+            if (box1 < 0 || box2 < 0) {
+                description = "Switch party pokemon with index " + index1 + " and " + index2 + ".";
+            } else {
+                // TODO
+                description = "TODO: switch pokemon from boxes";
+            }
+            super.info = new RouteEntryInfo(title, description);
+        }
     }
 
     @Override
@@ -52,20 +63,7 @@ public class RouteSwapPokemon extends RouteEntry {
 
     @Override
     public String toString() {
-        String text = "";
-
-        if (info != null && info.toString() != null) {
-            text = info.toString();
-        } else {
-            if (box1 < 0 || box2 < 0) {
-                text = "Switch party pokemon with index " + index1 + " and " + index2 + ".";
-            } else {
-                // TODO
-                text = "TODO: switch pokemon from boxes";
-            }
-        }
-
-        return text;
+        return super.info.toString();
     }
 
     @Override

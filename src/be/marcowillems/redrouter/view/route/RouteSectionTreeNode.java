@@ -35,7 +35,7 @@ public class RouteSectionTreeNode extends RouteEntryTreeNode {
 
     public RouteSectionTreeNode(RouteTree tree, RouteSection routeSection) {
         super(tree, routeSection, false);
-        this.text = ((RouteSection) routeEntry).info.toString();
+        this.text = routeEntry.info.toString();
         setLabelText(lblInfo, text, availableWidth);
     }
 
@@ -47,7 +47,7 @@ public class RouteSectionTreeNode extends RouteEntryTreeNode {
             update = true;
         }
         if (tree.route.isEntryDataUpdated(routeEntry)) {
-            text = ((RouteSection) routeEntry).info.toString();
+            text = routeEntry.info.toString();
             update = true;
         }
         if (update) {

@@ -45,7 +45,16 @@ public class RouteSwapPokemonTreeNode extends RouteEntryTreeNode {
             update = true;
         }
         if (tree.route.isEntryDataUpdated(routeEntry)) {
-            text = routeEntry.toString();
+            text = "";
+            if (routeEntry.info.title != null) {
+                text += routeEntry.info.title;
+                if (routeEntry.info.description != null) {
+                    text += "\n\t";
+                }
+            }
+            if (routeEntry.info.description != null) {
+                text += routeEntry.info.description;
+            }
             update = true;
         }
         if (update) {

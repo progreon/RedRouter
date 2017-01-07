@@ -59,9 +59,18 @@ public class RouteGetPokemon extends RouteEntry {
             } else {
                 this.preference = preference;
             }
+            // Temporary hack:
             if (choices.size() > 0 && choices.get(0).catchLocation != null) {
                 setLocation(choices.get(0).catchLocation.location);
             }
+        }
+    }
+
+    public SingleBattler getPreference() {
+        if (preference >= 0) {
+            return choices.get(preference);
+        } else {
+            return null;
         }
     }
 
@@ -69,8 +78,9 @@ public class RouteGetPokemon extends RouteEntry {
     protected Player apply(Player p) {
         Player newPlayer = super.apply(p).getDeepCopy();
 
-        if (this.preference >= 0) {
-            newPlayer.addBattler(new CombinedBattler(choices.get(preference)));
+        SingleBattler pref = getPreference();
+        if (pref != null) {
+            newPlayer.addBattler(new CombinedBattler(pref));
         }
 
         return newPlayer;
@@ -79,17 +89,30 @@ public class RouteGetPokemon extends RouteEntry {
     @Override
     public String toString() {
         String str = "";
-        if (super.info != null) {
-            str = super.info + "\n";
-        }
-        if (choices.size() > 1) {
-            str += "Pick 1 of: ";
-            for (SingleBattler b : choices) {
-                str += b + ", ";
+        if (super.info != null && (super.info.title != null || super.info.description != null)) {
+            if (super.info.title != null) {
+                str = super.info.title;
+                if (super.info.description != null) {
+                    str += "\n\t";
+                }
             }
-            str = str.substring(0, str.length() - 2);
-        } else if (choices.size() == 1) {
-            str += "Get " + choices.get(0);
+            if (super.info.description != null) {
+                str += super.info.description;
+            } else if (choices.size() > 0) {
+                str += "\n\t";
+            }
+        }
+        if (super.info == null || super.info.description == null) {
+            SingleBattler pref = getPreference();
+            if (choices.size() > 1) {
+                str += "Pick 1 of: ";
+                for (SingleBattler b : choices) {
+                    str += b + (b == pref ? " (preferece)" : "") + ", ";
+                }
+                str = str.substring(0, str.length() - 2) + (pref == null ? " (optional)" : "");
+            } else if (choices.size() == 1) {
+                str += "Get " + choices.get(0) + (pref == null ? " (optional)" : "");
+            }
         }
         return str;
     }

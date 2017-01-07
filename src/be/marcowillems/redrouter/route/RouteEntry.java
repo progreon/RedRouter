@@ -158,6 +158,9 @@ public abstract class RouteEntry extends Writable {
 
     private void refreshLocationData() {
         this.wildEncounters = new WildEncounters(getLocation());
+        if (this instanceof RouteEncounter) { // TODO how to avoid this?
+            this.wildEncounters.setPreferences(((RouteEncounter) this).getPreferences());
+        }
         RouteEntry next = getNext();
         while (next != null && next.location == null) {
             next.setLocation(null); // TODO Too much refreshData()? => location in player class!

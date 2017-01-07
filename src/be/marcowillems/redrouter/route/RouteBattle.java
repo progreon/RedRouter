@@ -39,6 +39,11 @@ public class RouteBattle extends RouteEntry {
     // TODO: description instead of info => new RouteEntryInfo(opponent.name, description) ??
     public RouteBattle(RouteEntryInfo info, Trainer opponent) {
         super(info, true);
+        if (info == null) {
+            super.info = new RouteEntryInfo(opponent.name);
+        } else if (info.title == null) {
+            super.info = new RouteEntryInfo(opponent.name, info.description);
+        }
         this.opponent = opponent;
 
         entries = new RouteBattleEntry[opponent.team.size()][];
@@ -127,7 +132,7 @@ public class RouteBattle extends RouteEntry {
 
     @Override
     public String toString() {
-        String s = info.toString() + "\n";
+        String s = info.toString() + "\n\t";
         s += opponent.toString();
 //        if (info != null) {
 //            s += "\n\n\t" + info;

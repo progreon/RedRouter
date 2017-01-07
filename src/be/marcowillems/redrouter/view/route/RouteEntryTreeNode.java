@@ -178,7 +178,7 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
     }
 
     protected void setLabelText(JLabel label, String text, int labelWidth) {
-        label.setText(wrappedHTMLText(text, 8, label.getFontMetrics(label.getFont()), labelWidth));
+        label.setText(wrappedHTMLText(text, 4, label.getFontMetrics(label.getFont()), labelWidth));
     }
 
     // TODO don't need this?
