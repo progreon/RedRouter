@@ -33,6 +33,9 @@ import java.util.ArrayList;
 public abstract class RouteEntry extends Writable {
 
     private Route route = null;
+    /**
+     * All the messages from this route entry (lets just put it here for now).
+     */
     public final List<RouterMessage> messages = new ArrayList<>();
 
     public RouteEntryInfo info;
@@ -66,6 +69,28 @@ public abstract class RouteEntry extends Writable {
         this.children = (isLeafType ? null : (children == null ? new ArrayList<>() : children));
         this.location = location;
         this.wildEncounters = new WildEncounters(getLocation());
+    }
+
+    protected Player apply(Player p) {
+        clearMessages();
+        this.player = p;
+        Player newPlayer = null;
+        if (this.player != null) {
+            newPlayer = this.player.getDeepCopy();
+            // Applying wild encounters
+            if (this.wildEncounters != null && !this.wildEncounters.getBattledBattlers().isEmpty()) {
+                if (player.getFrontBattler() != null) {
+                    for (SingleBattler sb : this.wildEncounters.getBattledBattlers()) {
+                        newPlayer.getFrontBattler().defeatBattler(sb);
+                    }
+                } else {
+                    showMessage(RouterMessage.Type.ERROR, "You can't fight encounters when you don't have a pokemon!");
+                }
+            }
+        } else {
+            showMessage(RouterMessage.Type.ERROR, "There is no player set!");
+        }
+        return newPlayer;
     }
 
     protected Route getRoute() {
@@ -112,15 +137,6 @@ public abstract class RouteEntry extends Writable {
     public void notifyWildEncountersUpdated() {
         notifyDataUpdated();
         notifyRoute();
-    }
-
-    // Info messages system
-    private void clearMessages() {
-        messages.clear();
-    }
-
-    protected void showMessage(RouterMessage.Type type, String message) {
-        messages.add(new RouterMessage(this, type, message));
     }
 
     /**
@@ -203,21 +219,6 @@ public abstract class RouteEntry extends Writable {
         return this.wildEncounters;
     }
 
-    protected Player apply(Player p) {
-        clearMessages();
-        this.player = p;
-        // Applying wild encounters
-        if (player != null && this.wildEncounters != null && player.getFrontBattler() != null) {
-            Player newPlayer = this.player.getDeepCopy();
-            for (SingleBattler sb : this.wildEncounters.getBattledBattlers()) {
-                newPlayer.getFrontBattler().defeatBattler(sb);
-            }
-            return newPlayer;
-        } else {
-            return this.player;
-        }
-    }
-
     public boolean hasChildren() {
         return children != null && !children.isEmpty();
     }
@@ -284,6 +285,25 @@ public abstract class RouteEntry extends Writable {
         } else {
             return children.get(children.size() - 1).getLastChild();
         }
+    }
+
+    // Info messages system
+    private void clearMessages() {
+        messages.clear();
+    }
+
+    protected void showMessage(RouterMessage.Type type, String message) {
+        messages.add(new RouterMessage(this, type, message));
+    }
+
+    public RouterMessage.Type getMessagesType() {
+        RouterMessage.Type type = RouterMessage.Type.INFO;
+        for (RouterMessage rm : messages) {
+            if (rm.type.priority > type.priority) {
+                type = rm.type;
+            }
+        }
+        return type;
     }
 
     @Override

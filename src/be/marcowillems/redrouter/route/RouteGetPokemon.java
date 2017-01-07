@@ -25,7 +25,7 @@ import be.marcowillems.redrouter.data.SingleBattler;
 import be.marcowillems.redrouter.io.PrintSettings;
 
 /**
- * TODO split Get and Catch Pokémon
+ * TODO split Get and Catch Pokémon? optional pokemon?
  *
  * @author Marco Willems
  */
@@ -66,17 +66,9 @@ public class RouteGetPokemon extends RouteEntry {
         }
     }
 
-    public SingleBattler getPreference() {
-        if (preference >= 0) {
-            return choices.get(preference);
-        } else {
-            return null;
-        }
-    }
-
     @Override
     protected Player apply(Player p) {
-        Player newPlayer = super.apply(p).getDeepCopy();
+        Player newPlayer = super.apply(p);
 
         SingleBattler pref = getPreference();
         if (pref != null) {
@@ -84,6 +76,14 @@ public class RouteGetPokemon extends RouteEntry {
         }
 
         return newPlayer;
+    }
+
+    public SingleBattler getPreference() {
+        if (preference >= 0) {
+            return choices.get(preference);
+        } else {
+            return null;
+        }
     }
 
     @Override

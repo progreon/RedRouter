@@ -61,6 +61,7 @@ public class RouteBattle extends RouteEntry {
 
     public RouteBattle(RouteEntryInfo info, Trainer opponent, int[][] competingPartyMon) {
         this(info, opponent);
+        // TODO: move these checks to apply & showMessage()?
         if (competingPartyMon != null && competingPartyMon.length == entries.length) {
             for (int i = 0; i < entries.length; i++) {
                 if (competingPartyMon[i].length == 0) {
@@ -78,7 +79,7 @@ public class RouteBattle extends RouteEntry {
 
     @Override
     protected Player apply(Player p) {
-        Player newPlayer = super.apply(p).getDeepCopy();
+        Player newPlayer = super.apply(p);
 
         for (int i = 0; i < opponent.team.size(); i++) {
             playerBeforeEvery[i] = newPlayer;
@@ -105,18 +106,22 @@ public class RouteBattle extends RouteEntry {
 
         if (opponent.name.equals("Brock")) {
             newPlayer.atkBadge = true;
+            showMessage(RouterMessage.Type.INFO, "Attack badge boost aquired!");
         }
 
         if (opponent.name.equals("Surge")) {
             newPlayer.defBadge = true;
+            showMessage(RouterMessage.Type.INFO, "Defense badge boost aquired!");
         }
 
         if (opponent.name.equals("Koga")) {
             newPlayer.spdBadge = true;
+            showMessage(RouterMessage.Type.INFO, "Speed badge boost aquired!");
         }
 
         if (opponent.name.equals("Blaine")) {
             newPlayer.spcBadge = true;
+            showMessage(RouterMessage.Type.INFO, "Special badge boost aquired!");
         }
 
         return newPlayer;

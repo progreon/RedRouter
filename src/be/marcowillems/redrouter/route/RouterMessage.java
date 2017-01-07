@@ -26,7 +26,13 @@ public class RouterMessage {
 
     public static enum Type {
 
-        ERROR, WARNING, HINT, INFORMATION
+        ERROR(3), WARNING(2), HINT(1), INFO(0);
+
+        public final int priority;
+
+        private Type(int priority) {
+            this.priority = priority;
+        }
     }
 
     public String file = null;
@@ -52,19 +58,20 @@ public class RouterMessage {
     }
 
     public RouterMessage(Type type, String message) {
-        this.type = (type == null ? Type.INFORMATION : type);
+        this.type = (type == null ? Type.INFO : type);
         this.message = (message == null ? "???" : message);
     }
 
     @Override
     public String toString() {
-        String str = (type != Type.INFORMATION ? type + ": " : "") + message;
+        String str = type.toString();
         if (file != null) {
             str += " in " + file;
             if (lineNo >= 0) {
                 str += " on line " + (lineNo + 1);
             }
         }
+        str += ": " + message;
         return str;
     }
 

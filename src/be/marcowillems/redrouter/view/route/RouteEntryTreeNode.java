@@ -40,6 +40,10 @@ import javax.swing.tree.TreePath;
 import be.marcowillems.redrouter.data.Battler;
 import be.marcowillems.redrouter.route.RouteEntry;
 import be.marcowillems.redrouter.view.dialogs.editroute.EditDialog;
+import java.awt.Image;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.UIManager;
 
 /**
  *
@@ -138,7 +142,7 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         }
 
         // Add all again
-        if (showButtons() || tree.isEditMode()) {
+        if (showButtons() || tree.isEditMode() || !routeEntry.messages.isEmpty()) {
             view.add(makeHeaderPanel(), BorderLayout.NORTH);
         }
         view.add(sizedRenderComponent, BorderLayout.CENTER);
@@ -164,7 +168,7 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         view.setPreferredSize(new Dimension(rs.availableWidth, preferredHeight + getBorderHeight()));
 
         rsOld = rs;
-        view.setToolTipText(getMessagesTextForTooltip());
+//        view.setToolTipText(getMessagesTextForTooltip());
         return view;
     }
 
@@ -327,7 +331,7 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         JPanel pnlHeader = new JPanel(new BorderLayout(0, 0));
         pnlHeader.setOpaque(false);
         if (tree.isEditMode()) {
-            pnlHeader.add(this.pnlEdit, BorderLayout.WEST);
+            pnlHeader.add(this.pnlEdit, BorderLayout.CENTER);
         }
         JPanel pnlRightButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         pnlRightButtons.setOpaque(false);
@@ -337,8 +341,46 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         if (showPlayerButton) {
             pnlRightButtons.add(this.btnPlayer);
         }
+        int height = this.btnPlayer.getHeight();
+        JLabel lblError;
+        if (routeEntry.messages.isEmpty()) {
+            lblError = new JLabel();
+            lblError.setPreferredSize(new Dimension(height, height));
+        } else {
+            lblError = new JLabel(getScaledMessageIcon(height));
+            lblError.setToolTipText(getMessagesTextForTooltip());
+        }
+        pnlHeader.add(lblError, BorderLayout.WEST);
         pnlHeader.add(pnlRightButtons, BorderLayout.EAST);
         return pnlHeader;
+    }
+
+    private Icon getScaledMessageIcon(int size) {
+        // Different icons:
+        // OptionPane.errorIcon
+        // OptionPane.informationIcon
+        // OptionPane.warningIcon
+        // OptionPane.questionIcon
+        String key;
+        switch (routeEntry.getMessagesType()) {
+            case ERROR:
+                key = "OptionPane.errorIcon";
+                break;
+            case WARNING:
+                key = "OptionPane.warningIcon";
+                break;
+            case HINT:
+                key = "OptionPane.questionIcon";
+                break;
+            default: // INFORMATION
+                key = "OptionPane.informationIcon";
+                break;
+        }
+        ImageIcon i = (ImageIcon) UIManager.getIcon(key);
+        if (size == 0) {
+            size = i.getIconHeight();
+        }
+        return new ImageIcon(i.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH));
     }
 
 }

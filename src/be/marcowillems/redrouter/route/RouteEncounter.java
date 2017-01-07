@@ -54,9 +54,7 @@ public class RouteEncounter extends RouteEntry {
 
     private RouteEncounter(RouteEntryInfo info, EncounterArea area) {
         super(info, true, area.location);
-        if (info == null) {
-            this.info = new RouteEntryInfo(area + ": get experience");
-        } else if (info.title == null && info.description == null) {
+        if (info == null || (info.title == null && info.description == null)) {
             this.info = new RouteEntryInfo(area + ": get experience");
         }
         this.area = area;
@@ -87,13 +85,6 @@ public class RouteEncounter extends RouteEntry {
         super.notifyRoute();
     }
 
-//    @Override
-//    protected Player apply(Player p) {
-//        Player newPlayer = super.apply(p).getDeepCopy();
-//
-//        return newPlayer;
-//    }
-//
     @Override
     public String toString() {
         String str = info + "\nPreferences: ";

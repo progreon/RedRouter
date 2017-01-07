@@ -127,8 +127,9 @@ Route: Red Any% Glitchless - Paras%
 		M: Mt.Moon:B2F :: 6 :: 14 15 14 3
 			Manip a Paras Lv.12, DVs should be 14/15/14/3
 		Swap: 0 2
-		D: Teach TM34 Bide
+//		D: Teach TM34 Bide
 		TM: Bide // TEMPORARY
+			Teach TM34 Bide
 		B: nerd1
 		E: Mt.Moon:1F :: 0:0 1:0 2:0 3:1 4:0
 			You need 98 total exp, kill two 6-9 Zubats or one 8 Geodude (98 exactly) before Hiker

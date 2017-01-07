@@ -54,9 +54,13 @@ public class RouteSwapPokemon extends RouteEntry {
 
     @Override
     protected Player apply(Player p) {
-        Player newPlayer = super.apply(p).getDeepCopy();
+        Player newPlayer = super.apply(p);
 
-        newPlayer.swapBattlers(index1, index2);
+        if (index1 >= 0 && index1 < newPlayer.team.size() && index2 >= 0 && index2 < newPlayer.team.size()) {
+            newPlayer.swapBattlers(index1, index2);
+        } else {
+            showMessage(RouterMessage.Type.ERROR, "Invalid party indices! (ignoring swap)");
+        }
 
         return newPlayer;
     }

@@ -39,10 +39,13 @@ public class RouteLearnTmMove extends RouteEntry {
 
     @Override
     protected Player apply(Player p) {
-        Player newPlayer = super.apply(p).getDeepCopy();
+        Player newPlayer = super.apply(p);
 
         Battler b = newPlayer.getFrontBattler();
         b.learnTmMove(newMove, oldMove);
+        
+        showMessage(RouterMessage.Type.WARNING, "This is a temporary entry type!");
+        showMessage(RouterMessage.Type.HINT, "There will be a menu entry soon, don't worry :)");
 
         return newPlayer;
     }

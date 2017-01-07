@@ -17,6 +17,7 @@
  */
 package be.marcowillems.redrouter.route;
 
+import be.marcowillems.redrouter.data.Player;
 import be.marcowillems.redrouter.io.PrintSettings;
 
 /**
@@ -25,8 +26,18 @@ import be.marcowillems.redrouter.io.PrintSettings;
  */
 public class RouteDirections extends RouteEntry {
 
+    private static final String DEFAULT = "???";
+
     public RouteDirections(String description) {
-        super(new RouteEntryInfo(null, (description == null ? "???" : description)), true);
+        super(new RouteEntryInfo(null, (description == null ? DEFAULT : description)), true);
+    }
+
+    @Override
+    protected Player apply(Player p) {
+        if (info.description.equals(DEFAULT)) {
+            showMessage(RouterMessage.Type.HINT, "Add some directions!");
+        }
+        return super.apply(p);
     }
 
     @Override

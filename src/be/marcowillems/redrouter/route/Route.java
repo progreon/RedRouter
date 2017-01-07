@@ -137,6 +137,15 @@ public class Route extends RouteSection {
         }
     }
 
+    public List<RouterMessage> getAllMessages() {
+        updateEntryList();
+        List<RouterMessage> allMessages = new ArrayList<>();
+        for (RouteEntry re : entryList) {
+            allMessages.addAll(re.messages);
+        }
+        return allMessages;
+    }
+
     @Override
     public String toString() {
         String route = "";
