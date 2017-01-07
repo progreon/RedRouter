@@ -33,6 +33,7 @@ import java.util.ArrayList;
 public abstract class RouteEntry extends Writable {
 
     private Route route = null;
+    public final List<RouterMessage> messages = new ArrayList<>();
 
     public RouteEntryInfo info;
     private RouteSection parent = null;
@@ -111,6 +112,15 @@ public abstract class RouteEntry extends Writable {
     public void notifyWildEncountersUpdated() {
         notifyDataUpdated();
         notifyRoute();
+    }
+
+    // Info messages system
+    private void clearMessages() {
+        messages.clear();
+    }
+
+    protected void showMessage(RouterMessage.Type type, String message) {
+        messages.add(new RouterMessage(this, type, message));
     }
 
     /**
@@ -194,6 +204,7 @@ public abstract class RouteEntry extends Writable {
     }
 
     protected Player apply(Player p) {
+        clearMessages();
         this.player = p;
         // Applying wild encounters
         if (player != null && this.wildEncounters != null && player.getFrontBattler() != null) {

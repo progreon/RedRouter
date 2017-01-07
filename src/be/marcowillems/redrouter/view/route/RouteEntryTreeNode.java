@@ -164,6 +164,7 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         view.setPreferredSize(new Dimension(rs.availableWidth, preferredHeight + getBorderHeight()));
 
         rsOld = rs;
+        view.setToolTipText(getMessagesTextForTooltip());
         return view;
     }
 
@@ -210,6 +211,20 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         wrapped = "<html><body>" + wrapped + "</body></html>";
 
         return wrapped;
+    }
+
+    private String getMessagesTextForTooltip() {
+        String messages = null;
+
+        if (!routeEntry.messages.isEmpty()) {
+            messages = "<html><body>" + routeEntry.messages.get(0);
+            for (int i = 1; i < routeEntry.messages.size(); i++) {
+                messages += "<br>" + routeEntry.messages.get(i);
+            }
+            messages += "</body></html>";
+        }
+
+        return messages;
     }
 
     protected EditDialog getEditDialog() {
