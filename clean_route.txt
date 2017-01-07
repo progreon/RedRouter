@@ -103,46 +103,32 @@ Trainer: Rival 7 :: Victory Road :: rival7 pidgeot:61 alakazam:59 rhydon:61 gyar
 
 
 // Route
-Route: Red Any% Glitchless - Paras%
+// This is a clean route (no items etc) with the usual minimum battles (no optionals)
+Route: Red Any% Glitchless - Clean
 	S: Early game
 		GetP: #squirtle:5
 		B: rival1
-			Tail Whip x1-2, then Tackle until it faints.
-		D: Do parcel stuff
+		D: Do parcel stuff and kill an encounter
 		E: Route 1 :: 1:0 3:1 4:0 5:0
 			Kill an encounter
 		B: bug1
-			Tail Whip x2, then Tackle until it faints.
 	S: Pewter City
 		B: brock
-			Bubble all
 	S: Route 3
 		B: bug2
 		B: jrtrmshorts
-			Shorts Guy :: Live
 		B: bug3
 		B: bug4
-		C: Route 3 :: #1
 	S: Mt Moon
-		M: Mt.Moon:B2F :: 6 :: 14 15 14 3
-			Manip a Paras Lv.12, DVs should be 14/15/14/3
-		Swap: 0 2
-		D: Teach TM34 Bide
-		TM: Bide // TEMPORARY
 		B: nerd1
-		E: Mt.Moon:1F :: 0:0 1:0 2:0 3:1 4:0
-			You need 98 total exp, kill two 6-9 Zubats or one 8 Geodude (98 exactly) before Hiker
-		B: lassmoon
-		B: hikermoon
-		E: Mt.Moon:B2F :: 3:1
+//		B: lassmoon
+//		B: hikermoon
 		B: rocketmoon
 		B: nerd2
 	S: Cerulean City
 		B: rival2
 	S: Nugget Bridge
 		B: bug5
-		Candy: 2
-			Rare Candy to level 20 // TEMPORARY
 		B: lass1
 		B: youngster1
 		B: lass2
@@ -150,29 +136,19 @@ Route: Red Any% Glitchless - Paras%
 		B: rocket1
 	S: Route 25
 		B: hiker1
+			Or the other one
 		B: lass3
 		B: jrtrm2
 		B: lass4
 	S: Cerulean City (Gym)
-		B: rocketdig
-		TM: Dig :: Bide
 		B: jrtrfmisty
 		B: misty
 	S: Underground & Route 6
-		D: Pick up full restore
-		C: Route 6 :: #0
-			Catch an oddish if you need to
+		B: rocketdig
 		B: jrtrf1
 		B: jrtrm3
 	S: SS Anne
-		D: Go to the left and go in the fourth room
-		B: youngster2
-		D: Grab TM08 behind him, then leave and go upstairs, go in the fourth room on the right
-		D: Menu ...
-		TM: Body_Slam :: Stun_Spore
-		B: gentleman1
 		B: rival3
-		TM: Cut :: Scratch // do this?
 	S: Vermilion Gym
 		B: surge
 	S: Route 9
@@ -184,8 +160,9 @@ Route: Red Any% Glitchless - Paras%
 		B: jrtrf3
 		B: hiker2
 		B: jrtrf4
-	S: Route ?
+	S: Route 11
 		B: gambler1
+			Or the other one
 	S: Pokemon Tower
 		B: rival4
 		B: channeler1
@@ -194,8 +171,10 @@ Route: Red Any% Glitchless - Paras%
 		B: rocket2
 		B: rocket3
 		B: rocket4
+	D: TODO: choose your order here!
 	S: Erika
 		B: beauty1
+			Or the other ones
 		B: erika
 	S: Silph
 		B: rocket5
@@ -206,9 +185,7 @@ Route: Red Any% Glitchless - Paras%
 		B: juggler1
 		B: juggler2
 		B: koga
-		Candy: 3
 	S: Cinnabar Mansion
-		Candy: 4
 	S: Blaine
 		B: blaine
 	S: Sabrina
