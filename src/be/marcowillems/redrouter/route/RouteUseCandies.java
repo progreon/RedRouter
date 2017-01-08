@@ -30,8 +30,8 @@ public class RouteUseCandies extends RouteEntry {
 
     private final int count;
 
-    public RouteUseCandies(RouteEntryInfo info, int count) {
-        super(info, true);
+    public RouteUseCandies(Route route, RouteEntryInfo info, int count) {
+        super(route, info, true);
         this.count = count;
     }
 

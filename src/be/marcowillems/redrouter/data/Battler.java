@@ -27,13 +27,16 @@ import be.marcowillems.redrouter.util.Range;
  * @author Marco Willems
  */
 public abstract class Battler implements Cloneable {
+    
+    public final RouterData rd;
 
     public final Pokemon pokemon;
     public final EncounterArea catchLocation;
 
-    public Battler(Pokemon pokemon, EncounterArea catchLocation) {
+    public Battler(RouterData rd, Pokemon pokemon, EncounterArea catchLocation) {
         this.pokemon = pokemon;
         this.catchLocation = catchLocation;
+        this.rd = rd;
     }
 
     @Override

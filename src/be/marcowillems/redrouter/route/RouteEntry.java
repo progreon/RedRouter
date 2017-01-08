@@ -32,7 +32,7 @@ import java.util.ArrayList;
  */
 public abstract class RouteEntry extends Writable {
 
-    private Route route = null;
+    public final Route route;
     /**
      * All the messages from this route entry (lets just put it here for now).
      */
@@ -51,24 +51,29 @@ public abstract class RouteEntry extends Writable {
      */
     private Player player = null;
 
-    public RouteEntry(RouteEntryInfo info, boolean isLeafType) {
-        this(info, isLeafType, null, null);
+    public RouteEntry(Route route, RouteEntryInfo info, boolean isLeafType) {
+        this(route, info, isLeafType, null, null);
     }
 
-    public RouteEntry(RouteEntryInfo info, boolean isLeafType, Location location) {
-        this(info, isLeafType, null, location);
+    public RouteEntry(Route route, RouteEntryInfo info, boolean isLeafType, Location location) {
+        this(route, info, isLeafType, null, location);
     }
 
-    public RouteEntry(RouteEntryInfo info, boolean isLeafType, List<RouteEntry> children) {
-        this(info, isLeafType, children, null);
+    public RouteEntry(Route route, RouteEntryInfo info, boolean isLeafType, List<RouteEntry> children) {
+        this(route, info, isLeafType, children, null);
     }
 
-    public RouteEntry(RouteEntryInfo info, boolean isLeafType, List<RouteEntry> children, Location location) {
+    public RouteEntry(Route route, RouteEntryInfo info, boolean isLeafType, List<RouteEntry> children, Location location) {
+        this.route = (this instanceof Route ? (Route) this : route);
         this.info = info;
         this.isLeafType = isLeafType;
         this.children = (isLeafType ? null : (children == null ? new ArrayList<>() : children));
         this.location = location;
-        this.wildEncounters = new WildEncounters(getLocation());
+        if (route != null) { // TODO: TEMPORARY
+            this.wildEncounters = new WildEncounters(route.rd, getLocation());
+        } else {
+            this.wildEncounters = null;
+        }
     }
 
     protected Player apply(Player p) {
@@ -97,25 +102,24 @@ public abstract class RouteEntry extends Writable {
         return this.route;
     }
 
-    /**
-     * Sets the route object this entry belongs to, and updates it for its
-     * children.
-     *
-     * @param route
-     */
-    final void setRoute(Route route) {
-        if (this.route != route) {
-            this.route = route;
-            if (hasChildren()) {
-                for (RouteEntry child : this.children) {
-                    child.setRoute(route);
-                }
-            }
-            notifyDataUpdated();
-            notifyRoute();
-        }
-    }
-
+//    /**
+//     * Sets the route object this entry belongs to, and updates it for its
+//     * children.
+//     *
+//     * @param route
+//     */
+//    final void setRoute(Route route) {
+//        if (this.route != route) {
+//            this.route = route;
+//            if (hasChildren()) {
+//                for (RouteEntry child : this.children) {
+//                    child.setRoute(route);
+//                }
+//            }
+//            notifyDataUpdated();
+//            notifyRoute();
+//        }
+//    }
     protected void notifyRoute() {
         if (this.route != null) {
             route.notifyChanges();
@@ -175,7 +179,7 @@ public abstract class RouteEntry extends Writable {
     public final void setLocation(Location location) {
         if (this.location != location || location == null) {
             this.location = location;
-            this.wildEncounters = new WildEncounters(getLocation());
+            this.wildEncounters = new WildEncounters(route.rd, getLocation());
 //            refreshData(null);
             notifyDataUpdated();
             notifyRoute();
@@ -183,7 +187,7 @@ public abstract class RouteEntry extends Writable {
     }
 
     private void refreshLocationData() {
-        this.wildEncounters = new WildEncounters(getLocation());
+        this.wildEncounters = new WildEncounters(route.rd, getLocation());
         if (this instanceof RouteEncounter) { // TODO how to avoid this?
             this.wildEncounters.setPreferences(((RouteEncounter) this).getPreferences());
         }
@@ -204,7 +208,7 @@ public abstract class RouteEntry extends Writable {
     public void setParentSection(RouteSection parentSection) {
         if (this.parent != parentSection) {
             this.parent = parentSection;
-            this.setRoute(parent.getRoute());
+//            this.setRoute(parent.getRoute());
             refreshLocationData();
 //            notifyDataUpdated();
 //            notifyRoute();

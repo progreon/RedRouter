@@ -81,7 +81,7 @@ public class EncounterArea {
     }
 
     public SingleBattler getBattler(int slot) {
-        return new SingleBattler(this, slot);
+        return new SingleBattler(rd, this, slot);
     }
 
     public int[] getSlots(SingleBattler battler) {
@@ -141,7 +141,7 @@ public class EncounterArea {
     public List<SingleBattler> getUniqueBattlers(int[] slots) {
         List<SingleBattler> uniqueBattlers = new ArrayList<>();
         for (PokemonLevelPair plp : getUniqueSlots(slots)) {
-            uniqueBattlers.add(new SingleBattler(plp.pkmn, this, plp.level));
+            uniqueBattlers.add(new SingleBattler(rd, plp.pkmn, this, plp.level));
         }
         return uniqueBattlers;
     }

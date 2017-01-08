@@ -31,7 +31,7 @@ import be.marcowillems.redrouter.util.Range;
  */
 public class SingleBattler extends Battler {
 
-    public Move[] moveset;
+    public Move[] moveset; // TODO: private or final?
 
     public int level;
     private int levelExp = 0;
@@ -56,8 +56,8 @@ public class SingleBattler extends Battler {
      * @param level
      * @param moveset
      */
-    public SingleBattler(Pokemon pokemon, int level, Move[] moveset) {
-        super(pokemon, null);
+    public SingleBattler(RouterData rd, Pokemon pokemon, int level, Move[] moveset) {
+        super(rd, pokemon, null);
         this.level = level;
         this.moveset = moveset;
         this.isTrainerMon = true;
@@ -74,8 +74,8 @@ public class SingleBattler extends Battler {
      * @param catchLocation null if pokemon was a given one
      * @param level
      */
-    public SingleBattler(Pokemon pokemon, EncounterArea catchLocation, int level) {
-        super(pokemon, catchLocation);
+    public SingleBattler(RouterData rd, Pokemon pokemon, EncounterArea catchLocation, int level) {
+        super(rd, pokemon, catchLocation);
         this.level = level;
         this.isTrainerMon = false;
         initDefaultMoveSet(pokemon, level);
@@ -88,8 +88,8 @@ public class SingleBattler extends Battler {
      * @param catchLocation
      * @param slot
      */
-    public SingleBattler(EncounterArea catchLocation, int slot) {
-        super(catchLocation.slots[slot].pkmn, catchLocation);
+    public SingleBattler(RouterData rd, EncounterArea catchLocation, int slot) {
+        super(rd, catchLocation.slots[slot].pkmn, catchLocation);
         this.level = catchLocation.slots[slot].level;
         this.isTrainerMon = true;
         initDefaultMoveSet(pokemon, level);
@@ -107,8 +107,8 @@ public class SingleBattler extends Battler {
      * @param spdDV
      * @param spcDV
      */
-    public SingleBattler(EncounterArea catchLocation, Pokemon pokemon, int level, int atkDV, int defDV, int spdDV, int spcDV) {
-        super(pokemon, catchLocation);
+    public SingleBattler(RouterData rd, EncounterArea catchLocation, Pokemon pokemon, int level, int atkDV, int defDV, int spdDV, int spcDV) {
+        super(rd, pokemon, catchLocation);
         this.level = level;
         this.isTrainerMon = false;
         initDefaultMoveSet(pokemon, level);
@@ -149,7 +149,7 @@ public class SingleBattler extends Battler {
 
     @Override
     public Battler getDeepCopy() {
-        SingleBattler newBattler = new SingleBattler(pokemon, catchLocation, level);
+        SingleBattler newBattler = new SingleBattler(rd, pokemon, catchLocation, level);
 
         newBattler.moveset = this.moveset.clone();
         newBattler.levelExp = this.levelExp;
@@ -176,7 +176,7 @@ public class SingleBattler extends Battler {
 
     private SingleBattler evolve(Evolution.Key key) {
         if (pokemon.evolution != null && pokemon.evolution.get(key) != null) {
-            SingleBattler evo = new SingleBattler(pokemon.evolution.get(key), catchLocation, level);
+            SingleBattler evo = new SingleBattler(rd, pokemon.evolution.get(key), catchLocation, level);
             // TODO: evolution moves?
             evo.moveset = moveset;
             evo.possibleDVs = possibleDVs;
@@ -229,8 +229,25 @@ public class SingleBattler extends Battler {
                     moveset[numCurMoves + i] = newMoves.get(i);
                     i++;
                 }
-                if (i < newMoves.size()) {
+                while (i < newMoves.size()) {
                     // TODO check what move to override -> make Battler settings?
+                    Move oldMove = rd.getMoveReplaced(pokemon, newMoves.get(i));
+                    int oldIdx = 0;
+                    boolean found = false;
+                    while (!found && oldIdx < moveset.length) {
+                        if (oldMove == moveset[oldIdx]) {
+                            found = true;
+                        } else {
+                            oldIdx++;
+                        }
+                    }
+                    if (found) {
+                        moveset[oldIdx] = newMoves.get(i);
+                        System.out.println(pokemon + " L" + level + " learned " + newMoves.get(i) + "!");
+                    } else {
+                        System.out.println(pokemon + " L" + level + " tried to learn " + newMoves.get(i));
+                    }
+                    i++;
                 }
             }
         }
@@ -252,11 +269,11 @@ public class SingleBattler extends Battler {
                 while (i < moveset.length && oldMove != moveset[i] && moveset[i] != null) {
                     i++;
                 } // only remove the move if no more room!
-                moveset[i] = newMove;
-                success = true;
+                if (i < moveset.length) {
+                    moveset[i] = newMove;
+                    success = true;
+                }
             }
-        } else {
-            System.out.println(toString() + " can't learn " + newMove + " as a tM.");
         }
         return success;
     }
@@ -401,7 +418,8 @@ public class SingleBattler extends Battler {
     public boolean equals(Object obj) {
         if (obj instanceof SingleBattler) {
             SingleBattler b = (SingleBattler) obj;
-            return pokemon == b.pokemon
+            return rd == b.rd
+                    && pokemon == b.pokemon
                     && Arrays.equals(moveset, b.moveset)
                     && catchLocation == b.catchLocation
                     && level == b.level

@@ -117,13 +117,13 @@ public class DVCalculatorPanel extends JPanel {
     }
 
     private void setPokemon(Pokemon poke) {
-        this.calc.setBattler(new SingleBattler(poke, null, (int) spnLevel.getValue()));
+        this.calc.setBattler(new SingleBattler(this.calc.getRd(), poke, null, (int) spnLevel.getValue()));
         fillEncounterAreas();
         updateButtons();
     }
 
     private void setCatchLocation(EncounterArea catchLocation) {
-        this.calc.setBattler(new SingleBattler(this.calc.getBattler().getPokemon(), catchLocation, (int) spnLevel.getValue()));
+        this.calc.setBattler(new SingleBattler(this.calc.getRd(), this.calc.getBattler().getPokemon(), catchLocation, (int) spnLevel.getValue()));
         updateButtons();
     }
 

@@ -54,7 +54,7 @@ public class DVCalculator {
     }
 
     private SingleBattler getDefaultBattler() {
-        return new SingleBattler(rd.getPokemon(defaultPokemon), null, defaultLevel);
+        return new SingleBattler(rd, rd.getPokemon(defaultPokemon), null, defaultLevel);
     }
 
     private void init() {

@@ -37,7 +37,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 
 /**
- * The main factory class for the application
+ * The main factory class for the route
  *
  * @author Marco Willems
  */
@@ -54,6 +54,10 @@ public class RouterData {
     private final Map<String, Move> moves = new HashMap<>();
     private final Map<String, Move> tms = new HashMap<>();
     private final Map<String, Trainer> trainers = new HashMap<>();
+    /**
+     * Pokemon -> New move -> Old move
+     */
+    private final Map<Pokemon, Map<Move, Move>> movesReplaced = new HashMap<>();
 
     public RouterData() {
         this(new Settings());
@@ -72,6 +76,7 @@ public class RouterData {
         initMovesets();
         // For dummy data
         initTrainers();
+//        initMovesReplaced();
     }
 
     public EncounterArea getEncounterArea(Location location, String subArea) {
@@ -110,6 +115,31 @@ public class RouterData {
         return moves.get(Move.getIndexString(name));
     }
 
+    public boolean addMoveReplaced(Pokemon pokemon, Move newMove, Move oldMove) {
+        // TODO: check if HM?
+        boolean success = false;
+
+        if (!movesReplaced.containsKey(pokemon)) {
+            movesReplaced.put(pokemon, new HashMap<>());
+        }
+        if (!movesReplaced.get(pokemon).containsKey(newMove)) {
+            movesReplaced.get(pokemon).put(newMove, oldMove);
+            success = true;
+        }
+
+        return success;
+    }
+
+    public Move getMoveReplaced(Pokemon pokemon, Move newMove) {
+        Move oldMove = null;
+
+        if (movesReplaced.containsKey(pokemon)) {
+            oldMove = movesReplaced.get(pokemon).get(newMove);
+        }
+
+        return oldMove;
+    }
+
     public Trainer getTrainer(String name) {
         return trainers.get(Trainer.getIndexString(name));
     }
@@ -128,6 +158,35 @@ public class RouterData {
 
     public String[] getPokemonNames() {
         return pokemonByName.keySet().toArray(new String[0]);
+    }
+
+    private void initPokemon() {
+        List<String> lines = getLinesFromResourceFile(settings.getPokemonFile());
+        try {
+            int ID = 1;
+            for (int lno = 0; lno < lines.size(); lno++) {
+                String line = lines.get(lno);
+                if (!line.equals("") && !line.substring(0, 2).equals("//")) {
+                    if (addPokemon(ID, line, settings.getPokemonFile(), lno) == null) {
+                        throw new ParserException(settings.getPokemonFile(), lno, "This pokemon already exists!");
+                    }
+                    ID++;
+                }
+            }
+        } catch (ParserException ex) {
+            Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private Pokemon addPokemon(int ID, String pokemonString, String file, int line) throws ParserException {
+        Pokemon pokemon = new Pokemon(this, ID, pokemonString, file, line);
+        if (!pokemonByName.containsKey(pokemon.getIndexString()) && !pokemonByID.containsKey(ID)) {
+            pokemonByName.put(pokemon.getIndexString(), pokemon);
+            pokemonByID.put(ID, pokemon);
+            return pokemon;
+        } else {
+            return null;
+        }
     }
 
     private void initEncounters() {
@@ -270,74 +329,6 @@ public class RouterData {
         }
     }
 
-    // TODO: TEMP
-    private void initTrainers() {
-        // TODO: input file!
-        // rival 1
-        List<SingleBattler> teamRival1 = makeTeam(new Pokemon[]{getPokemon("Bulbasaur")}, new int[]{5});
-        Trainer trRival1 = new Trainer(getLocation("Pallet Town"), "Rival 1", null, teamRival1);
-        trainers.put(trRival1.getIndexString(), trRival1);
-        // bug catcher 1 (forest)
-        List<SingleBattler> teamBug1 = makeTeam(new Pokemon[]{getPokemon("Weedle")}, new int[]{9});
-        Trainer trBug1 = new Trainer(getLocation("Viridian Forest"), "Bug 1", null, teamBug1);
-        trainers.put(trBug1.getIndexString(), trBug1);
-        // brock
-        List<SingleBattler> teamBrock = makeTeam(new Pokemon[]{getPokemon("Geodude"), getPokemon("Onix")}, new int[]{12, 14});
-        Trainer trBrock = new Trainer(getLocation("Pewter City"), "Brock", null, teamBrock);
-        trainers.put(trBrock.getIndexString(), trBrock);
-        // bug catcher 2 (r3)
-        List<SingleBattler> teamBug2 = makeTeam(new Pokemon[]{getPokemon("Caterpie"), getPokemon("Weedle"), getPokemon("Caterpie")}, new int[]{10, 10, 10});
-        Trainer trBug2 = new Trainer(getLocation("Route 3"), "Bug 2", null, teamBug2);
-        trainers.put(trBug2.getIndexString(), trBug2);
-        // shorts guy (r3)
-        List<SingleBattler> teamShorts = makeTeam(new Pokemon[]{getPokemon("Rattata"), getPokemon("Ekans")}, new int[]{11, 11});
-        Trainer trShorts = new Trainer(getLocation("Route 3"), "Shorts guy", null, teamShorts);
-        trainers.put(trShorts.getIndexString(), trShorts);
-    }
-
-    // TODO: TEMP
-    private List<SingleBattler> makeTeam(Pokemon[] pokemon, int[] levels) {
-        if (pokemon.length != levels.length) {
-            return null;
-        } else {
-            List<SingleBattler> team = new ArrayList<>();
-            for (int i = 0; i < pokemon.length; i++) {
-                SingleBattler b = new SingleBattler(pokemon[i], levels[i], null);
-                team.add(b);
-            }
-            return team;
-        }
-    }
-
-    private void initPokemon() {
-        List<String> lines = getLinesFromResourceFile(settings.getPokemonFile());
-        try {
-            int ID = 1;
-            for (int lno = 0; lno < lines.size(); lno++) {
-                String line = lines.get(lno);
-                if (!line.equals("") && !line.substring(0, 2).equals("//")) {
-                    if (addPokemon(ID, line, settings.getPokemonFile(), lno) == null) {
-                        throw new ParserException(settings.getPokemonFile(), lno, "This pokemon already exists!");
-                    }
-                    ID++;
-                }
-            }
-        } catch (ParserException ex) {
-            Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    private Pokemon addPokemon(int ID, String pokemonString, String file, int line) throws ParserException {
-        Pokemon pokemon = new Pokemon(this, ID, pokemonString, file, line);
-        if (!pokemonByName.containsKey(pokemon.getIndexString()) && !pokemonByID.containsKey(ID)) {
-            pokemonByName.put(pokemon.getIndexString(), pokemon);
-            pokemonByID.put(ID, pokemon);
-            return pokemon;
-        } else {
-            return null;
-        }
-    }
-
     private void initMovesets() {
         List<String> lines = getLinesFromResourceFile(settings.getMovesetFile());
 
@@ -392,6 +383,55 @@ public class RouterData {
             }
         }
     }
+
+    // TODO: TEMP
+    private void initTrainers() {
+        // TODO: input file!
+        // rival 1
+        List<SingleBattler> teamRival1 = makeTeam(new Pokemon[]{getPokemon("Bulbasaur")}, new int[]{5});
+        Trainer trRival1 = new Trainer(getLocation("Pallet Town"), "Rival 1", null, teamRival1);
+        trainers.put(trRival1.getIndexString(), trRival1);
+        // bug catcher 1 (forest)
+        List<SingleBattler> teamBug1 = makeTeam(new Pokemon[]{getPokemon("Weedle")}, new int[]{9});
+        Trainer trBug1 = new Trainer(getLocation("Viridian Forest"), "Bug 1", null, teamBug1);
+        trainers.put(trBug1.getIndexString(), trBug1);
+        // brock
+        List<SingleBattler> teamBrock = makeTeam(new Pokemon[]{getPokemon("Geodude"), getPokemon("Onix")}, new int[]{12, 14});
+        Trainer trBrock = new Trainer(getLocation("Pewter City"), "Brock", null, teamBrock);
+        trainers.put(trBrock.getIndexString(), trBrock);
+        // bug catcher 2 (r3)
+        List<SingleBattler> teamBug2 = makeTeam(new Pokemon[]{getPokemon("Caterpie"), getPokemon("Weedle"), getPokemon("Caterpie")}, new int[]{10, 10, 10});
+        Trainer trBug2 = new Trainer(getLocation("Route 3"), "Bug 2", null, teamBug2);
+        trainers.put(trBug2.getIndexString(), trBug2);
+        // shorts guy (r3)
+        List<SingleBattler> teamShorts = makeTeam(new Pokemon[]{getPokemon("Rattata"), getPokemon("Ekans")}, new int[]{11, 11});
+        Trainer trShorts = new Trainer(getLocation("Route 3"), "Shorts guy", null, teamShorts);
+        trainers.put(trShorts.getIndexString(), trShorts);
+    }
+
+    // TODO: TEMP
+    private List<SingleBattler> makeTeam(Pokemon[] pokemon, int[] levels) {
+        if (pokemon.length != levels.length) {
+            return null;
+        } else {
+            List<SingleBattler> team = new ArrayList<>();
+            for (int i = 0; i < pokemon.length; i++) {
+                SingleBattler b = new SingleBattler(this, pokemon[i], levels[i], null);
+                team.add(b);
+            }
+            return team;
+        }
+    }
+
+    // TODO: TEMP
+//    private void initMovesReplaced() {
+//        Pokemon paras = getPokemon("Paras");
+//        Pokemon parasect = getPokemon("Parasect");
+//        Move spore = getMove("spore");
+//        Move scratch = getMove("scratch");
+//        addMoveReplaced(parasect, spore, scratch);
+//        System.out.println(parasect + ": " + spore + " replaces " + scratch);
+//    }
 
     // TODO Change this
     private void initTms() {
@@ -456,7 +496,7 @@ public class RouterData {
         return getLinesFromFile(ClassLoader.getSystemResourceAsStream(fileName));
     }
 
-    public static List<String> getLinesFromFile(File file) throws FileNotFoundException, RouteParserException {
+    public static List<String> getLinesFromFile(File file) throws RouteParserException {
         if (file.exists()) {
             try {
                 if (!Files.probeContentType(file.toPath()).equals("text/plain")) {
@@ -466,7 +506,11 @@ public class RouterData {
                 Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        return getLinesFromFile(new FileInputStream(file));
+        try {
+            return getLinesFromFile(new FileInputStream(file));
+        } catch (FileNotFoundException ex) {
+            throw new RouteParserException("File not found: " + file.getAbsolutePath(), -1);
+        }
     }
 
     private static List<String> getLinesFromFile(InputStream inFile) {

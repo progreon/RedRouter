@@ -29,12 +29,12 @@ public class RouteSwapPokemon extends RouteEntry {
 
     public final int index1, index2, box1, box2;
 
-    public RouteSwapPokemon(RouteEntryInfo info, int index1, int index2) {
-        this(info, index1, -1, index2, -1);
+    public RouteSwapPokemon(Route route, RouteEntryInfo info, int index1, int index2) {
+        this(route, info, index1, -1, index2, -1);
     }
 
-    public RouteSwapPokemon(RouteEntryInfo info, int index1, int box1, int index2, int box2) {
-        super(info, true);
+    public RouteSwapPokemon(Route route, RouteEntryInfo info, int index1, int box1, int index2, int box2) {
+        super(route, info, true);
         this.index1 = index1;
         this.index2 = index2;
         this.box1 = box1;

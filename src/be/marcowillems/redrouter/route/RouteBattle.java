@@ -37,8 +37,8 @@ public class RouteBattle extends RouteEntry {
     private final Player[] playerAfterEvery;
 
     // TODO: description instead of info => new RouteEntryInfo(opponent.name, description) ??
-    public RouteBattle(RouteEntryInfo info, Trainer opponent) {
-        super(info, true);
+    public RouteBattle(Route route, RouteEntryInfo info, Trainer opponent) {
+        super(route, info, true);
         if (info == null) {
             super.info = new RouteEntryInfo(opponent.name);
         } else if (info.title == null) {
@@ -59,8 +59,8 @@ public class RouteBattle extends RouteEntry {
         }
     }
 
-    public RouteBattle(RouteEntryInfo info, Trainer opponent, int[][] competingPartyMon) {
-        this(info, opponent);
+    public RouteBattle(Route route, RouteEntryInfo info, Trainer opponent, int[][] competingPartyMon) {
+        this(route, info, opponent);
         // TODO: move these checks to apply & showMessage()?
         if (competingPartyMon != null && competingPartyMon.length == entries.length) {
             for (int i = 0; i < entries.length; i++) {

@@ -31,8 +31,8 @@ public class RouteLearnTmMove extends RouteEntry {
 
     private final Move newMove, oldMove;
 
-    public RouteLearnTmMove(RouteEntryInfo info, Move newMove, Move oldMove) {
-        super(info, true);
+    public RouteLearnTmMove(Route route, RouteEntryInfo info, Move newMove, Move oldMove) {
+        super(route, info, true);
         this.newMove = newMove;
         this.oldMove = oldMove;
     }
@@ -42,8 +42,10 @@ public class RouteLearnTmMove extends RouteEntry {
         Player newPlayer = super.apply(p);
 
         Battler b = newPlayer.getFrontBattler();
-        b.learnTmMove(newMove, oldMove);
-        
+        if (!b.learnTmMove(newMove, oldMove)) {
+            showMessage(RouterMessage.Type.ERROR, b + " couldn't learn the TM " + newMove + "! Can he learn it or out of space?");
+        }
+
         showMessage(RouterMessage.Type.WARNING, "This is a temporary entry type!");
         showMessage(RouterMessage.Type.HINT, "There will be a menu entry soon, don't worry :)");
 

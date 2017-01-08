@@ -28,8 +28,8 @@ public class RouteDirections extends RouteEntry {
 
     private static final String DEFAULT = "???";
 
-    public RouteDirections(String description) {
-        super(new RouteEntryInfo(null, (description == null ? DEFAULT : description)), true);
+    public RouteDirections(Route route, String description) {
+        super(route, new RouteEntryInfo(null, (description == null ? DEFAULT : description)), true);
     }
 
     @Override

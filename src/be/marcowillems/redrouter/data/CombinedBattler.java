@@ -32,7 +32,7 @@ public class CombinedBattler extends Battler {
     private final List<SingleBattler> possibleBattlers = new ArrayList<>();
 
     public CombinedBattler(SingleBattler battler) {
-        super(battler.pokemon, battler.catchLocation);
+        super(battler.rd, battler.pokemon, battler.catchLocation);
         this.possibleBattlers.add(battler);
     }
 
@@ -56,7 +56,7 @@ public class CombinedBattler extends Battler {
                 }
             }
         }
-        if (!equals && battler.getPokemon() == this.getPokemon()) {
+        if (!equals && battler.getPokemon() == this.getPokemon() && battler.rd == rd) {
             possibleBattlers.add(battler);
             return true;
         }

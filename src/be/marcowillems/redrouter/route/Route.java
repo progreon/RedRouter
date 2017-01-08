@@ -46,14 +46,14 @@ public class Route extends RouteSection {
     private List<RouteEntry> entryList;
 
     public Route(RouterData rd, String title) {
-        super(title);
+        super(null, title);
         this.rd = rd;
         this.routeObservable = new RouteObservable();
         this.startPlayer = new Player("Red", "The playable character", null);
         this.entryList = new ArrayList<>();
         this.entryList.add(this);
         this.setLocation(rd.getDefaultLocation());
-        super.setRoute(this);
+//        super.setRoute(this);
     }
 
     public boolean isThisObservable(Observable o) {

@@ -34,8 +34,8 @@ public class RouteOr extends RouteEntry {
     private final HashMap<String, RouteSection> subRoutes; // TODO: this.children are the subroutes?
     private String selectedSubRouteName;
 
-    public RouteOr(RouteEntryInfo info) {
-        super(info, true);
+    public RouteOr(Route route, RouteEntryInfo info) {
+        super(route, info, true);
         this.subRoutes = new HashMap<>();
         this.selectedSubRouteName = null;
     }

@@ -26,34 +26,41 @@ import java.util.Objects;
  */
 public class Item {
 
-    public enum Type {
+//    public enum Type {
+//
+//        HEALING,
+//        ETHER, // also elixers
+//        XITEM,
+//        TM,
+//        HM,
+//        STONE,
+//        KEYITEM,
+//        OTHER
+//    }
+//    
+//    final Type type;
+    final String name;
+    final String type;
+    final int price;
+    final boolean tossable;
+    final boolean usableOutBattle;
+    final boolean usableInBattle;
 
-        HEALING,
-        ETHER, // also elixers
-        XITEM,
-        TM,
-        HM,
-        STONE,
-        KEYITEM,
-        OTHER
+    public Item(String name, boolean tossable, boolean usableOutBattle, boolean usableInBattle, int price) {
+        this(name, tossable, usableOutBattle, usableInBattle, price, null);
     }
 
-    final String name;
-    final Type type;
-    final int price;
-    final boolean usableInBattle;
-    final boolean usableOutBattle;
-
-    public Item(String name, Type type, int price, boolean usableInBattle, boolean usableOutBattle) {
+    public Item(String name, boolean tossable, boolean usableOutBattle, boolean usableInBattle, int price, String value) {
         this.name = name;
-        this.type = type;
+        this.type = value;
         this.price = price;
-        this.usableInBattle = usableInBattle;
+        this.tossable = tossable;
         this.usableOutBattle = usableInBattle;
+        this.usableInBattle = usableInBattle;
     }
 
     public boolean isTossable() {
-        return type != Type.HM && type != Type.KEYITEM;
+        return tossable;
     }
 
     public boolean use(Battle b, int partyIndex) {

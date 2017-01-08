@@ -101,6 +101,9 @@ Trainer: Agatha :: Victory Road :: agatha gengar:56 golbat:56 haunter:55 arbok:5
 Trainer: Lance :: Victory Road :: lance gyarados:58 dragonair:56 dragonair:56 aerodactyl:60 dragonite:62
 Trainer: Rival 7 :: Victory Road :: rival7 pidgeot:61 alakazam:59 rhydon:61 gyarados:61 arcanine:63 venusaur:65
 
+// Moves replaced when leveling (if needed) // TODO
+// MoveReplace: <pokemon> :: <old move> <new move>
+MoveReplace: Parasect :: scratch spore
 
 // Route
 Route: Red Any% Glitchless - Paras%
@@ -173,7 +176,9 @@ Route: Red Any% Glitchless - Paras%
 		TM: Body_Slam :: Stun_Spore
 		B: gentleman1
 		B: rival3
-		TM: Cut :: Scratch // do this?
+		Swap: 0 3 // temporary hack
+		TM: Cut // do this?
+		Swap: 0 3
 	S: Vermilion Gym
 		B: surge
 	S: Route 9

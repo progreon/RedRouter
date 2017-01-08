@@ -37,13 +37,13 @@ public class RouteEncounter extends RouteEntry {
     // Use this for DSUM later, maybe?
     private int[] slots;
 
-    public RouteEncounter(RouteEntryInfo info, EncounterArea area, Set<PokemonCountPair> preferences) {
-        this(info, area);
+    public RouteEncounter(Route route, RouteEntryInfo info, EncounterArea area, Set<PokemonCountPair> preferences) {
+        this(route, info, area);
         updatePreferences(preferences);
     }
 
-    public RouteEncounter(RouteEntryInfo info, EncounterArea area, IntPair[] slotPreferences) {
-        this(info, area);
+    public RouteEncounter(Route route, RouteEntryInfo info, EncounterArea area, IntPair[] slotPreferences) {
+        this(route, info, area);
         for (IntPair ip : slotPreferences) {
             if (ip.int1 > 0 && ip.int1 < area.slots.length) {
                 this.preferences.add(new PokemonCountPair(area.slots[ip.int1], ip.int2));
@@ -52,8 +52,8 @@ public class RouteEncounter extends RouteEntry {
         updatePreferences(this.preferences);
     }
 
-    private RouteEncounter(RouteEntryInfo info, EncounterArea area) {
-        super(info, true, area.location);
+    private RouteEncounter(Route route, RouteEntryInfo info, EncounterArea area) {
+        super(route, info, true, area.location);
         if (info == null || (info.title == null && info.description == null)) {
             this.info = new RouteEntryInfo(area + ": get experience");
         }

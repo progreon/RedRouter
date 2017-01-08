@@ -32,12 +32,12 @@ import be.marcowillems.redrouter.util.PokemonCountPair;
  */
 public class RouteSection extends RouteEntry {
 
-    public RouteSection(String title) {
-        this(title, null);
+    public RouteSection(Route route, String title) {
+        this(route, title, null);
     }
 
-    public RouteSection(String title, List<RouteEntry> children) {
-        super(new RouteEntryInfo(title), false, children);
+    public RouteSection(Route route, String title, List<RouteEntry> children) {
+        super(route, new RouteEntryInfo(title), false, children);
     }
 
     public RouteEntry addEntry(RouteEntry entry) {
@@ -54,43 +54,43 @@ public class RouteSection extends RouteEntry {
     }
 
     public RouteBattle addNewBattle(RouteEntryInfo info, Trainer opponent) {
-        RouteBattle r = new RouteBattle(info, opponent);
+        RouteBattle r = new RouteBattle(route, info, opponent);
         addEntry(r);
         return r;
     }
 
     public RouteBattle addNewBattle(RouteEntryInfo info, Trainer opponent, int[][] competingPartyMon) {
-        RouteBattle r = new RouteBattle(info, opponent, competingPartyMon);
+        RouteBattle r = new RouteBattle(route, info, opponent, competingPartyMon);
         addEntry(r);
         return r;
     }
 
     public RouteDirections addNewDirections(String description) {
-        RouteDirections r = new RouteDirections(description);
+        RouteDirections r = new RouteDirections(route, description);
         addEntry(r);
         return r;
     }
 
     public RouteEncounter addNewEncounter(String description, EncounterArea area, IntPair[] slotPreferences) {
-        RouteEncounter r = new RouteEncounter(new RouteEntryInfo(null, description), area, slotPreferences);
+        RouteEncounter r = new RouteEncounter(route, new RouteEntryInfo(null, description), area, slotPreferences);
         addEntry(r);
         return r;
     }
 
     public RouteEncounter addNewEncounter(String description, EncounterArea area, Set<PokemonCountPair> preferences) {
-        RouteEncounter r = new RouteEncounter(new RouteEntryInfo(null, description), area, preferences);
+        RouteEncounter r = new RouteEncounter(route, new RouteEntryInfo(null, description), area, preferences);
         addEntry(r);
         return r;
     }
 
     public RouteOr addNewOr(RouteEntryInfo info) {
-        RouteOr r = new RouteOr(info);
+        RouteOr r = new RouteOr(route, info);
         addEntry(r);
         return r;
     }
 
     public RouteSection addNewSection(String title) {
-        RouteSection r = new RouteSection(title);
+        RouteSection r = new RouteSection(route, title);
         addEntry(r);
         return r;
     }

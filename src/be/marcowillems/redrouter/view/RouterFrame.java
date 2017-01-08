@@ -24,6 +24,7 @@ import be.marcowillems.redrouter.io.PrintSettings;
 import be.marcowillems.redrouter.io.RouteParser;
 import be.marcowillems.redrouter.io.RouteParserException;
 import be.marcowillems.redrouter.route.Route;
+import be.marcowillems.redrouter.route.RouterMessage;
 import java.io.File;
 import java.net.URISyntaxException;
 import javax.swing.JFileChooser;
@@ -98,6 +99,9 @@ public class RouterFrame extends JFrame {
         if (file != null) {
             try {
                 Route route = new RouteParser().parseFile(file);
+                for (RouterMessage rm : route.getAllMessages()) {
+                    System.out.println(rm);
+                }
                 if (close()) {
                     openRoute(route);
                     return true;

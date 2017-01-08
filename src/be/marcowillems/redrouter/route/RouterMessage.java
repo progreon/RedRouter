@@ -64,7 +64,7 @@ public class RouterMessage {
 
     @Override
     public String toString() {
-        String str = type.toString();
+        String str = type.toString() + "\t";
         if (file != null) {
             str += " in " + file;
             if (lineNo >= 0) {

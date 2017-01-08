@@ -34,8 +34,8 @@ public class RouteGetPokemon extends RouteEntry {
     private final List<SingleBattler> choices;
     private int preference;
 
-    public RouteGetPokemon(RouteEntryInfo info, SingleBattler choice) {
-        this(info, new ArrayList<>());
+    public RouteGetPokemon(Route route, RouteEntryInfo info, SingleBattler choice) {
+        this(route, info, new ArrayList<>());
         choices.add(choice);
         this.preference = 0;
         if (choice.catchLocation != null) {
@@ -43,12 +43,12 @@ public class RouteGetPokemon extends RouteEntry {
         }
     }
 
-    public RouteGetPokemon(RouteEntryInfo info, List<SingleBattler> choices) {
-        this(info, choices, -1);
+    public RouteGetPokemon(Route route, RouteEntryInfo info, List<SingleBattler> choices) {
+        this(route, info, choices, -1);
     }
 
-    public RouteGetPokemon(RouteEntryInfo info, List<SingleBattler> choices, int preference) {
-        super(info, true);
+    public RouteGetPokemon(Route route, RouteEntryInfo info, List<SingleBattler> choices, int preference) {
+        super(route, info, true);
         if (choices == null) {
             this.choices = new ArrayList<>();
             this.preference = -1;

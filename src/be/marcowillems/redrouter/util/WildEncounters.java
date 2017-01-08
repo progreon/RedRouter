@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import be.marcowillems.redrouter.data.EncounterArea;
 import be.marcowillems.redrouter.data.Location;
+import be.marcowillems.redrouter.data.RouterData;
 import be.marcowillems.redrouter.data.SingleBattler;
 
 /**
@@ -33,10 +34,12 @@ import be.marcowillems.redrouter.data.SingleBattler;
  */
 public class WildEncounters {
 
+    public final RouterData rd;
     public final Location loc;
     public final Map<EncounterArea, Set<PokemonCountPair>> encounterCounts; // Encounter counts per area
 
-    public WildEncounters(Location loc) {
+    public WildEncounters(RouterData rd, Location loc) {
+        this.rd = rd;
         this.loc = loc;
         if (loc != null) {
             this.encounterCounts = new HashMap<>(loc.encounterAreas.size());
@@ -52,7 +55,8 @@ public class WildEncounters {
         }
     }
 
-    public WildEncounters(EncounterArea ea) {
+    public WildEncounters(RouterData rd, EncounterArea ea) {
+        this.rd = rd;
         if (ea != null) {
             this.loc = ea.location;
             this.encounterCounts = new HashMap<>(1);
@@ -74,7 +78,7 @@ public class WildEncounters {
                 Set<PokemonCountPair> spcp = encounterCounts.get(ea);
                 for (PokemonCountPair pcp : spcp) {
                     for (int i = 0; i < pcp.getCount(); i++) {
-                        bbs.add(new SingleBattler(pcp.plp.pkmn, ea, pcp.plp.level));
+                        bbs.add(new SingleBattler(rd, pcp.plp.pkmn, ea, pcp.plp.level));
                     }
                 }
             }
