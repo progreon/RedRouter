@@ -295,7 +295,7 @@ public class RouteParser {
         RouteEntry previousEntry = getLastEntry(route);
         route.enableRefresh(); // A forced refresh
         route.disableRefresh();
-        Player prevPlayer = previousEntry.getPlayer();
+        Player prevPlayer = previousEntry.getPlayerBefore();
 
         String[] args = battleLine.split("::");
         if (args.length < 1 || args.length > 2) {

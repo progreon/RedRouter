@@ -292,7 +292,7 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
                     if (pif != null) {
                         pif.dispose();
                     }
-                    pif = new PlayerInfoDialog(routeEntry.getPlayer());
+                    pif = new PlayerInfoDialog(routeEntry.getPlayerBefore());
                     pif.display((JButton) e.getSource());
                     //                    tree.requestFocus();
                 }

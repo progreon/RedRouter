@@ -133,8 +133,8 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
         JPanel pnlCell = new JPanel(new BorderLayout(2, 2));
         if (attacker != null && defender != null) {
             // Who is faster?
-            int spdBBA = (isPlayerAttacker ? (routeEntry.getPlayer().spdBadge ? 1 : 0) : 0);
-            int spdBBB = (!isPlayerAttacker ? (routeEntry.getPlayer().spdBadge ? 1 : 0) : 0);
+            int spdBBA = (isPlayerAttacker ? (routeEntry.getPlayerBefore().spdBadge ? 1 : 0) : 0);
+            int spdBBB = (!isPlayerAttacker ? (routeEntry.getPlayerBefore().spdBadge ? 1 : 0) : 0);
             Range rSpdA = attacker.getSpd(spdBBA, 0);
             Range rSpdB = defender.getSpd(spdBBB, 0);
             boolean isFaster = false;
@@ -158,8 +158,8 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
             String text = "<html><body>";
             for (Move m : attacker.getMoveset()) {
                 text += m;
-                Player playerA = (isPlayerAttacker ? routeEntry.getPlayer() : null);
-                Player playerB = (!isPlayerAttacker ? routeEntry.getPlayer() : null);
+                Player playerA = (isPlayerAttacker ? routeEntry.getPlayerBefore() : null);
+                Player playerB = (!isPlayerAttacker ? routeEntry.getPlayerBefore() : null);
                 DamageRange dr = m.getDamageRange(playerA, playerB, attacker, defender);
                 if (dr.critMax != 0) {
                     text += ": " + dr;

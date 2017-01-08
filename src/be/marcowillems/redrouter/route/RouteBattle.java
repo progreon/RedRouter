@@ -124,6 +124,7 @@ public class RouteBattle extends RouteEntry {
             showMessage(RouterMessage.Type.INFO, "Special badge boost aquired!");
         }
 
+        setPlayerAfter(newPlayer);
         return newPlayer;
     }
 

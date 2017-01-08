@@ -43,8 +43,8 @@ public class RouteSection extends RouteEntry {
     public RouteEntry addEntry(RouteEntry entry) {
         super.children.add(entry);
         entry.setParentSection(this);
-        super.notifyDataUpdated();
-        super.notifyRoute();
+        entry.notifyDataUpdated();
+        entry.notifyRoute();
         return entry;
     }
 

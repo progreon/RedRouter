@@ -34,6 +34,7 @@ import be.marcowillems.redrouter.util.PokemonCountPair;
 import be.marcowillems.redrouter.util.WildEncounters;
 
 /**
+ * TODO: reset button
  *
  * @author Marco Willems
  */

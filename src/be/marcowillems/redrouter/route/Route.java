@@ -41,6 +41,7 @@ public class Route extends RouteSection {
     private boolean canRefresh = true;
     private boolean dataUpdated = false;
     private boolean infoUpdated = false;
+    private final List<RouteEntry> updatedEntries = new ArrayList<>();
 
     private Player startPlayer;
     private List<RouteEntry> entryList;
@@ -67,7 +68,7 @@ public class Route extends RouteSection {
     public final void setPlayer(Player p) {
         if (this.startPlayer != p) {
             this.startPlayer = p;
-            setDataUpdated();
+            setDataUpdated(this);
             notifyChanges();
         }
     }
@@ -85,10 +86,19 @@ public class Route extends RouteSection {
         if (canRefresh && (dataUpdated || infoUpdated)) {
             updateEntryList();
             if (dataUpdated) { // TODO only start updating from the first source!
+                boolean toUpdate = false;
                 Player p = startPlayer;
                 for (RouteEntry e : this.entryList) {
-                    p = e.apply(p);
+                    if (!toUpdate && updatedEntries.contains(e)) {
+                        toUpdate = true;
+                    }
+                    if (toUpdate) {
+                        p = e.apply(p);
+                    } else {
+                        p = e.getPlayerAfter();
+                    }
                 }
+                updatedEntries.clear();
             }
             routeObservable.setChanged();
             routeObservable.notifyObservers(TREE_UPDATED);
@@ -98,7 +108,8 @@ public class Route extends RouteSection {
     }
 
     // TODO add a source!
-    void setDataUpdated() {
+    void setDataUpdated(RouteEntry entry) {
+        updatedEntries.add(entry);
         dataUpdated = true;
     }
 

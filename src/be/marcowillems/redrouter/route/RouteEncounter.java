@@ -39,7 +39,7 @@ public class RouteEncounter extends RouteEntry {
 
     public RouteEncounter(Route route, RouteEntryInfo info, EncounterArea area, Set<PokemonCountPair> preferences) {
         this(route, info, area);
-        updatePreferences(preferences);
+        updatePreferences(preferences); // TODO: different? this invokes notifyDataUpdated() etc
     }
 
     public RouteEncounter(Route route, RouteEntryInfo info, EncounterArea area, IntPair[] slotPreferences) {
@@ -49,7 +49,7 @@ public class RouteEncounter extends RouteEntry {
                 this.preferences.add(new PokemonCountPair(area.slots[ip.int1], ip.int2));
             }
         }
-        updatePreferences(this.preferences);
+        updatePreferences(this.preferences); // TODO: different? this invokes notifyDataUpdated() etc
     }
 
     private RouteEncounter(Route route, RouteEntryInfo info, EncounterArea area) {

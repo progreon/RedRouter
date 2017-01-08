@@ -49,7 +49,11 @@ public abstract class RouteEntry extends Writable {
     /**
      * Instance of the player when entering this entry.
      */
-    private Player player = null;
+    private Player playerBefore = null;
+    /**
+     * Instance of the player when exiting this entry.
+     */
+    private Player playerAfter = null;
 
     public RouteEntry(Route route, RouteEntryInfo info, boolean isLeafType) {
         this(route, info, isLeafType, null, null);
@@ -76,15 +80,20 @@ public abstract class RouteEntry extends Writable {
         }
     }
 
+    /**
+     *
+     * @param p the player before this entry
+     * @return the player after this entry
+     */
     protected Player apply(Player p) {
         clearMessages();
-        this.player = p;
+        this.playerBefore = p;
         Player newPlayer = null;
-        if (this.player != null) {
-            newPlayer = this.player.getDeepCopy();
+        if (this.playerBefore != null) {
+            newPlayer = this.playerBefore.getDeepCopy();
             // Applying wild encounters
             if (this.wildEncounters != null && !this.wildEncounters.getBattledBattlers().isEmpty()) {
-                if (player.getFrontBattler() != null) {
+                if (playerBefore.getFrontBattler() != null) {
                     for (SingleBattler sb : this.wildEncounters.getBattledBattlers()) {
                         newPlayer.getFrontBattler().defeatBattler(sb);
                     }
@@ -95,40 +104,27 @@ public abstract class RouteEntry extends Writable {
         } else {
             showMessage(RouterMessage.Type.ERROR, "There is no player set!");
         }
+        setPlayerAfter(newPlayer);
         return newPlayer;
+    }
+
+    protected void setPlayerAfter(Player playerAfter) {
+        this.playerAfter = playerAfter;
     }
 
     protected Route getRoute() {
         return this.route;
     }
 
-//    /**
-//     * Sets the route object this entry belongs to, and updates it for its
-//     * children.
-//     *
-//     * @param route
-//     */
-//    final void setRoute(Route route) {
-//        if (this.route != route) {
-//            this.route = route;
-//            if (hasChildren()) {
-//                for (RouteEntry child : this.children) {
-//                    child.setRoute(route);
-//                }
-//            }
-//            notifyDataUpdated();
-//            notifyRoute();
-//        }
-//    }
     protected void notifyRoute() {
         if (this.route != null) {
             route.notifyChanges();
         }
     }
 
-    protected void notifyDataUpdated() {
+    protected final void notifyDataUpdated() {
         if (this.route != null) {
-            this.route.setDataUpdated();
+            this.route.setDataUpdated(this);
         }
     }
 
@@ -179,14 +175,14 @@ public abstract class RouteEntry extends Writable {
     public final void setLocation(Location location) {
         if (this.location != location || location == null) {
             this.location = location;
-            this.wildEncounters = new WildEncounters(route.rd, getLocation());
+            this.wildEncounters = new WildEncounters(route.rd, getLocation()); // TODO: don't ... just, don't ... NotLikeThis
 //            refreshData(null);
             notifyDataUpdated();
             notifyRoute();
         }
     }
 
-    private void refreshLocationData() {
+    private void refreshLocationData() { // TODO: don't ... just, don't ...
         this.wildEncounters = new WildEncounters(route.rd, getLocation());
         if (this instanceof RouteEncounter) { // TODO how to avoid this?
             this.wildEncounters.setPreferences(((RouteEncounter) this).getPreferences());
@@ -215,8 +211,24 @@ public abstract class RouteEntry extends Writable {
         }
     }
 
-    public Player getPlayer() {
-        return this.player;
+    /**
+     * Gets the player when entering this entry
+     *
+     * @return The player when entering this entry, be aware this might still be
+     * null.
+     */
+    public Player getPlayerBefore() {
+        return this.playerBefore;
+    }
+
+    /**
+     * Gets the player when exiting this entry
+     *
+     * @return The player when exiting this entry, be aware this might still be
+     * null.
+     */
+    public Player getPlayerAfter() {
+        return this.playerAfter;
     }
 
     public WildEncounters getWildEncounters() {
