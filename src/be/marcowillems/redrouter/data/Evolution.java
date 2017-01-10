@@ -84,7 +84,9 @@ public class Evolution {
         }
 
         @Override
-        public abstract String toString();
+        public String toString() {
+            return value.toString();
+        }
 
     }
 
@@ -97,11 +99,6 @@ public class Evolution {
         @Override
         public boolean equals(Object obj) {
             return (obj != null && obj instanceof Level && (int) ((Level) obj).value == (int) value);
-        }
-
-        @Override
-        public String toString() {
-            return (int) value + "";
         }
 
         @Override
@@ -127,16 +124,11 @@ public class Evolution {
         }
 
         @Override
-        public String toString() {
-            return (String) value;
-        }
-
-        @Override
         public int compareTo(Key o) {
             if (o instanceof Level) {
                 return 1;
             } else {
-                return ((String) value).compareTo((String) o.value);
+                return toString().compareTo(o.toString());
             }
         }
 

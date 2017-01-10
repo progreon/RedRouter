@@ -19,7 +19,6 @@ package be.marcowillems.redrouter.view.dialogs.editroute;
 
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import javax.swing.JCheckBox;
@@ -50,10 +49,10 @@ public class RouteEncounterEdit extends EditDialog {
     public RouteEncounterEdit(RouteEncounter re) {
         super(re);
         this.encounterArea = re.getArea();
-        List<PokemonLevelPair> slots = encounterArea.getUniqueSlots();
+        Set<PokemonLevelPair> slots = encounterArea.getUniqueSlots();
         battlerCounts = new TreeSet<>();
-        for (int i = 0; i < slots.size(); i++) {
-            battlerCounts.add(new PokemonCountPair(slots.get(i), 0));
+        for (PokemonLevelPair slot : slots) {
+            battlerCounts.add(new PokemonCountPair(slot));
         }
         init();
     }
@@ -130,7 +129,7 @@ public class RouteEncounterEdit extends EditDialog {
             }
             i++;
         }
-        re.updatePreferences(battlerCounts);
+        re.setPreferences(battlerCounts);
     }
 
 }

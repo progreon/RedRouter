@@ -30,8 +30,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import be.marcowillems.redrouter.data.EncounterArea;
 import be.marcowillems.redrouter.route.RouteEntry;
+import be.marcowillems.redrouter.route.WildEncounters;
 import be.marcowillems.redrouter.util.PokemonCountPair;
-import be.marcowillems.redrouter.util.WildEncounters;
 
 /**
  * TODO: reset button
@@ -50,23 +50,21 @@ public class WildEncountersDialog extends SettingsDialog {
         init();
     }
 
-    private WildEncounters getWildEncounters() {
-        return routeEntry.getWildEncounters();
-    }
-
     private void init() { // TODO: speed up?
-        WildEncounters we = getWildEncounters();
-        if (we != null) {
+        WildEncounters we = routeEntry.wildEncounters;
+        if (we.getLocation() != null) {
+            Set<EncounterArea> areas = we.getLocation().getAllEncounterAreas();
             int height = 1;
-            if (we.encounterCounts != null && we.encounterCounts.size() > 1) {
+            if (areas.size() > 1) {
                 height = 2;
             }
+
             contentPanel = new JPanel(new GridLayout(height, 0, 5, 5));
-            if (we.encounterCounts != null && !we.encounterCounts.isEmpty()) {
+            if (!areas.isEmpty()) {
                 labels = new ArrayList<>();
                 spinners = new ArrayList<>();
-                for (Set<PokemonCountPair> spcp : we.encounterCounts.values()) {
-                    for (PokemonCountPair pcp : spcp) {
+                for (EncounterArea ea : areas) {
+                    for (PokemonCountPair pcp : we.getEncounterCounts(ea)) {
                         JLabel lblP = new JLabel(pcp.plp.toString());
                         lblP.setToolTipText(pcp.plp.pkmn.getExp(pcp.plp.level, 1, false, false) + " xp");
                         labels.add(lblP);
@@ -83,12 +81,11 @@ public class WildEncountersDialog extends SettingsDialog {
                 }
                 int i = 0;
                 JPanel areaPanel;
-                for (EncounterArea ea : we.encounterCounts.keySet()) {
+                for (EncounterArea ea : areas) {
                     areaPanel = new JPanel(new GridLayout(0, 2, 5, 5));
                     areaPanel.add(new JLabel(ea.toString()));
                     areaPanel.add(new JLabel());
-                    Set<PokemonCountPair> spcp = we.encounterCounts.get(ea);
-                    for (PokemonCountPair pcp : spcp) {
+                    for (PokemonCountPair pcp : we.getEncounterCounts(ea)) {
                         JPanel pnlSetting = new JPanel(new FlowLayout(FlowLayout.RIGHT));
                         pnlSetting.add(labels.get(i));
                         pnlSetting.add(spinners.get(i));
@@ -98,18 +95,21 @@ public class WildEncountersDialog extends SettingsDialog {
                     contentPanel.add(areaPanel);
                 }
             } else {
-                contentPanel.add(new JLabel((we.loc == null ? "No location set" : we.loc.name)));
+                contentPanel.add(new JLabel(we.getLocation().toString()));
                 contentPanel.add(new JLabel("(no encounters here)"));
             }
+        } else {
+            contentPanel = new JPanel();
+            contentPanel.add(new JLabel("No location set"));
         }
     }
 
     private void updateSpinners() {
-        WildEncounters we = getWildEncounters();
-        if (we != null && we.encounterCounts != null) {
+        WildEncounters we = routeEntry.wildEncounters;
+        if (we.getLocation() != null) {
             int i = 0;
-            for (Set<PokemonCountPair> spcp : we.encounterCounts.values()) {
-                for (PokemonCountPair pcp : spcp) {
+            for (EncounterArea ea : we.getLocation().getAllEncounterAreas()) {
+                for (PokemonCountPair pcp : we.getEncounterCounts(ea)) {
                     spinners.get(i).setValue(pcp.getCount());
                     i++;
                 }
@@ -125,11 +125,11 @@ public class WildEncountersDialog extends SettingsDialog {
 
     @Override
     protected void save() {
-        WildEncounters we = getWildEncounters();
-        if (we != null && we.encounterCounts != null) {
+        WildEncounters we = routeEntry.wildEncounters;
+        if (we.getLocation() != null) {
             int i = 0;
-            for (Set<PokemonCountPair> spcp : we.encounterCounts.values()) {
-                for (PokemonCountPair pcp : spcp) {
+            for (EncounterArea ea : we.getLocation().getAllEncounterAreas()) {
+                for (PokemonCountPair pcp : we.getEncounterCounts(ea)) {
                     int value = (int) spinners.get(i).getValue();
                     if (value != pcp.getCount()) {
                         changed = true;

@@ -22,14 +22,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import be.marcowillems.redrouter.data.DVCalculator;
 import be.marcowillems.redrouter.data.RouterData;
+import be.marcowillems.redrouter.io.ParserException;
 
 /**
  *
@@ -119,12 +123,17 @@ public class RouterMenuBar extends JMenuBar {
                 GameChooserDialog gcd = new GameChooserDialog(routerFrame);
                 gcd.setVisible(true);
                 if (gcd.settings != null) {
-                    RouterData rd = new RouterData(gcd.settings);
-                    JDialog DVCalcDialog = new JDialog(routerFrame, "DV Calculator: " + gcd.settings.game);
-                    DVCalcDialog.setContentPane(new DVCalculatorPanel(new DVCalculator(rd, null)));
-                    DVCalcDialog.pack();
-                    DVCalcDialog.setLocationRelativeTo(routerFrame);
-                    DVCalcDialog.setVisible(true);
+                    try {
+                        RouterData rd = new RouterData(gcd.settings);
+                        JDialog DVCalcDialog = new JDialog(routerFrame, "DV Calculator: " + gcd.settings.game);
+                        DVCalcDialog.setContentPane(new DVCalculatorPanel(new DVCalculator(rd, null)));
+                        DVCalcDialog.pack();
+                        DVCalcDialog.setLocationRelativeTo(routerFrame);
+                        DVCalcDialog.setVisible(true);
+                    } catch (ParserException ex) {
+                        Logger.getLogger(RouterMenuBar.class.getName()).log(Level.SEVERE, null, ex);
+                        JOptionPane.showMessageDialog(routerFrame, ex.getMessage(), "Parser error: see console for more details", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         });

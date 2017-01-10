@@ -17,13 +17,11 @@
  */
 package be.marcowillems.redrouter.route;
 
+import java.util.ArrayList;
 import java.util.List;
 import be.marcowillems.redrouter.data.Location;
 import be.marcowillems.redrouter.data.Player;
-import be.marcowillems.redrouter.data.SingleBattler;
 import be.marcowillems.redrouter.io.Writable;
-import be.marcowillems.redrouter.util.WildEncounters;
-import java.util.ArrayList;
 
 /**
  * TODO: keep pointer to next node for performance of refresh()?
@@ -42,9 +40,9 @@ public abstract class RouteEntry extends Writable {
     private RouteSection parent = null;
     public final boolean isLeafType; // TODO: is this needed, or only to initialize children?
     protected final List<RouteEntry> children;
+    private Location location; // null => same as previous entry
 
-    private Location location; // TODO: move to player class?
-    private WildEncounters wildEncounters;
+    public final WildEncounters wildEncounters;
 
     /**
      * Instance of the player when entering this entry.
@@ -73,11 +71,7 @@ public abstract class RouteEntry extends Writable {
         this.isLeafType = isLeafType;
         this.children = (isLeafType ? null : (children == null ? new ArrayList<>() : children));
         this.location = location;
-        if (route != null) { // TODO: TEMPORARY
-            this.wildEncounters = new WildEncounters(route.rd, getLocation());
-        } else {
-            this.wildEncounters = null;
-        }
+        this.wildEncounters = new WildEncounters(this);
     }
 
     /**
@@ -86,24 +80,17 @@ public abstract class RouteEntry extends Writable {
      * @return the player after this entry
      */
     protected Player apply(Player p) {
+        Player newPlayer = null;
         clearMessages();
         this.playerBefore = p;
-        Player newPlayer = null;
+
         if (this.playerBefore != null) {
             newPlayer = this.playerBefore.getDeepCopy();
-            // Applying wild encounters
-            if (this.wildEncounters != null && !this.wildEncounters.getBattledBattlers().isEmpty()) {
-                if (playerBefore.getFrontBattler() != null) {
-                    for (SingleBattler sb : this.wildEncounters.getBattledBattlers()) {
-                        newPlayer.getFrontBattler().defeatBattler(sb);
-                    }
-                } else {
-                    showMessage(RouterMessage.Type.ERROR, "You can't fight encounters when you don't have a pokemon!");
-                }
-            }
+            this.wildEncounters.apply(newPlayer); // Defeat wild encounters
         } else {
             showMessage(RouterMessage.Type.ERROR, "There is no player set!");
         }
+
         setPlayerAfter(newPlayer);
         return newPlayer;
     }
@@ -160,40 +147,16 @@ public abstract class RouteEntry extends Writable {
     }
 
     public final Location getLocation() {
-        if (this.location == null) {
-            RouteEntry prev = getPrevious();
-            if (prev != null) {
-                return prev.getLocation();
-            } else {
-                return null;
-            }
-        } else {
-            return this.location;
-        }
+        return this.location;
     }
 
     public final void setLocation(Location location) {
-        if (this.location != location || location == null) {
+        if (this.location != location) {
             this.location = location;
-            this.wildEncounters = new WildEncounters(route.rd, getLocation()); // TODO: don't ... just, don't ... NotLikeThis
-//            refreshData(null);
+            this.wildEncounters.reset();
             notifyDataUpdated();
             notifyRoute();
         }
-    }
-
-    private void refreshLocationData() { // TODO: don't ... just, don't ...
-        this.wildEncounters = new WildEncounters(route.rd, getLocation());
-        if (this instanceof RouteEncounter) { // TODO how to avoid this?
-            this.wildEncounters.setPreferences(((RouteEncounter) this).getPreferences());
-        }
-        RouteEntry next = getNext();
-        while (next != null && next.location == null) {
-            next.setLocation(null); // TODO Too much refreshData()? => location in player class!
-            next = next.getNext();
-        }
-        notifyDataUpdated();
-        notifyRoute();
     }
 
     public RouteSection getParentSection() {
@@ -204,10 +167,10 @@ public abstract class RouteEntry extends Writable {
     public void setParentSection(RouteSection parentSection) {
         if (this.parent != parentSection) {
             this.parent = parentSection;
-//            this.setRoute(parent.getRoute());
-            refreshLocationData();
-//            notifyDataUpdated();
-//            notifyRoute();
+            this.playerBefore = null;
+            this.wildEncounters.reset();
+            notifyDataUpdated();
+            notifyRoute();
         }
     }
 
@@ -231,79 +194,14 @@ public abstract class RouteEntry extends Writable {
         return this.playerAfter;
     }
 
-    public WildEncounters getWildEncounters() {
-        return this.wildEncounters;
-    }
-
+//    public WildEncounters getWildEncounters() {
+//        return this.wildEncounters;
+//    }
     public boolean hasChildren() {
         return children != null && !children.isEmpty();
     }
 
-    private RouteEntry getPrevious() {
-        if (parent != null) {
-            int nIndex = parent.children.indexOf(this);
-            if (nIndex > 0) {
-                RouteEntry previous = parent.children.get(nIndex - 1);
-                while (previous.hasChildren()) {
-                    previous = previous.children.get(previous.children.size() - 1);
-                }
-                return previous;
-            } else {
-                return (RouteEntry) parent;
-            }
-        } else {
-            return null;
-        }
-    }
-
-    private RouteEntry getNext() {
-        if (hasChildren()) {
-            return children.get(0);
-        } else {
-            RouteEntry node = this;
-            RouteEntry pNode = node.parent;
-            while (pNode != null) {
-                int nIndex = pNode.children.indexOf(node);
-                if (nIndex < pNode.children.size() - 1) {
-                    return pNode.children.get(nIndex + 1);
-                } else {
-                    node = pNode;
-                    pNode = node.parent;
-                }
-            }
-        }
-        return null;
-    }
-
-//    private RouteEntry getNextSibling() {
-//        if (parent != null) {
-//            int thisIndex = parent.children.indexOf(this);
-//            if (thisIndex < parent.children.size() - 1) {
-//                return parent.children.get(thisIndex + 1);
-//            } else {
-//                return ((RouteEntry) parent).getNextSibling();
-//            }
-//        } else {
-//            return null;
-//        }
-//    }
-    private RouteEntry getFirstChild() {
-        if (!hasChildren()) {
-            return this;
-        } else {
-            return children.get(0).getFirstChild();
-        }
-    }
-
-    private RouteEntry getLastChild() {
-        if (!hasChildren()) {
-            return this;
-        } else {
-            return children.get(children.size() - 1).getLastChild();
-        }
-    }
-
-    // Info messages system
+    //// Info messages system ////
     private void clearMessages() {
         messages.clear();
     }
@@ -325,4 +223,68 @@ public abstract class RouteEntry extends Writable {
     @Override
     public abstract String toString();
 
+//    private RouteEntry getPrevious() {
+//        if (parent != null) {
+//            int nIndex = parent.children.indexOf(this);
+//            if (nIndex > 0) {
+//                RouteEntry previous = parent.children.get(nIndex - 1);
+//                while (previous.hasChildren()) {
+//                    previous = previous.children.get(previous.children.size() - 1);
+//                }
+//                return previous;
+//            } else {
+//                return (RouteEntry) parent;
+//            }
+//        } else {
+//            return null;
+//        }
+//    }
+//
+//    private RouteEntry getNext() {
+//        if (hasChildren()) {
+//            return children.get(0);
+//        } else {
+//            RouteEntry node = this;
+//            RouteEntry pNode = node.parent;
+//            while (pNode != null) {
+//                int nIndex = pNode.children.indexOf(node);
+//                if (nIndex < pNode.children.size() - 1) {
+//                    return pNode.children.get(nIndex + 1);
+//                } else {
+//                    node = pNode;
+//                    pNode = node.parent;
+//                }
+//            }
+//        }
+//        return null;
+//    }
+//
+//    private RouteEntry getNextSibling() {
+//        if (parent != null) {
+//            int thisIndex = parent.children.indexOf(this);
+//            if (thisIndex < parent.children.size() - 1) {
+//                return parent.children.get(thisIndex + 1);
+//            } else {
+//                return ((RouteEntry) parent).getNextSibling();
+//            }
+//        } else {
+//            return null;
+//        }
+//    }
+//    
+//    private RouteEntry getFirstChild() {
+//        if (!hasChildren()) {
+//            return this;
+//        } else {
+//            return children.get(0).getFirstChild();
+//        }
+//    }
+//
+//    private RouteEntry getLastChild() {
+//        if (!hasChildren()) {
+//            return this;
+//        } else {
+//            return children.get(children.size() - 1).getLastChild();
+//        }
+//    }
 }

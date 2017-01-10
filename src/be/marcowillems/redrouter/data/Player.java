@@ -33,6 +33,7 @@ public class Player {
     public final String info;
     public final List<Battler> team;
 
+    private Location currentLocation = null;
     private int money = 0;
     private final ItemSlot[] bagItems = new ItemSlot[20];
     private final ItemSlot[] pcItems = new ItemSlot[50]; // TODO
@@ -42,7 +43,7 @@ public class Player {
     public boolean spdBadge = false;
     public boolean spcBadge = false;
 
-    public Player(String name, String info, List<Battler> team) {
+    public Player(String name, String info, List<Battler> team, Location currentLocation) {
         this.name = name;
         this.info = info;
         if (team == null) {
@@ -50,10 +51,11 @@ public class Player {
         } else {
             this.team = team;
         }
+        this.currentLocation = currentLocation;
     }
 
     public Player getDeepCopy() {
-        Player newPlayer = new Player(this.name, this.info, null);
+        Player newPlayer = new Player(this.name, this.info, null, currentLocation);
 
         for (int i = 0; i < this.team.size(); i++) {
             newPlayer.team.add(this.team.get(i).getDeepCopy());
@@ -77,12 +79,16 @@ public class Player {
         return newPlayer;
     }
 
-    public int getMoney() {
-        return this.money;
-    }
-
     public void addBattler(Battler battler) {
         team.add(battler);
+    }
+
+    public void swapBattlers(int index1, int index2) {
+        if (index1 >= 0 && index1 < team.size() && index2 >= 0 && index2 < team.size()) {
+            Battler battler = team.get(index1);
+            team.set(index1, team.get(index2));
+            team.set(index2, battler);
+        }
     }
 
     public Battler getFrontBattler() {
@@ -99,14 +105,6 @@ public class Player {
 
     public void swapToFront(Battler battler) {
         swapToFront(team.indexOf(battler));
-    }
-
-    public void swapBattlers(int index1, int index2) {
-        if (index1 >= 0 && index1 < team.size() && index2 >= 0 && index2 < team.size()) {
-            Battler battler = team.get(index1);
-            team.set(index1, team.get(index2));
-            team.set(index2, battler);
-        }
     }
 
     public boolean addItem(Item item) {
@@ -178,30 +176,6 @@ public class Player {
             items[index1] = items[index2];
             items[index2] = temp;
             return true;
-        }
-    }
-
-    public boolean toPC(int bagIndex, int quantity) {
-        if (bagIndex < 0 || bagIndex >= bagItems.length || bagItems[bagIndex] == null || pcItems[pcItems.length - 1] != null) {
-            return false;
-        } else {
-            boolean success = addItem(bagItems[bagIndex].item, quantity, true);
-            if (success) {
-                tossItem(bagIndex, quantity, false, true);
-            }
-            return success;
-        }
-    }
-
-    public boolean fromPC(int pcIndex, int quantity) {
-        if (pcIndex < 0 || pcIndex >= pcItems.length || pcItems[pcIndex] == null || bagItems[bagItems.length - 1] != null) {
-            return false;
-        } else {
-            boolean success = addItem(pcItems[pcIndex].item, quantity, true);
-            if (success) {
-                tossItem(pcIndex, quantity, true, true);
-            }
-            return success;
         }
     }
 
@@ -297,6 +271,48 @@ public class Player {
         return index;
     }
 
+    public Location getCurrentLocation() {
+        return this.currentLocation;
+    }
+
+    public void setCurrentLocation(Location currentLocation) {
+        this.currentLocation = currentLocation;
+    }
+
+    public void addMoney(int coins) {
+        if (coins > 0) {
+            this.money += coins;
+        }
+    }
+
+    public int getMoney() {
+        return this.money;
+    }
+
+    public boolean toPC(int bagIndex, int quantity) {
+        if (bagIndex < 0 || bagIndex >= bagItems.length || bagItems[bagIndex] == null || pcItems[pcItems.length - 1] != null) {
+            return false;
+        } else {
+            boolean success = addItem(bagItems[bagIndex].item, quantity, true);
+            if (success) {
+                tossItem(bagIndex, quantity, false, true);
+            }
+            return success;
+        }
+    }
+
+    public boolean fromPC(int pcIndex, int quantity) {
+        if (pcIndex < 0 || pcIndex >= pcItems.length || pcItems[pcIndex] == null || bagItems[bagItems.length - 1] != null) {
+            return false;
+        } else {
+            boolean success = addItem(pcItems[pcIndex].item, quantity, true);
+            if (success) {
+                tossItem(pcIndex, quantity, true, true);
+            }
+            return success;
+        }
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj != null && obj instanceof Player) {
@@ -360,7 +376,7 @@ public class Player {
         return hash;
     }
 
-    private class ItemSlot {
+    private class ItemSlot { // TODO to util package
 
         Item item;
         int count;

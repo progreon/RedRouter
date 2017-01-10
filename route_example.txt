@@ -27,15 +27,16 @@ Route: Red Any% Glitchless - Exarion Route
 		D: New game: text speed fast, animations off, style shift
 		D: Start a new game, and name yourself and your rival a one character name
 	S: Pallet Town
-		D: Exit out of your home, and head north towards Route 1. Prof. Oak will stop you and lead you back to his lab. After he and your rival are done talking, select the middle Pokeball on the table to get Squirtle. Name it a one character name, and go to head out of the lab. Your rival will stop you for a battle.
+		D: Exit out of your home, and head north towards Route 1. Prof. Oak will stop you and lead you back to his lab. After he and your rival are done talking, select the middle Pokeball on the table to get Squirtle. Name it a one character name, and go to head out of the lab. 
 		GetP: #squirtle:5
+		D: Your rival will stop you for a battle.
 		B: rival1
 			Tail Whip x1-2, then Tackle until it faints.
 		D: Head out of the lab, and north to Route 1
 	S: Getting the Parcel to Oak
 		S: Route 1
-			D: You want to defeat an encounter here so that you have enough experience to get Lvl.8 at the Bug Catcher fight later. Only attempt to kill low level pokemon as higher levels take longer to kill.
-			E: Route 1 :: 1:0 3:1 4:0 5:0 // TODO <description>
+			E: Route 1 :: 1:0 3:1 4:0 5:0
+				You want to defeat an encounter here so that you have enough experience to get Lvl.8 at the Bug Catcher fight later. Only attempt to kill low level pokemon as higher levels take longer to kill.
 			D: Head north through the route to Viridian City.
 		S: Viridian City
 			D: Head straight into the Mart and collect Oak's Parcel. Exit, and head south back to Route 1.
@@ -48,13 +49,13 @@ Route: Red Any% Glitchless - Exarion Route
 			D: Head north to Viridian City again, remembering to kill an encounter if you haven't already.
 		S: Viridian City
 			D: Head back into the Mart for the first shopping trip.
-			D: The quantity of Poké Balls you buy is dependent on your own money management and how often you plan to reset. The recommended number is 8, but 7 is fine too. You only buy 6 if you plan on reseting if you fail to catch a nidoran twice, because you may risk running out of balls to catch HM slaves.
 //			Shop: ... // TODO
+			D: The quantity of Poké Balls you buy is dependent on your own money management and how often you plan to reset. The recommended number is 8, but 7 is fine too. You only buy 6 if you plan on reseting if you fail to catch a nidoran twice, because you may risk running out of balls to catch HM slaves.
 			D: Head out of the Mart, and west to Route 22.
 		S: Route 22
 			D: Time for the Nidoran hunt. You want to catch a Lvl.3-4 Nidoran♂, and give it a one character name.
-			D: Tackle Lvl.3 Nidorans once to make the catch easier, but just throw PokeBalls at Lvl.4 Nidorans.
 			C: Route 22 :: 1 #3
+				Tackle Lvl.3 Nidorans once to make the catch easier, but just throw PokeBalls at Lvl.4 Nidorans.
 			D: After you have your Nidoran, head back east to Viridian City.
 	S: Viridian City
 		D: Head north, and pick up the Potion hidden in the Cut tree on the left.

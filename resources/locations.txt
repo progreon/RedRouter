@@ -1,52 +1,236 @@
-// TODO images
-// entry: "location[#image]"
 Pallet Town
-Viridian city
-Pewter City
-Cerulean City
-Vermilion City
-Lavender Town
-Celadon City
-Saffron City
-Fuchsia City
-Cinnabar Island
-Indigo Plateau
+	Blue's House
+	Oak's Lab
+	Red's House
+		Red's House 1F
+		Red's House 2F
 Route 1
+Viridian City
+	School
+	Viridian Gym
+	Viridian House
+	Viridian Mart
+	Viridian Pokecenter
 Route 2
+	Route 2 Gate
+	Route 2 House
+Viridian Forest
+	Viridian Forest Entrance
+	Viridian Forest Exit
+Diglett's Cave
+	Diglett's Cave Route 2 Entrance
+	Diglett's Cave Route 11 Entrance
+Pewter City
+	Museum
+		Museum 1F
+		Museum 2F
+	Pewter Gym
+	Pewter House 1
+	Pewter House 2
+	Pewter Mart
+	Pewter Pokecenter
 Route 3
+Mt. Moon
+	Mt. Moon 1F
+	Mt. Moon B1F
+	Mt. Moon B2F
 Route 4
+	Mt. Moon Pokecenter
+Cerulean City
+	Bike Shop
+	Cerulean Badge House
+	Cerulean Gym
+	Cerulean Mart
+	Cerulean Pokecenter
+	Cerulean Trade House
+	Cerulean Trashed House
+Route 24
+Route 25
+Bill's House
 Route 5
+	Daycare
+	Route 5 Gate
+Underground Path Route 5 6
+	Underground Path Route 5 Entrance
+	Underground Path Route 6 Entrance
 Route 6
-Route 7
-Route 8
+	Route 6 Gate
+Vermilion City
+	Fan Club
+	Vermilion Dock
+	Vermilion Fishing House
+	Vermilion Gym
+	Vermilion House 1
+	Vermilion House 2
+	Vermilion Mart
+	Vermilion Pokecenter
+SS Anne
+	SS Anne 1F // 1
+	SS Anne 1F Kitchen? // 6
+	SS Anne 1F Rooms // 8
+	SS Anne 2F // 2
+	SS Anne 2F Rooms // 9
+	SS Anne 3F // 3
+	SS Anne 3F Deck // 5
+	SS Anne 3F Stern // 7
+	SS Anne B1F // 4
+	SS Anne B1F Rooms // 10
 Route 9
+	Rock Tunnel Pokecenter
+Rock Tunnel
+	Rock Tunnel 1F
+	Rock Tunnel B1F
 Route 10
+Lavender Town
+	Fuji's House
+	Lavender House
+	Lavender Mart
+	Lavender Pokecenter
+	Name Rater
+Pokemon Tower
+	Pokemon Tower 1F
+	Pokemon Tower 2F
+	Pokemon Tower 3F
+	Pokemon Tower 4F
+	Pokemon Tower 5F
+	Pokemon Tower 6F
+	Pokemon Tower 7F
+Route 8
+	Route 8 Gate
+Underground Path Route 7 8
+	Underground Path Route 7 Entrance
+	Underground Path Route 8 Entrance
+Route 7
+	Route 7 Gate
+Celadon City
+	Celadon Dept Store
+		Celadon Dept Store 1F
+		Celadon Dept Store 2F
+		Celadon Dept Store 3F
+		Celadon Dept Store 4F
+		Celadon Dept Store 5F
+		Celadon Dept Store Elevator
+		Celadon Dept Store Roof
+	Celadon Diner
+	Celadon Game Corner
+	Celadon Gym
+	Celadon Hotel
+	Celadon House
+	Celadon Mansion
+		Celadon Mansion 1F
+		Celadon Mansion 2F
+		Celadon Mansion 3F
+		Celadon Mansion 4F Inside
+		Celadon Mansion 4F Outside
+	Celadon Pokecenter
+	Celadon Prize Room
+	Rocket Hideout
+		Rocket Hideout B1F
+		Rocket Hideout B2F
+		Rocket Hideout B3F
+		Rocket Hideout B4F
+		Rocket Hideout Elevator
+Saffron City
+	Copycat's House
+		Copycat's House 1F
+		Copycat's House 2F
+	Fighting Dojo
+	Mr. Psychic's House
+	Saffron Gym
+	Saffron House
+	Saffron Mart
+	Saffron Pokecenter
+	Silph Co.
+		Silph Co. 1F
+		Silph Co. 2F
+		Silph Co. 3F
+		Silph Co. 4F
+		Silph Co. 5F
+		Silph Co. 6F
+		Silph Co. 7F
+		Silph Co. 8F
+		Silph Co. 9F
+		Silph Co. 10F
+		Silph Co. 11F
+		Silph Co. Elevator
 Route 11
+	Route 11 Gate
+	Route 11 Gate Upstairs
 Route 12
+	Route 12 Gate
+	Route 12 Gate Upstairs
+	Route 12 House
 Route 13
 Route 14
 Route 15
+	Route 15 Gate
+	Route 15 Gate Upstairs
 Route 16
+	Route 16 Gate
+	Route 16 Gate Upstairs
+	Route 16 House
 Route 17
 Route 18
-Sea Route 19
-Sea Route 20
-Sea Route 21
-Route 22
-Route 23
-Route 24
-Route 25
-Viridian Forest
-Mt.Moon
-Rock Tunnel
-Power Plant
-Pokemon Tower
-Diglett’s Cave
+	Route 18 Gate
+	Route 18 Gate Upstairs
+Fuchsia City
+	Fuchsia Fishing House
+	Fuchsia Gym
+	Fuchsia House
+	Fuchsia Mart
+	Fuchsia Meeting Room
+	Fuchsia Pokecenter
+	Warden's House
 Safari Zone
+	Safari Zone Center
+	Safari Zone East
+	Safari Zone Entrance
+	Safari Zone North
+	Safari Zone Rest House 1
+	Safari Zone Rest House 2
+	Safari Zone Rest House 3
+	Safari Zone Rest House 4
+	Safari Zone Secret House
+	Safari Zone West
+Route 19
 Seafoam Islands
-Pokemon Mansion
+	Seafoam Islands 1F
+	Seafoam Islands B1F
+	Seafoam Islands B2F
+	Seafoam Islands B3F
+	Seafoam Islands B4F
+Route 20
+Cinnabar Island
+	Cinnabar Gym
+	Cinnabar Lab
+		Cinnabar Lab Fossil Room
+		Cinnabar Lab Metronome Room
+		Cinnabar Lab Trade Room
+	Cinnabar Mansion
+		Cinnabar Mansion 1F
+		Cinnabar Mansion 2F
+		Cinnabar Mansion 3F
+		Cinnabar Mansion B1F
+	Cinnabar Mart
+	Cinnabar Pokecenter
+Route 21
+Route 22
+	Pokemon League Gate
+Route 23
 Victory Road
-Cerulean Cave
-SS Anne
-Rocket Hideout
-Silph Co
+	Victory Road 1F
+	Victory Road 2F
+	Victory Road 3F
+Indigo Plateau
+	Indigo Plateau Lobby
+	Lorelei
+	Bruno
+	Agatha
+	Lance
+	Champion
+	Hall Of Fame
+Power Plant
+Unknown Dungeon
+	Unknown Dungeon 1F
+	Unknown Dungeon 2F
+	Unknown Dungeon B1F

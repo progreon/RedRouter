@@ -317,6 +317,7 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
                 }
             }
         });
+        btnWE.setToolTipText("Encounters defeated between the previous entry and this entry");
         return btnWE;
     }
 

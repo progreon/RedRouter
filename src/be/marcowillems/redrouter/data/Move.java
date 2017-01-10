@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import be.marcowillems.redrouter.io.ParserException;
 import be.marcowillems.redrouter.util.Range;
 
 /**
@@ -72,7 +73,7 @@ public class Move {
         this.rd = rd;
         String[] s = moveString.split("#");
         if (s.length != 6) {
-            throw new ParserException(file, line, "Entry must have 6 parameters!");
+            throw new ParserException(file, line, "Move entry must have 6 parameters!");
         } else {
             try {
                 this.name = s[0];
@@ -83,9 +84,9 @@ public class Move {
                 this.pp = Integer.parseInt(s[5]);
                 this.pokemon = new ArrayList<>();
             } catch (NumberFormatException nex) {
-                throw new ParserException(file, line, "Could not parse a move parameter!");
+                throw new ParserException(file, line, "Could not parse a move parameter");
             } catch (IllegalArgumentException ex) {
-                throw new ParserException(file, line, "Could not parse the move type!");
+                throw new ParserException(file, line, "Move type \"" + s[3] + "\" does not exist");
             }
         }
     }

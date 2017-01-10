@@ -18,32 +18,31 @@
 package be.marcowillems.redrouter.data;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import be.marcowillems.redrouter.io.ParserException;
 
 /**
  * Overworld location
  *
  * @author Marco Willems
  */
-public class Location {
+public class Location implements Comparable<Location> {
 
     private final RouterData rd;
 
-    // TODO move to a world class?
     public final String name;
     public final BufferedImage image;
-    public final List<EncounterArea> encounterAreas = new ArrayList<>();
+    final Set<Location> subLocations = new TreeSet();
+    final Map<String, EncounterArea> encounterAreas = new TreeMap(); // TODO: private?
 
-    // TODO private because dynamic?
-//    private Location(RouterData rd, String name) {
     public Location(RouterData rd, String name) {
         this(rd, name, null);
     }
 
-    // TODO private because dynamic?
-//    private Location(RouterData rd, String name, BufferedImage image) {
     public Location(RouterData rd, String name, BufferedImage image) {
         this.rd = rd;
         this.name = name;
@@ -57,6 +56,39 @@ public class Location {
         this.image = null;
     }
 
+    public Set<EncounterArea> getEncounterAreas() {
+        Set<EncounterArea> allAreas = new TreeSet<>();
+        allAreas.addAll(encounterAreas.values());
+        return allAreas;
+    }
+
+    public Set<EncounterArea> getAllEncounterAreas() {
+        Set<EncounterArea> allAreas = new TreeSet<>();
+        allAreas.addAll(encounterAreas.values());
+        for (Location l : subLocations) {
+            allAreas.addAll(l.getAllEncounterAreas());
+        }
+        return allAreas;
+    }
+
+    boolean addSubLocation(Location location) {
+        return subLocations.add(location);
+    }
+
+    /**
+     * Including this location
+     *
+     * @return
+     */
+    public Set<Location> getLocations() {
+        Set<Location> allLocations = new TreeSet<>();
+        allLocations.add(this);
+        for (Location l : subLocations) {
+            allLocations.addAll(l.getLocations());
+        }
+        return allLocations;
+    }
+
     public String getIndexString() {
         return getIndexString(name);
     }
@@ -68,6 +100,11 @@ public class Location {
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    public int compareTo(Location o) {
+        return getIndexString().compareTo(o.getIndexString());
     }
 
 }

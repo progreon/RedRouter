@@ -108,7 +108,7 @@ public class RouteFactory {
         // TODO: Catching entry!
         rsRoute22A.addNewDirections("Time for the Nidoran hunt. You want to catch a Lvl.3-4 Nidoran♂, and give it a one character name.");
         rsRoute22A.addNewDirections("Tackle Lvl.3 Nidorans once to make the catch easier, but just throw PokeBalls at Lvl.4 Nidorans. If you encounter a Lv. 5 Spearow, try to catch it (just throw Poke Balls). If you catch a Lvl.5 Spearow on the first ball, DSum off it by going 5 out, 6 in, 12 out, then the standard DSum (4 in, 2 out, 6 in, 11 out). If you waste at least half your Poke Balls against Spearow, Tackle Lv. 4 Nidorans once or twice to avoid running out.");
-        RouteGetPokemon rgpRoute22A = new RouteGetPokemon(route, new RouteEntryInfo("Catch Nidoran"), new SingleBattler(rd, rd.getPokemon("NidoranM"), rd.getLocation("Route 22").encounterAreas.get(0), 4));
+        RouteGetPokemon rgpRoute22A = new RouteGetPokemon(route, new RouteEntryInfo("Catch Nidoran"), new SingleBattler(rd, rd.getPokemon("NidoranM"), rd.getEncounterArea("Route 22"), 4));
         rsRoute22A.addEntry(rgpRoute22A);
         rsRoute22A.addNewDirections("After you have your Nidoran, head back east to Viridian City.");
         rsNido.addSection(rsRoute22A);

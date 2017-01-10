@@ -39,9 +39,13 @@ public class RouteEncounter extends RouteEntry {
 
     public RouteEncounter(Route route, RouteEntryInfo info, EncounterArea area, Set<PokemonCountPair> preferences) {
         this(route, info, area);
-        updatePreferences(preferences); // TODO: different? this invokes notifyDataUpdated() etc
+        if (preferences != null) {
+            this.preferences = preferences;
+            super.wildEncounters.reset();
+        }
     }
 
+    // TODO: don't use this (in the parser)
     public RouteEncounter(Route route, RouteEntryInfo info, EncounterArea area, IntPair[] slotPreferences) {
         this(route, info, area);
         for (IntPair ip : slotPreferences) {
@@ -49,7 +53,7 @@ public class RouteEncounter extends RouteEntry {
                 this.preferences.add(new PokemonCountPair(area.slots[ip.int1], ip.int2));
             }
         }
-        updatePreferences(this.preferences); // TODO: different? this invokes notifyDataUpdated() etc
+        super.wildEncounters.reset();
     }
 
     private RouteEncounter(Route route, RouteEntryInfo info, EncounterArea area) {
@@ -69,18 +73,17 @@ public class RouteEncounter extends RouteEntry {
         return this.preferences;
     }
 
-    public final void updatePreferences(Set<PokemonCountPair> preferences) {
-        if (preferences != this.preferences) {
-            this.preferences = new TreeSet<>();
-            if (preferences != null) {
-                for (PokemonCountPair pip : preferences) {
-                    if (area.contains(pip.plp)) {
-                        this.preferences.add(pip);
-                    }
+    public final void setPreferences(Set<PokemonCountPair> preferences) {
+        this.preferences = new TreeSet<>();
+        if (preferences != null) {
+            for (PokemonCountPair pcp : preferences) {
+                // TODO unique?
+                if (area.contains(pcp.plp)) {
+                    this.preferences.add(new PokemonCountPair(pcp.plp, pcp.getCount()));
                 }
             }
         }
-        super.getWildEncounters().setPreferences(this.preferences);
+        super.wildEncounters.reset();
         super.notifyDataUpdated();
         super.notifyRoute();
     }

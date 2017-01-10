@@ -20,6 +20,9 @@ package be.marcowillems.redrouter.data;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
+import be.marcowillems.redrouter.io.ParserException;
 import be.marcowillems.redrouter.util.PokemonLevelPair;
 
 /**
@@ -27,7 +30,7 @@ import be.marcowillems.redrouter.util.PokemonLevelPair;
  *
  * @author Marco Willems
  */
-public class EncounterArea {
+public class EncounterArea implements Comparable<EncounterArea> {
 
     private final RouterData rd;
 
@@ -39,19 +42,19 @@ public class EncounterArea {
     public EncounterArea(RouterData rd, Location location, String subArea, int encounterRate, PokemonLevelPair[] slots) {
         this.rd = rd;
         this.location = location;
-        this.subArea = subArea;
+        this.subArea = (subArea == null ? "" : subArea);
         this.encounterRate = encounterRate;
         this.slots = slots;
     }
 
     public EncounterArea(RouterData rd, String areaString, String file, int line) throws ParserException {
         this.rd = rd;
-        // MT.MOON#1F#10#L8 ZUBAT#L7 ZUBAT#L9 ZUBAT#L8 GEODUDE#L6 ZUBAT#L10 ZUBAT#L10 GEODUDE#L8 PARAS#L11 ZUBAT#L8 CLEFAIRY
+        // SEAFOAM ISLANDS B3Fwater#10#L8 ZUBAT#L7 ZUBAT#L9 ZUBAT#L8 GEODUDE#L6 ZUBAT#L10 ZUBAT#L10 GEODUDE#L8 PARAS#L11 ZUBAT#L8 CLEFAIRY
         String[] s = areaString.split("#");
         if (s.length == 13) {
             this.location = rd.getLocation(s[0]);
             if (this.location == null) {
-                throw new ParserException(file, line, "Could not find the specified location!");
+                throw new ParserException(file, line, "Could not find the location \"" + s[0] + "\"");
             }
             this.subArea = s[1];
             try {
@@ -61,7 +64,7 @@ public class EncounterArea {
                     this.slots[i] = parseSlot(s[i + 3], file, line);
                 }
             } catch (NumberFormatException ex) {
-                throw new ParserException(file, line, "Could not parse the encounter rate!");
+                throw new ParserException(file, line, "Could not parse the encounter rate \"" + s[2] + "\"");
             }
         } else {
             throw new ParserException(file, line, "There must be 13 arguments for each entry!");
@@ -146,7 +149,7 @@ public class EncounterArea {
         return uniqueBattlers;
     }
 
-    public List<PokemonLevelPair> getUniqueSlots() {
+    public Set<PokemonLevelPair> getUniqueSlots() {
         int[] slotIDs = new int[slots.length];
         for (int i = 0; i < slotIDs.length; i++) {
             slotIDs[i] = i;
@@ -154,8 +157,8 @@ public class EncounterArea {
         return getUniqueSlots(slotIDs);
     }
 
-    public List<PokemonLevelPair> getUniqueSlots(int[] slots) {
-        List<PokemonLevelPair> uniqueSlots = new ArrayList<>();
+    public Set<PokemonLevelPair> getUniqueSlots(int[] slots) {
+        Set<PokemonLevelPair> uniqueSlots = new TreeSet<>();
         for (int i = 0; i < slots.length; i++) {
             int idx = slots[i];
             if (idx >= 0 && idx <= this.slots.length && !uniqueSlots.contains(this.slots[idx])) {
@@ -167,6 +170,7 @@ public class EncounterArea {
 
     private PokemonLevelPair parseSlot(String slotString, String file, int line) throws ParserException {
         // "L4 PIKACHU"
+        // TODO: redo
         PokemonLevelPair slot;
         if (slotString == null || slotString.equals("")) {
             throw new ParserException(file, line, "A slot cannot be empty!");
@@ -183,13 +187,13 @@ public class EncounterArea {
                 int level = Integer.parseInt(str.substring(0, space));
                 slot = new PokemonLevelPair(pkmn, level);
                 if (slot.pkmn == null) {
-                    throw new ParserException(file, line, "Pokemon " + str.substring(space + 1) + " does not exist!");
+                    throw new ParserException(file, line, "Could not find pokemon \"" + str.substring(space + 1) + "\"");
                 }
             } catch (NumberFormatException e) {
-                throw new ParserException(file, line, "Could not parse " + slotString);
+                throw new ParserException(file, line, "Could not parse slot \"" + slotString + "\"");
             }
         } else {
-            throw new ParserException(file, line, "Could not parse " + slotString);
+            throw new ParserException(file, line, "Could not parse \"" + slotString + "\"");
         }
         return slot;
     }
@@ -213,6 +217,11 @@ public class EncounterArea {
             str += " (" + subArea + ")";
         }
         return str.toUpperCase(Locale.ROOT);
+    }
+
+    @Override
+    public int compareTo(EncounterArea o) {
+        return getIndexString().compareTo(o.getIndexString());
     }
 
 }

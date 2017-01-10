@@ -50,11 +50,9 @@ public class Route extends RouteSection {
         super(null, title);
         this.rd = rd;
         this.routeObservable = new RouteObservable();
-        this.startPlayer = new Player("Red", "The playable character", null);
+        this.startPlayer = new Player("Red", "The playable character", null, rd.getDefaultStartLocation());
         this.entryList = new ArrayList<>();
-        this.entryList.add(this);
-        this.setLocation(rd.getDefaultLocation());
-//        super.setRoute(this);
+        this.setLocation(rd.getDefaultStartLocation());
     }
 
     public boolean isThisObservable(Observable o) {
@@ -144,7 +142,7 @@ public class Route extends RouteSection {
     public void resetEncounters() {
         updateEntryList();
         for (RouteEntry re : entryList) {
-            re.getWildEncounters().reset();
+            re.wildEncounters.reset();
         }
     }
 

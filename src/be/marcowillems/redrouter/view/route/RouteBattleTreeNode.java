@@ -47,7 +47,7 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
     private int availableWidth = 0;
 
     public RouteBattleTreeNode(RouteTree tree, RouteBattle routeBattle) {
-        super(tree, routeBattle, false, true);
+        super(tree, routeBattle, true);
         updateText();
         setLabelText(lblInfo, text, availableWidth);
         updatePnlRender(true);

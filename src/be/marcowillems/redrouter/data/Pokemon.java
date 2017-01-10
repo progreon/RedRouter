@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import be.marcowillems.redrouter.io.ParserException;
 
 /**
  *
@@ -69,7 +70,7 @@ public class Pokemon {
         this.rd = rd;
         String[] s = pokemonString.split("#");
         if (s.length != 10) {
-            throw new ParserException(file, line, "Entry must have 10 parameters!");
+            throw new ParserException(file, line, "Pokemon entry must have 10 parameters!");
         } else {
             try {
                 this.ID = ID;
@@ -84,7 +85,7 @@ public class Pokemon {
                 this.spc = Integer.parseInt(s[8]);
                 this.expGroup = ExperienceGroup.getExperienceGroup(s[9]);
             } catch (NumberFormatException nex) {
-                throw new ParserException(file, line, "Could not parse stat exp parameters!");
+                throw new ParserException(file, line, "Could not parse stat exp parameters");
             }
         }
     }

@@ -18,18 +18,20 @@
 package be.marcowillems.redrouter.view;
 
 import java.awt.Dimension;
-import javax.swing.JFrame;
-import be.marcowillems.redrouter.Settings;
-import be.marcowillems.redrouter.io.PrintSettings;
-import be.marcowillems.redrouter.io.RouteParser;
-import be.marcowillems.redrouter.io.RouteParserException;
-import be.marcowillems.redrouter.route.Route;
-import be.marcowillems.redrouter.route.RouterMessage;
 import java.io.File;
 import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import be.marcowillems.redrouter.Settings;
+import be.marcowillems.redrouter.io.ParserException;
+import be.marcowillems.redrouter.io.PrintSettings;
+import be.marcowillems.redrouter.io.RouteParser;
+import be.marcowillems.redrouter.route.Route;
+import be.marcowillems.redrouter.route.RouterMessage;
 
 /**
  * TODO add stuff for the file-menu actions.
@@ -57,7 +59,7 @@ public class RouterFrame extends JFrame {
             this.currentRouteView = new RouteView(route);
             this.setContentPane(currentRouteView);
             this.setJMenuBar(new RouterMenuBar(this, currentRouteView));
-            if (!this.isVisible()) {
+            if (!this.isVisible()) { // TODO: fix this
                 this.pack();
                 this.setSize(new Dimension(Settings.WIDTH, Settings.HEIGHT));
             }
@@ -106,8 +108,9 @@ public class RouterFrame extends JFrame {
                     openRoute(route);
                     return true;
                 }
-            } catch (RouteParserException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Could not parse file", JOptionPane.ERROR_MESSAGE);
+            } catch (ParserException ex) {
+                Logger.getLogger(RouterFrame.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Parser error: see console for more details", JOptionPane.ERROR_MESSAGE);
             }
         }
         return false;

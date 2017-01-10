@@ -23,11 +23,11 @@ Trainer: Jr.TrainerM Shorts :: Route 3 :: jrtrmshorts rattata:11 ekans:11
 Trainer: Bug Catcher 3 :: Route 3 :: bug3 weedle:9 kakuna:9 caterpie:9 metapod:9
 Trainer: Bug Catcher 4 :: Route 3 :: bug4 caterpie:11 metapod:11
 // Mt.Moon
-Trainer: Super Nerd 1 :: Mt.Moon:1F :: nerd1 magnemite:11 voltorb:11
-Trainer: Lass Moon :: Mt.Moon:1F :: lassmoon oddish:11 bellsprout:11
-Trainer: Hiker Moon :: Mt.Moon:1F :: hikermoon geodude:10 geodude:10 onix:10
-Trainer: Rocket Moon :: Mt.Moon:B2F :: rocketmoon rattata:13 zubat:13
-Trainer: Super Nerd 2 :: Mt.Moon:B2F :: nerd2 grimer:12 voltorb:12 koffing:12
+Trainer: Super Nerd 1 :: Mt. Moon 1F :: nerd1 magnemite:11 voltorb:11
+Trainer: Lass Moon :: Mt. Moon 1F :: lassmoon oddish:11 bellsprout:11
+Trainer: Hiker Moon :: Mt. Moon 1F :: hikermoon geodude:10 geodude:10 onix:10
+Trainer: Rocket Moon :: Mt. Moon B2F :: rocketmoon rattata:13 zubat:13
+Trainer: Super Nerd 2 :: Mt. Moon B2F :: nerd2 grimer:12 voltorb:12 koffing:12
 // Nugget Bridge
 Trainer: Rival 2 :: Cerulean City :: rival2 pidgeotto:18 abra:15 rattata:15 bulbasaur:17
 Trainer: Bug Catcher 5 :: Route 24 :: bug5 caterpie:14 weedle:14

@@ -18,23 +18,25 @@
 package be.marcowillems.redrouter.data;
 
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import be.marcowillems.redrouter.Settings;
-import be.marcowillems.redrouter.io.RouteParserException;
-import be.marcowillems.redrouter.util.PokemonLevelPair;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import be.marcowillems.redrouter.Settings;
+import be.marcowillems.redrouter.io.ParserException;
+import be.marcowillems.redrouter.util.PokemonLevelPair;
 
 /**
  * The main factory class for the route
@@ -45,25 +47,24 @@ public class RouterData {
 
     public final Settings settings;
 
-    private final Map<String, EncounterArea> areas = new HashMap<>();
-    private final List<EncounterArea> areasByID = new ArrayList<>();
-    private final Map<String, Location> locations = new HashMap<>();
-    private Location defaultLocation = null;
-    private final Map<String, Pokemon> pokemonByName = new HashMap<>();
-    private final Map<Integer, Pokemon> pokemonByID = new HashMap<>();
-    private final Map<String, Move> moves = new HashMap<>();
-    private final Map<String, Move> tms = new HashMap<>();
-    private final Map<String, Trainer> trainers = new HashMap<>();
+    private final List<Location> world = new ArrayList<>();
+    private final Map<String, Location> locations = new TreeMap<>();
+    private Location defaultStartLocation = null;
+    private final Map<String, Pokemon> pokemonByName = new TreeMap<>();
+    private final Map<Integer, Pokemon> pokemonByID = new TreeMap<>();
+    private final Map<String, Move> moves = new TreeMap<>();
+    private final Map<String, Move> tms = new TreeMap<>();
+    private final Map<String, Trainer> trainers = new TreeMap<>();
     /**
      * Pokemon -> New move -> Old move
      */
     private final Map<Pokemon, Map<Move, Move>> movesReplaced = new HashMap<>();
 
-    public RouterData() {
+    public RouterData() throws ParserException {
         this(new Settings());
     }
 
-    public RouterData(Settings settings) {
+    public RouterData(Settings settings) throws ParserException {
         this.settings = settings;
         // TODO: order?
         initPokemon();
@@ -76,20 +77,49 @@ public class RouterData {
         initMovesets();
         // For dummy data
         initTrainers();
-//        initMovesReplaced();
+    }
+
+    public EncounterArea getEncounterArea(String location) {
+        return getEncounterArea(getLocation(location));
+    }
+
+    public EncounterArea getEncounterArea(String location, String subArea) {
+        return getEncounterArea(getLocation(location), subArea);
+    }
+
+    public EncounterArea getEncounterArea(Location location) {
+        return getEncounterArea(location, null);
     }
 
     public EncounterArea getEncounterArea(Location location, String subArea) {
-        return areas.get(EncounterArea.getIndexString(location, subArea));
+        if (location == null) {
+            return null;
+        } else {
+            if (subArea != null) {
+                return location.encounterAreas.get(subArea);
+            } else {
+                EncounterArea area = null;
+                for (EncounterArea ea : location.encounterAreas.values()) {
+                    if (area == null) {
+                        area = ea;
+                    }
+                }
+                return area;
+            }
+        }
     }
 
-    public EncounterArea[] getEncounterAreas() {
-        return areasByID.toArray(new EncounterArea[0]);
+    public Set<EncounterArea> getEncounterAreas() {
+        Set<EncounterArea> allAreas = new TreeSet<>();
+        for (Location l : locations.values()) {
+            allAreas.addAll(l.getEncounterAreas());
+        }
+        return allAreas;
     }
 
     public List<EncounterArea> getEncounterAreas(Pokemon pkmn) {
         List<EncounterArea> l = new ArrayList<>();
-        for (EncounterArea ea : areasByID) {
+        for (EncounterArea ea : getEncounterAreas()) {
             boolean contains = false;
             for (PokemonLevelPair plp : ea.slots) {
                 if (plp.pkmn == pkmn) {
@@ -107,8 +137,12 @@ public class RouterData {
         return locations.get(Location.getIndexString(name));
     }
 
-    public Location getDefaultLocation() {
-        return defaultLocation;
+    public Location getDefaultStartLocation() {
+        return defaultStartLocation;
+    }
+
+    public List<Location> getWorld() {
+        return new ArrayList<>(world);
     }
 
     public Move getMove(String name) {
@@ -160,102 +194,78 @@ public class RouterData {
         return pokemonByName.keySet().toArray(new String[0]);
     }
 
-    private void initPokemon() {
+    private void initPokemon() throws ParserException {
         List<String> lines = getLinesFromResourceFile(settings.getPokemonFile());
-        try {
-            int ID = 1;
-            for (int lno = 0; lno < lines.size(); lno++) {
-                String line = lines.get(lno);
-                if (!line.equals("") && !line.substring(0, 2).equals("//")) {
-                    if (addPokemon(ID, line, settings.getPokemonFile(), lno) == null) {
-                        throw new ParserException(settings.getPokemonFile(), lno, "This pokemon already exists!");
-                    }
-                    ID++;
-                }
+        int ID = 1;
+        for (int lno = 0; lno < lines.size(); lno++) {
+            String line = lines.get(lno);
+            if (!line.equals("") && !line.substring(0, 2).equals("//")) {
+                addPokemon(ID, line, settings.getPokemonFile(), lno);
+                ID++;
             }
-        } catch (ParserException ex) {
-            Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private Pokemon addPokemon(int ID, String pokemonString, String file, int line) throws ParserException {
-        Pokemon pokemon = new Pokemon(this, ID, pokemonString, file, line);
+    private Pokemon addPokemon(int ID, String pokemonString, String file, int lineNo) throws ParserException {
+        Pokemon pokemon = new Pokemon(this, ID, pokemonString, file, lineNo);
         if (!pokemonByName.containsKey(pokemon.getIndexString()) && !pokemonByID.containsKey(ID)) {
             pokemonByName.put(pokemon.getIndexString(), pokemon);
             pokemonByID.put(ID, pokemon);
             return pokemon;
         } else {
-            return null;
+            throw new ParserException(settings.getPokemonFile(), lineNo, "This pokemon already exists!");
         }
     }
 
-    private void initEncounters() {
+    private void initEncounters() throws ParserException {
         List<String> lines = getLinesFromResourceFile(settings.getEncountersFile());
-        try {
-            for (int lno = 0; lno < lines.size(); lno++) {
-                String line = lines.get(lno);
-                if (!line.equals("") && !line.substring(0, 2).equals("//")) {
-                    if (addEncounterArea(line, settings.getEncountersFile(), lno) == null) {
-                        throw new ParserException(line, lno, "This area already exists!");
-                    }
-                }
+        for (int lno = 0; lno < lines.size(); lno++) {
+            String line = lines.get(lno);
+            if (!line.equals("") && !line.substring(0, 2).equals("//")) {
+                addEncounterArea(line, settings.getEncountersFile(), lno);
             }
-        } catch (ParserException ex) {
-            Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private EncounterArea addEncounterArea(String areaString, String file, int line) throws ParserException {
-        EncounterArea area = new EncounterArea(this, areaString, file, line);
-        if (!areas.containsKey(area.getIndexString())) {
-            areas.put(area.getIndexString(), area);
-            areasByID.add(area);
-            area.location.encounterAreas.add(area);
+    private EncounterArea addEncounterArea(String areaString, String file, int lineNo) throws ParserException {
+        EncounterArea area = new EncounterArea(this, areaString, file, lineNo);
+        if (!area.location.encounterAreas.containsKey(area.subArea)) {
+            area.location.encounterAreas.put(area.subArea, area);
             return area;
         } else {
-            return null;
+            throw new ParserException(file, lineNo, "Location \"" + area.location + "\" already contains subarea \"" + area.subArea + "\"");
         }
     }
 
-    private void initEvolutions() {
+    private void initEvolutions() throws ParserException {
         List<String> lines = getLinesFromResourceFile(settings.getEvolutionsFile());
-        try {
-            for (int lno = 0; lno < lines.size(); lno++) {
-                String line = lines.get(lno);
-                if (!line.equals("") && !line.substring(0, 2).equals("//")) {
-                    if (!addEvolution(line, settings.getEvolutionsFile(), lno)) {
-                        throw new ParserException(line, lno, "Failed while adding evolution!");
-                    }
-                }
+        for (int lno = 0; lno < lines.size(); lno++) {
+            String line = lines.get(lno);
+            if (!line.equals("") && !line.substring(0, 2).equals("//")) {
+                addEvolution(line, settings.getEvolutionsFile(), lno);
             }
-        } catch (ParserException ex) {
-            Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private boolean addEvolution(String evolutionString, String file, int line) throws ParserException {
+    private Evolution addEvolution(String evolutionString, String file, int lineNo) throws ParserException {
         String[] args = evolutionString.trim().split("#");
         if (args.length < 2) {
-            // TODO throw error
-            return false;
+            throw new ParserException(file, lineNo, "Expected 2 or more arguments");
         }
         Pokemon p = getPokemon(args[0]);
         if (p == null) {
-            // TODO throw error
-            return false;
+            throw new ParserException(file, lineNo, "Could not find pokemon \"" + args[0] + "\"");
         }
         Map<Evolution.Key, Pokemon> evos = new HashMap<>();
 
         for (int i = 1; i < args.length; i++) {
             String args2[] = args[i].split(":");
             if (args2.length != 2) {
-                // TODO throw error
-                return false;
+                throw new ParserException(file, lineNo, "Expected evolution and condition in between \":\" but found \"" + args[i] + "\"");
             }
             Pokemon evo = getPokemon(args2[0]);
             if (evo == null) {
-                // TODO throw error
-                return false;
+                throw new ParserException(file, lineNo, "Could not find pokemon \"" + args2[0] + "\"");
             }
             Evolution.Key key;
             try {
@@ -271,65 +281,99 @@ public class RouterData {
         Evolution e = new Evolution(evos);
         p.setEvolution(e);
 
-        return true;
+        return e;
     }
 
-    private void initLocations() {
+    private void initLocations() throws ParserException {
         List<String> lines = getLinesFromResourceFile(settings.getLocationsFile());
-        try {
-            for (int lno = 0; lno < lines.size(); lno++) {
-                String line = lines.get(lno);
-                if (!line.equals("") && !line.substring(0, 2).equals("//")) {
-                    if (addLocation(line, settings.getLocationsFile(), lno) == null) {
-                        throw new ParserException(settings.getLocationsFile(), lno, "This location already exists!");
-                    }
-                }
+        int idx = 0;
+        while (lines.size() > idx && (lines.get(idx).trim().equals("") || lines.get(idx).trim().startsWith("//"))) {
+            idx++;
+        }
+        while (lines.size() > idx) { // Add sublocations
+            List<String> subLocationLines = getLocationStringGroup(lines, idx);
+            Location location = addLocation(subLocationLines, settings.getLocationsFile(), idx);
+            world.add(location);
+            idx += subLocationLines.size();
+            while (lines.size() > idx && (lines.get(idx).trim().equals("") || lines.get(idx).trim().startsWith("//"))) {
+                idx++;
             }
-        } catch (ParserException ex) {
-            Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private Location addLocation(String locationString, String file, int line) throws ParserException {
-        Location location = new Location(this, locationString, file, line);
+    private Location addLocation(List<String> locationLines, String file, int lineNo) throws ParserException {
+        int idx = 0;
+        Location location = new Location(this, locationLines.get(idx).trim(), file, lineNo);
         if (!locations.containsKey(location.getIndexString())) {
             locations.put(location.getIndexString(), location);
-            if (defaultLocation == null) {
-                defaultLocation = location;
+            if (defaultStartLocation == null) {
+                defaultStartLocation = location;
+            }
+            idx++;
+            while (locationLines.size() > idx && (locationLines.get(idx).trim().equals("") || locationLines.get(idx).trim().startsWith("//"))) {
+                idx++;
+            }
+            while (locationLines.size() > idx) { // Add sublocations
+                List<String> subLocationLines = getLocationStringGroup(locationLines, idx);
+                Location subLocation = addLocation(subLocationLines, file, lineNo + idx);
+                location.addSubLocation(subLocation);
+                idx += subLocationLines.size();
+                while (locationLines.size() > idx && (locationLines.get(idx).trim().equals("") || locationLines.get(idx).trim().startsWith("//"))) {
+                    idx++;
+                }
             }
             return location;
         } else {
-            return null;
+            throw new ParserException(file, lineNo, "The location \"" + location + "\" already exists!");
         }
     }
 
-    private void initMoves() {
+    private List<String> getLocationStringGroup(List<String> parentLocationLines, int lineNo) {
+        List<String> lineGroup = new ArrayList<>();
+
+        String line = parentLocationLines.get(lineNo);
+        int depth = getTabDepth(line);
+        lineGroup.add(line);
+        lineNo++;
+        while (lineNo < parentLocationLines.size() && (getTabDepth(parentLocationLines.get(lineNo)) > depth || parentLocationLines.get(lineNo).trim().equals("") || parentLocationLines.get(lineNo).trim().startsWith("//"))) {
+            line = parentLocationLines.get(lineNo);
+            lineGroup.add(line);
+            lineNo++;
+        }
+
+        return lineGroup;
+    }
+
+    private int getTabDepth(String line) {
+        int depth = 0;
+        char[] chars = line.toCharArray();
+        while (depth < chars.length && chars[depth] == '\t') {
+            depth++;
+        }
+        return depth;
+    }
+
+    private void initMoves() throws ParserException {
         List<String> lines = getLinesFromResourceFile(settings.getMoveFile());
-        try {
-            for (int lno = 0; lno < lines.size(); lno++) {
-                String line = lines.get(lno);
-                if (!line.equals("") && !line.substring(0, 2).equals("//")) {
-                    if (addMove(line, settings.getMoveFile(), lno) == null) {
-                        throw new ParserException(settings.getMoveFile(), lno, "This move already exists!");
-                    }
-                }
+        for (int lno = 0; lno < lines.size(); lno++) {
+            String line = lines.get(lno);
+            if (!line.equals("") && !line.substring(0, 2).equals("//")) {
+                addMove(line, settings.getMoveFile(), lno);
             }
-        } catch (ParserException ex) {
-            Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private Move addMove(String moveString, String file, int line) throws ParserException {
-        Move move = new Move(this, moveString, file, line);
+    private Move addMove(String moveString, String file, int lineNo) throws ParserException {
+        Move move = new Move(this, moveString, file, lineNo);
         if (!moves.containsKey(move.getIndexString())) {
             moves.put(move.getIndexString(), move);
             return move;
         } else {
-            return null;
+            throw new ParserException(settings.getMoveFile(), lineNo, "This move already exists!");
         }
     }
 
-    private void initMovesets() {
+    private void initMovesets() throws ParserException {
         List<String> lines = getLinesFromResourceFile(settings.getMovesetFile());
 
         List<String> data = new ArrayList<>();
@@ -340,12 +384,7 @@ public class RouterData {
             } else {
                 if (!data.isEmpty()) {
                     String pkmn = data.remove(0).substring(1); // removing the '#'
-                    try {
-                        addMoveset(pkmn, data, settings.getMovesetFile(), monAtLine);
-                    } catch (ParserException ex) {
-                        Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
+                    addMoveset(pkmn, data, settings.getMovesetFile(), monAtLine);
                     data = new ArrayList<>();
                     monAtLine = lno + 1;
                 }
@@ -353,10 +392,10 @@ public class RouterData {
         }
     }
 
-    private void addMoveset(String pkmn, List<String> data, String file, int startLine) throws ParserException {
+    private void addMoveset(String pkmn, List<String> data, String file, int lineNo) throws ParserException {
         Pokemon pokemon = pokemonByName.get(pkmn);
         if (pokemon == null) {
-            throw new ParserException(file, startLine, "Could not find the pokemon:" + pkmn);
+            throw new ParserException(file, lineNo, "Could not find the pokemon:" + pkmn);
         }
 
         // Loop through moves (excluding tm moves)
@@ -366,7 +405,7 @@ public class RouterData {
             try {
                 pokemon.addLearnedMove(Integer.parseInt(moveSplit[0]), moves.get(moveSplit[1]));
             } catch (NullPointerException ex) {
-                throw new ParserException(file, startLine + i + 1, "Could not parse the line: " + line);
+                throw new ParserException(file, lineNo + i + 1, "Could not parse the line: " + line);
             }
         }
 
@@ -377,7 +416,7 @@ public class RouterData {
             for (String tm : tmsSplit) {
                 Move tmMove = tms.get(tm);
                 if (tmMove == null) {
-                    throw new ParserException(file, startLine + data.size(), "Could not find tm: " + tm);
+                    throw new ParserException(file, lineNo + data.size(), "Could not find tm: " + tm);
                 }
                 pokemon.addTmMove(tmMove);
             }
@@ -422,16 +461,6 @@ public class RouterData {
             return team;
         }
     }
-
-    // TODO: TEMP
-//    private void initMovesReplaced() {
-//        Pokemon paras = getPokemon("Paras");
-//        Pokemon parasect = getPokemon("Parasect");
-//        Move spore = getMove("spore");
-//        Move scratch = getMove("scratch");
-//        addMoveReplaced(parasect, spore, scratch);
-//        System.out.println(parasect + ": " + spore + " replaces " + scratch);
-//    }
 
     // TODO Change this
     private void initTms() {
@@ -492,31 +521,31 @@ public class RouterData {
         tms.put("HM_05", moves.get("FLASH"));
     }
 
-    public static List<String> getLinesFromResourceFile(String fileName) {
-        return getLinesFromFile(ClassLoader.getSystemResourceAsStream(fileName));
+    public static List<String> getLinesFromResourceFile(String fileName) throws ParserException {
+        return getLinesFromFile(ClassLoader.getSystemResourceAsStream(fileName), fileName, true);
     }
 
-    public static List<String> getLinesFromFile(File file) throws RouteParserException {
+    public static List<String> getLinesFromFile(File file) throws ParserException {
         if (file.exists()) {
             try {
                 if (!Files.probeContentType(file.toPath()).equals("text/plain")) {
-                    throw new RouteParserException("This file is not a plain text file: " + file.getAbsolutePath(), -1);
+                    throw new ParserException(null, -1, "This file is not a plain text file: " + file.getAbsolutePath());
                 }
             } catch (IOException ex) {
                 Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, ex);
+                throw new ParserException(file.getAbsolutePath(), -1, "Error while reading the file, see console for more details", false);
             }
         }
         try {
-            return getLinesFromFile(new FileInputStream(file));
+            return getLinesFromFile(new FileInputStream(file), file.getAbsolutePath(), false);
         } catch (FileNotFoundException ex) {
-            throw new RouteParserException("File not found: " + file.getAbsolutePath(), -1);
+            throw new ParserException(file.getAbsolutePath(), -1, "File not found");
         }
     }
 
-    private static List<String> getLinesFromFile(InputStream inFile) {
+    private static List<String> getLinesFromFile(InputStream inFile, String fileName, boolean fromResource) throws ParserException {
         List<String> lines = new ArrayList<>();
-        BufferedReader br = new BufferedReader(new InputStreamReader(inFile));
-        try {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(inFile))) {
             String line = br.readLine();
             while (line != null) {
                 lines.add(line);
@@ -524,12 +553,7 @@ public class RouterData {
             }
         } catch (IOException ex) {
             Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                br.close();
-            } catch (IOException ex) {
-                Logger.getLogger(RouterData.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            throw new ParserException(fileName, -1, "Error while reading the file, see console for more details", fromResource);
         }
         return lines;
     }
