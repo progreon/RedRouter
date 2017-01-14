@@ -134,4 +134,28 @@ public class Evolution {
 
     }
 
+    public static class Trade extends Key {
+
+        public static final String VALUE = "Trade";
+
+        public Trade() {
+            super(VALUE);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj != null && obj instanceof Trade;
+        }
+
+        @Override
+        public int compareTo(Key o) {
+            if (o instanceof Level) {
+                return 1;
+            } else {
+                return toString().compareTo(o.toString());
+            }
+        }
+
+    }
+
 }

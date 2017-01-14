@@ -75,7 +75,23 @@ public class CombinedBattler extends Battler {
 
     @Override
     public Battler evolve(Item item) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SingleBattler newB = (SingleBattler) possibleBattlers.get(0).evolve(item);
+        Pokemon p = newB.pokemon;
+        CombinedBattler newBattler = new CombinedBattler(newB);
+        int combinedCount = 1;
+        for (int i = 1; i < possibleBattlers.size(); i++) {
+            newB = (SingleBattler) possibleBattlers.get(i).evolve(item);
+            if (p == newB.pokemon) {
+                if (newBattler.combine(newB)) {
+                    combinedCount++;
+                }
+            }
+        }
+        if (super.pokemon != p && combinedCount == possibleBattlers.size()) {
+            return newBattler;
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -143,6 +159,51 @@ public class CombinedBattler extends Battler {
     }
 
     @Override
+    public boolean useHPUp(int count) {
+        boolean success = true;
+        for (SingleBattler sb : possibleBattlers) {
+            success &= sb.useHPUp(count);
+        }
+        return success;
+    }
+
+    @Override
+    public boolean useProtein(int count) {
+        boolean success = true;
+        for (SingleBattler sb : possibleBattlers) {
+            success &= sb.useProtein(count);
+        }
+        return success;
+    }
+
+    @Override
+    public boolean useIron(int count) {
+        boolean success = true;
+        for (SingleBattler sb : possibleBattlers) {
+            success &= sb.useIron(count);
+        }
+        return success;
+    }
+
+    @Override
+    public boolean useCarbos(int count) {
+        boolean success = true;
+        for (SingleBattler sb : possibleBattlers) {
+            success &= sb.useCarbos(count);
+        }
+        return success;
+    }
+
+    @Override
+    public boolean useCalcium(int count) {
+        boolean success = true;
+        for (SingleBattler sb : possibleBattlers) {
+            success &= sb.useCalcium(count);
+        }
+        return success;
+    }
+
+    @Override
     protected boolean checkEvolve() {
         for (SingleBattler sb : possibleBattlers) {
             sb.checkEvolve();
@@ -188,37 +249,37 @@ public class CombinedBattler extends Battler {
     }
 
     @Override
-    public Range getAtk(int badgeBoosts, int stage) {
-        Range range = possibleBattlers.get(0).getAtk(badgeBoosts, stage);
+    public Range getAtk() {
+        Range range = possibleBattlers.get(0).getAtk();
         for (SingleBattler sb : possibleBattlers) {
-            range.combine(sb.getAtk(badgeBoosts, stage));
+            range.combine(sb.getAtk());
         }
         return range;
     }
 
     @Override
-    public Range getDef(int badgeBoosts, int stage) {
-        Range range = possibleBattlers.get(0).getDef(badgeBoosts, stage);
+    public Range getDef() {
+        Range range = possibleBattlers.get(0).getDef();
         for (SingleBattler sb : possibleBattlers) {
-            range.combine(sb.getDef(badgeBoosts, stage));
+            range.combine(sb.getDef());
         }
         return range;
     }
 
     @Override
-    public Range getSpd(int badgeBoosts, int stage) {
-        Range range = possibleBattlers.get(0).getSpd(badgeBoosts, stage);
+    public Range getSpd() {
+        Range range = possibleBattlers.get(0).getSpd();
         for (SingleBattler sb : possibleBattlers) {
-            range.combine(sb.getSpd(badgeBoosts, stage));
+            range.combine(sb.getSpd());
         }
         return range;
     }
 
     @Override
-    public Range getSpc(int badgeBoosts, int stage) {
-        Range range = possibleBattlers.get(0).getSpc(badgeBoosts, stage);
+    public Range getSpc() {
+        Range range = possibleBattlers.get(0).getSpc();
         for (SingleBattler sb : possibleBattlers) {
-            range.combine(sb.getSpc(badgeBoosts, stage));
+            range.combine(sb.getSpc());
         }
         return range;
     }

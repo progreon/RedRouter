@@ -43,6 +43,8 @@ public class SingleBattler extends Battler {
     private int defXP = 0;
     private int spdXP = 0;
     private int spcXP = 0;
+    // The current value of the stats (updated after leveling or using vitamins)
+    private final Range[] currentStats = new Range[5];
 
     // TODO: DV-range & interacting with DVCalculator?
     public boolean[][] possibleDVs; // [hp, atk, def, spd, spc][0..15] -> true/false
@@ -65,6 +67,7 @@ public class SingleBattler extends Battler {
             initDefaultMoveSet(pokemon, level);
         }
         initPossibleDVs();
+        updateCurrentStats();
     }
 
     /**
@@ -80,6 +83,7 @@ public class SingleBattler extends Battler {
         this.isTrainerMon = false;
         initDefaultMoveSet(pokemon, level);
         initPossibleDVs();
+        updateCurrentStats();
     }
 
     /**
@@ -94,6 +98,7 @@ public class SingleBattler extends Battler {
         this.isTrainerMon = true;
         initDefaultMoveSet(pokemon, level);
         initPossibleDVs();
+        updateCurrentStats();
     }
 
     /**
@@ -113,6 +118,7 @@ public class SingleBattler extends Battler {
         this.isTrainerMon = false;
         initDefaultMoveSet(pokemon, level);
         initPossibleDVs(atkDV, defDV, spdDV, spcDV);
+        updateCurrentStats();
     }
 
     private void initPossibleDVs() {
@@ -165,6 +171,9 @@ public class SingleBattler extends Battler {
         for (int i = 0; i < this.possibleDVs.length; i++) {
             newBattler.possibleDVs[i] = this.possibleDVs[i].clone();
         }
+        for (int i = 0; i < this.currentStats.length; i++) {
+            newBattler.currentStats[i] = new Range(this.currentStats[i]);
+        }
 
         return newBattler;
     }
@@ -186,6 +195,7 @@ public class SingleBattler extends Battler {
             evo.spdXP = spdXP;
             evo.spcXP = spcXP;
             evo.levelExp = levelExp;
+            evo.updateCurrentStats();
             return evo;
         } else {
             return null;
@@ -218,6 +228,7 @@ public class SingleBattler extends Battler {
         if (level != newLevel) {
             levelExp -= pokemon.expGroup.getDeltaExp(level, newLevel);
             level = newLevel;
+            updateCurrentStats(); // Handle it the RBY way
             List<Move> newMoves = pokemon.getLearnedMoves(level); // Handle it the RBY way
             if (newMoves != null) {
                 int numCurMoves = 0;
@@ -243,9 +254,6 @@ public class SingleBattler extends Battler {
                     }
                     if (found) {
                         moveset[oldIdx] = newMoves.get(i);
-                        System.out.println(pokemon + " L" + level + " learned " + newMoves.get(i) + "!");
-                    } else {
-                        System.out.println(pokemon + " L" + level + " tried to learn " + newMoves.get(i));
                     }
                     i++;
                 }
@@ -290,6 +298,71 @@ public class SingleBattler extends Battler {
     }
 
     @Override
+    public boolean useHPUp(int count) {
+        boolean success = true;
+        for (int i = 0; i < count; i++) {
+            if (hpXP < 25600) {
+                hpXP = Math.min(hpXP + 2560, 25600);
+            } else {
+                success = false;
+            }
+        }
+        return success;
+    }
+
+    @Override
+    public boolean useProtein(int count) {
+        boolean success = true;
+        for (int i = 0; i < count; i++) {
+            if (atkXP < 25600) {
+                atkXP = Math.min(atkXP + 2560, 25600);
+            } else {
+                success = false;
+            }
+        }
+        return success;
+    }
+
+    @Override
+    public boolean useIron(int count) {
+        boolean success = true;
+        for (int i = 0; i < count; i++) {
+            if (defXP < 25600) {
+                defXP = Math.min(defXP + 2560, 25600);
+            } else {
+                success = false;
+            }
+        }
+        return success;
+    }
+
+    @Override
+    public boolean useCarbos(int count) {
+        boolean success = true;
+        for (int i = 0; i < count; i++) {
+            if (spdXP < 25600) {
+                spdXP = Math.min(spdXP + 2560, 25600);
+            } else {
+                success = false;
+            }
+        }
+        return success;
+    }
+
+    @Override
+    public boolean useCalcium(int count) {
+        boolean success = true;
+        for (int i = 0; i < count; i++) {
+            if (spcXP < 25600) {
+                spcXP = Math.min(spcXP + 2560, 25600);
+            } else {
+                success = false;
+            }
+        }
+        return success;
+    }
+
+    @Override
     protected boolean checkEvolve() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -325,8 +398,15 @@ public class SingleBattler extends Battler {
         return range;
     }
 
-    @Override
-    public Range getHP() {
+    private void updateCurrentStats() {
+        currentStats[0] = calculateHP();
+        currentStats[1] = calculateAtk();
+        currentStats[2] = calculateDef();
+        currentStats[3] = calculateSpd();
+        currentStats[4] = calculateSpc();
+    }
+
+    private Range calculateHP() {
         DVRange dvRange = getDVRange(0);
         double extraStats = 0;
         if (hpXP - 1 >= 0) {
@@ -337,36 +417,66 @@ public class SingleBattler extends Battler {
         return new Range((int) minStatValue, (int) maxStatValue);
     }
 
-    @Override
-    public Range getAtk(int badgeBoosts, int stage) {
+    private Range calculateAtk() {
         DVRange dvRange = getDVRange(1);
-        int min = getStat(level, pokemon.atk, dvRange.getMin(), atkXP, badgeBoosts, stage);
-        int max = getStat(level, pokemon.atk, dvRange.getMax(), atkXP, badgeBoosts, stage);
+        int min = calculateStat(level, pokemon.atk, dvRange.getMin(), atkXP);
+        int max = calculateStat(level, pokemon.atk, dvRange.getMax(), atkXP);
         return new Range(min, max);
     }
 
-    @Override
-    public Range getDef(int badgeBoosts, int stage) {
+    private Range calculateDef() {
         DVRange dvRange = getDVRange(2);
-        int min = getStat(level, pokemon.def, dvRange.getMin(), defXP, badgeBoosts, stage);
-        int max = getStat(level, pokemon.def, dvRange.getMax(), defXP, badgeBoosts, stage);
+        int min = calculateStat(level, pokemon.def, dvRange.getMin(), defXP);
+        int max = calculateStat(level, pokemon.def, dvRange.getMax(), defXP);
         return new Range(min, max);
     }
 
-    @Override
-    public Range getSpd(int badgeBoosts, int stage) {
+    private Range calculateSpd() {
         DVRange dvRange = getDVRange(3);
-        int min = getStat(level, pokemon.spd, dvRange.getMin(), spdXP, badgeBoosts, stage);
-        int max = getStat(level, pokemon.spd, dvRange.getMax(), spdXP, badgeBoosts, stage);
+        int min = calculateStat(level, pokemon.spd, dvRange.getMin(), spdXP);
+        int max = calculateStat(level, pokemon.spd, dvRange.getMax(), spdXP);
+        return new Range(min, max);
+    }
+
+    private Range calculateSpc() {
+        DVRange dvRange = getDVRange(4);
+        int min = calculateStat(level, pokemon.spc, dvRange.getMin(), spcXP);
+        int max = calculateStat(level, pokemon.spc, dvRange.getMax(), spcXP);
         return new Range(min, max);
     }
 
     @Override
-    public Range getSpc(int badgeBoosts, int stage) {
-        DVRange dvRange = getDVRange(4);
-        int min = getStat(level, pokemon.spc, dvRange.getMin(), spcXP, badgeBoosts, stage);
-        int max = getStat(level, pokemon.spc, dvRange.getMax(), spcXP, badgeBoosts, stage);
-        return new Range(min, max);
+    public Range getHP() {
+        return currentStats[0];
+    }
+
+    private int calculateStat(int level, int base, int DV, int XP) {
+        double extraStats = 0;
+        if (XP - 1 >= 0) {
+            extraStats = Math.floor(Math.floor(Math.sqrt(XP - 1) + 1) / 4);
+        }
+        double statValue = Math.floor((((base + DV) * 2 + extraStats) * level / 100) + 5);
+        return (int) statValue;
+    }
+
+    @Override
+    public Range getAtk() {
+        return currentStats[1];
+    }
+
+    @Override
+    public Range getDef() {
+        return currentStats[2];
+    }
+
+    @Override
+    public Range getSpd() {
+        return currentStats[3];
+    }
+
+    @Override
+    public Range getSpc() {
+        return currentStats[4];
     }
 
     @Override
@@ -381,25 +491,25 @@ public class SingleBattler extends Battler {
 
     @Override
     public Range getAtkStatIfDV(int DV) {
-        int stat = getStat(level, pokemon.atk, DV, atkXP, 0, 0);
+        int stat = calculateStat(level, pokemon.atk, DV, atkXP);
         return new Range(stat, stat);
     }
 
     @Override
     public Range getDefStatIfDV(int DV) {
-        int stat = getStat(level, pokemon.def, DV, defXP, 0, 0);
+        int stat = calculateStat(level, pokemon.def, DV, defXP);
         return new Range(stat, stat);
     }
 
     @Override
     public Range getSpdStatIfDV(int DV) {
-        int stat = getStat(level, pokemon.spd, DV, spdXP, 0, 0);
+        int stat = calculateStat(level, pokemon.spd, DV, spdXP);
         return new Range(stat, stat);
     }
 
     @Override
     public Range getSpcStatIfDV(int DV) {
-        int stat = getStat(level, pokemon.spc, DV, spcXP, 0, 0);
+        int stat = calculateStat(level, pokemon.spc, DV, spcXP);
         return new Range(stat, stat);
     }
 

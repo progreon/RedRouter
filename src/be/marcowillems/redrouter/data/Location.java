@@ -36,8 +36,8 @@ public class Location implements Comparable<Location> {
 
     public final String name;
     public final BufferedImage image;
-    final Set<Location> subLocations = new TreeSet();
-    final Map<String, EncounterArea> encounterAreas = new TreeMap(); // TODO: private?
+    final Set<Location> subLocations = new TreeSet<>();
+    final Map<String, EncounterArea> encounterAreas = new TreeMap<>(); // TODO: private?
 
     public Location(RouterData rd, String name) {
         this(rd, name, null);

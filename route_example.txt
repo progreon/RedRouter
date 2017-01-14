@@ -18,7 +18,32 @@ Trainer: Rival 1 :: rival1 bulbasaur:5
 Trainer: Bug Catcher 1 :: bug1 weedle:9
 Trainer: Brock :: brock geodude:12 onix:14
 Trainer: Bug Catcher 2 :: bug2 caterpie:10 weedle:10 caterpie:10
-Trainer: Shorts Guy :: shorts rattata:11 ekans:11
+Trainer: Jr.TrainerM Shorts :: Route 3 :: jrtrmshorts rattata:11 ekans:11
+Trainer: Bug Catcher 3 :: Route 3 :: bug3 weedle:9 kakuna:9 caterpie:9 metapod:9
+Trainer: Bug Catcher 4 :: Route 3 :: bug4 caterpie:11 metapod:11
+// Mt.Moon
+Trainer: Super Nerd 1 :: Mt. Moon 1F :: nerd1 magnemite:11 voltorb:11
+Trainer: Lass Moon :: Mt. Moon 1F :: lassmoon oddish:11 bellsprout:11
+Trainer: Hiker Moon :: Mt. Moon 1F :: hikermoon geodude:10 geodude:10 onix:10
+Trainer: Rocket Moon :: Mt. Moon B2F :: rocketmoon rattata:13 zubat:13
+Trainer: Super Nerd 2 :: Mt. Moon B2F :: nerd2 grimer:12 voltorb:12 koffing:12
+// Nugget Bridge
+Trainer: Rival 2 :: Cerulean City :: rival2 pidgeotto:18 abra:15 rattata:15 bulbasaur:17
+Trainer: Bug Catcher 5 :: Route 24 :: bug5 caterpie:14 weedle:14
+Trainer: Lass 1 :: Route 24 :: lass1 pidgey:14 nidoranf:14
+Trainer: Youngster 1 :: Route 24 :: youngster1 rattata:14 ekans:14 zubat:14
+Trainer: Lass 2 :: Route 24 :: lass2 pidgey:16 nidoranf:16
+Trainer: Jr.TrainerM 1 :: Route 24 :: jrtrm1 mankey:18
+Trainer: Rocket 1 :: Route 24 :: rocket1 ekans:15 zubat:15
+// Route 25
+Trainer: Hiker 1 :: Route 25 :: hiker1 machop:15 geodude:15
+Trainer: Lass 3 :: Route 25 :: lass3 nidoranm:15 nidoranf:15
+Trainer: Jr.TrainerM 2 :: Route 25 :: jrtrm2 rattata:14 ekans:14
+Trainer: Lass 4 :: Route 25 :: lass4 oddish:13 pidgey:13 oddish:13
+// Cerulean City
+Trainer: Rocket Dig :: Cerulean City :: rocketdig machop:17 drowzee:17
+Trainer: Jr.TrainerF Misty :: Cerulean City :: jrtrfmisty goldeen:19
+Trainer: Misty :: Cerulean City :: misty staryu:18 starmie:21
 
 // Route
 Route: Red Any% Glitchless - Exarion Route
@@ -54,8 +79,9 @@ Route: Red Any% Glitchless - Exarion Route
 			D: Head out of the Mart, and west to Route 22.
 		S: Route 22
 			D: Time for the Nidoran hunt. You want to catch a Lvl.3-4 Nidoran♂, and give it a one character name.
-			C: Route 22 :: 1 #3
-				Tackle Lvl.3 Nidorans once to make the catch easier, but just throw PokeBalls at Lvl.4 Nidorans.
+//			C: Route 22 :: 1 #3
+//				Tackle Lvl.3 Nidorans once to make the catch easier, but just throw PokeBalls at Lvl.4 Nidorans.
+			Manip: Route 22 :: 3 :: 15 15 14 15
 			D: After you have your Nidoran, head back east to Viridian City.
 	S: Viridian City
 		D: Head north, and pick up the Potion hidden in the Cut tree on the left.
@@ -82,9 +108,42 @@ Route: Red Any% Glitchless - Exarion Route
 		B: bug2
 			x3: Leer, HA x2
 		D: Heal to full or near full for the next fight
-		B: shorts
+		B: jrtrmshorts
 			x2: Leer, HA x2
 		D: Potion before the next fight ONLY if you're at 1 HP.
+		B: bug3
+		B: bug4
+		C: Route 3 :: #1
+	S: Mt Moon
+		B: nerd1
+		E: Mt. Moon 1F :: 0:0 1:0 2:0 3:2 4:0
+			You need .. total exp, kill two 6-9 Zubats
+		B: lassmoon
+//		B: hikermoon
+		Manip: Mt. Moon B2F :: 6 :: 14 15 14 3
+			Paras manip
+		B: rocketmoon
+		B: nerd2
+	S: Cerulean City
+		B: rival2
+	S: Nugget Bridge
+		B: bug5
+		B: lass1
+		B: youngster1
+		B: lass2
+		Candy: 2
+			Rare Candy to level 23 // TEMPORARY
+		B: jrtrm1
+		B: rocket1
+	S: Route 25
+		B: hiker1
+		B: lass3
+		B: jrtrm2
+		B: lass4
+	S: Cerulean City (Gym)
+		B: jrtrfmisty
+		B: misty
+		B: rocketdig
 
 
 === // Ignore everything after this

@@ -25,6 +25,7 @@ import be.marcowillems.redrouter.Settings;
 import be.marcowillems.redrouter.data.*;
 import be.marcowillems.redrouter.route.*;
 import be.marcowillems.redrouter.util.IntPair;
+import java.util.Locale;
 
 /**
  * TODO: error messages push system, TODO: handle multiple (white)spaces, TODO:
@@ -47,10 +48,11 @@ public class RouteParser {
     private final String directionsPrefix = "D:";
     private final String encounterPrefix = "E:";
     private final String getPokemonPrefix = "GetP:";
-    private final String manipPokemonPrefix = "M:";
-    private final String learnTMMovePrefix = "TM:";
+    private final String manipPokemonPrefix = "Manip:"; // TODO: fuse this with catch?
+    private final String menuPrefix = "Menu:";
     private final String sectionPrefix = "S:";
     private final String swapPokemonPrefix = "Swap:";
+    private final String learnTMMovePrefix = "TM:";
     private final String useCandiesPrefix = "Candy:";
 
 //    private RouterData rd = null;
@@ -257,6 +259,9 @@ public class RouteParser {
                 break;
             case manipPokemonPrefix:
                 addNewManipPokemon(route, parent, lines, lineNo);
+                break;
+            case menuPrefix:
+                addNewMenu(route, parent, lines, lineNo);
                 break;
             case learnTMMovePrefix:
                 addNewLearnTmMove(route, parent, lines, lineNo);
@@ -623,6 +628,162 @@ public class RouteParser {
         RouteGetPokemon rgp = new RouteGetPokemon(route, info, sb);
         parent.addEntry(rgp);
         return rgp;
+    }
+
+    private RouteMenu addNewMenu(Route route, RouteSection parent, String[] lines, int lineNo) throws ParserException {
+        // TODO: extensive testing!
+        lines = getNonEmptyLines(lines);
+        // Menu: [<description>]
+        //    <description>
+        //    SWAP: <item1> :: <item2|item2Idx>
+        //    TM: <tm|move> :: <partyIdx> [:: <replaced move>]
+        //    TOSS: <item> [:: <count>]
+        //    USE: <item> [:: <count> [:: <partyIdx> [:: <move>]]]
+        String description = lines[0].replaceFirst(menuPrefix, "").trim();
+        RouteMenu rm = new RouteMenu(route, (description.isEmpty() ? null : description));
+
+        for (int i = 1; i < lines.length; i++) {
+            String entryLine = lines[i].trim();
+            String typeString = "";
+            int colon = entryLine.indexOf(':');
+            if (colon >= 0) {
+                typeString = entryLine.substring(0, colon).trim();
+            }
+            String[] args = entryLine.substring(typeString.length() + 1).split("::");
+            for (int j = 0; j < args.length; j++) {
+                args[j] = args[j].trim();
+            }
+            Item item;
+            int count;
+            int partyIdx;
+            switch (typeString) {
+                case "SWAP":
+                    // SWAP: <item1> :: <item2|item2Idx>
+                    if (args.length != 2) {
+                        throw new ParserException(currentFile, lineNo, "A swap expects just 2 arguments", false);
+                    }
+                    Item item1 = route.rd.getItem(args[0]);
+                    if (item1 == null) {
+                        throw new ParserException(currentFile, lineNo, "Could not find item \"" + args[0] + "\"", false);
+                    }
+                    try {
+                        int item2Idx = Integer.parseInt(args[1]);
+                        rm.addSwap(item1, item2Idx);
+                    } catch (NumberFormatException nfe) {
+                        Item item2 = route.rd.getItem(args[1]);
+                        if (item2 == null) {
+                            throw new ParserException(currentFile, lineNo, "Could not find item \"" + args[1] + "\"", false);
+                        }
+                        rm.addSwap(item1, item2);
+                    }
+                    break;
+                case "TM":
+                    // TM: <tm|move> :: <partyIdx> [:: <replaced move>]
+                    if (args.length < 2 || args.length > 3) {
+                        throw new ParserException(currentFile, lineNo, "A TM use expects 2 or 3 arguments", false);
+                    }
+                    String strTM = args[0];
+                    Item tmItem = route.rd.getTM(strTM);
+                    Move tmMove = null;
+                    if (tmItem == null) {
+                        tmMove = route.rd.getMove(strTM);
+                        if (tmMove == null) {
+                            throw new ParserException(currentFile, lineNo, "Could not find TM \"" + strTM + "\"", false);
+                        }
+                    }
+                    try {
+                        partyIdx = Integer.parseInt(args[1]);
+                    } catch (NumberFormatException nfe) {
+                        throw new ParserException(currentFile, lineNo, "Could not parse party index", false);
+                    }
+                    if (args.length == 2) {
+                        if (tmItem != null) {
+                            rm.addTM(tmItem, partyIdx);
+                        } else {
+                            rm.addTM(tmMove, partyIdx);
+                        }
+                    } else {
+                        Move replMove = route.rd.getMove(args[2]);
+                        if (replMove == null) {
+                            throw new ParserException(currentFile, lineNo, "Could not find the move \"" + args[2] + "\"", false);
+                        }
+                        if (tmItem != null) {
+                            rm.addTM(tmItem, partyIdx, replMove);
+                        } else {
+                            rm.addTM(tmMove, partyIdx, replMove);
+                        }
+                    }
+                    break;
+                case "TOSS":
+                    // TOSS: <item> [:: <count>]
+                    if (args.length < 1 || args.length > 2) {
+                        throw new ParserException(currentFile, lineNo, "An item toss expects 1 or 2 arguments", false);
+                    }
+                    item = route.rd.getItem(args[0]);
+                    if (item == null) {
+                        throw new ParserException(currentFile, lineNo, "Could not find item \"" + args[0] + "\"", false);
+                    }
+                    if (args.length < 2) {
+                        rm.addToss(item);
+                    } else {
+                        try {
+                            count = Integer.parseInt(args[1]);
+                            if (count < 1) {
+                                throw new NumberFormatException();
+                            }
+                        } catch (NumberFormatException nfe) {
+                            throw new ParserException(currentFile, lineNo, "Could not parse the item count", false);
+                        }
+                        rm.addToss(item, count);
+                    }
+                    break;
+                case "USE":
+                    // USE: <item> [:: <count> [:: <partyIdx> [:: <move>]]]
+                    if (args.length < 1 || args.length > 4) {
+                        throw new ParserException(currentFile, lineNo, "An item use expects 1 to 4 arguments", false);
+                    }
+                    item = route.rd.getItem(args[0]);
+                    if (item == null) {
+                        throw new ParserException(currentFile, lineNo, "Could not find item \"" + args[0] + "\"", false);
+                    }
+                    if (args.length < 2) {
+                        rm.addUse(item);
+                    } else {
+                        try {
+                            count = Integer.parseInt(args[1]);
+                            if (count < 1) {
+                                throw new NumberFormatException();
+                            }
+                        } catch (NumberFormatException nfe) {
+                            throw new ParserException(currentFile, lineNo, "Could not parse the item count", false);
+                        }
+                        if (args.length < 3) {
+                            rm.addUse(item, count);
+                        } else {
+                            try {
+                                partyIdx = Integer.parseInt(args[2]);
+                            } catch (NumberFormatException nfe) {
+                                throw new ParserException(currentFile, lineNo, "Could not parse the party index", false);
+                            }
+                            if (args.length < 4) {
+                                rm.addUse(item, count, partyIdx);
+                            } else {
+                                Move move = route.rd.getMove(args[3]);
+                                if (move == null) {
+                                    throw new ParserException(currentFile, lineNo, "Could not find the move \"" + args[3] + "\"", false);
+                                }
+                                rm.addUse(item, count, partyIdx, move);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    rm.addDescription(entryLine);
+                    break;
+            }
+        }
+        parent.addEntry(rm);
+        return rm;
     }
 
     // TEMPORARY

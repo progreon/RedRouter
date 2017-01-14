@@ -53,6 +53,7 @@ public class RouterData {
     private final Map<String, Pokemon> pokemonByName = new TreeMap<>();
     private final Map<Integer, Pokemon> pokemonByID = new TreeMap<>();
     private final Map<String, Move> moves = new TreeMap<>();
+    private final Map<String, Item> items = new TreeMap<>();
     private final Map<String, Move> tms = new TreeMap<>();
     private final Map<String, Trainer> trainers = new TreeMap<>();
     /**
@@ -68,13 +69,12 @@ public class RouterData {
         this.settings = settings;
         // TODO: order?
         initPokemon();
-//        initItems();
-        initEvolutions();
         initLocations();
-        initEncounters();
-        initMoves();
-        initTms();
-        initMovesets();
+        initEncounters(); // Needs pokemon and locations
+        initMoves(); // Needs pokemon
+        initItemsAndTMs(); // Needs moves for TMs
+        initEvolutions(); // Needs pokemon (duuh), items for evolution stones
+        initMovesets(); // Needs pokemon, moves and tms (cf items)
         // For dummy data
         initTrainers();
     }
@@ -133,6 +133,10 @@ public class RouterData {
         return l;
     }
 
+    public Item getItem(String item) {
+        return items.get(Item.getIndexString(item));
+    }
+
     public Location getLocation(String name) {
         return locations.get(Location.getIndexString(name));
     }
@@ -174,10 +178,6 @@ public class RouterData {
         return oldMove;
     }
 
-    public Trainer getTrainer(String name) {
-        return trainers.get(Trainer.getIndexString(name));
-    }
-
     public Pokemon getPokemon(String name) {
         return pokemonByName.get(Pokemon.getIndexString(name));
     }
@@ -192,6 +192,33 @@ public class RouterData {
 
     public String[] getPokemonNames() {
         return pokemonByName.keySet().toArray(new String[0]);
+    }
+
+    public Item getTM(String move) {
+        Move m = moves.get(Move.getIndexString(move));
+        if (m != null) {
+            return getTM(m);
+        } else {
+            return null;
+        }
+    }
+
+    public Item getTM(Move move) {
+        for (String key : tms.keySet()) {
+            Move m = tms.get(key);
+            if (m == move) {
+                return items.get(key);
+            }
+        }
+        return null;
+    }
+
+    public Move getTMMove(Item tmItem) {
+        return (tmItem.type == Item.Type.TM ? tms.get(tmItem.name) : null);
+    }
+
+    public Trainer getTrainer(String name) {
+        return trainers.get(Trainer.getIndexString(name));
     }
 
     private void initPokemon() throws ParserException {
@@ -271,17 +298,52 @@ public class RouterData {
             try {
                 int level = Integer.parseInt(args2[1]);
                 key = new Evolution.Level(level);
-                evos.put(key, evo);
             } catch (NumberFormatException nfe) {
-                // TODO!!
-//            Item item = getItem(args2[1]);
-//            key = new Evolution.Item(item);
+                String other = args2[1];
+                if (other.equals(Evolution.Trade.VALUE)) {
+                    key = new Evolution.Trade();
+                } else {
+                    Item item = getItem(other);
+                    if (item == null) {
+                        throw new ParserException(file, lineNo, "Could not find item \"" + other + "\"");
+                    }
+                    key = new Evolution.Item(item);
+                }
             }
+            evos.put(key, evo);
         }
         Evolution e = new Evolution(evos);
         p.setEvolution(e);
 
         return e;
+    }
+
+    private void initItemsAndTMs() throws ParserException {
+        List<String> lines = getLinesFromResourceFile(settings.getItemsFile());
+        for (int lno = 0; lno < lines.size(); lno++) {
+            String line = lines.get(lno);
+            if (!line.equals("") && !line.substring(0, 2).equals("//")) {
+                Item item = addItem(line, settings.getItemsFile(), lno);
+                // Handle TMs
+                if (item.type == Item.Type.TM) {
+                    Move move = getMove(item.value);
+                    if (move == null) {
+                        throw new ParserException(settings.getItemsFile(), lno, "Error while parsing TM: could not find move \"" + item.value + "\"");
+                    }
+                    tms.put(item.name, move);
+                }
+            }
+        }
+    }
+
+    private Item addItem(String itemString, String file, int lineNo) throws ParserException {
+        Item item = new Item(this, itemString, file, lineNo);
+        if (!items.containsKey(item.getIndexString())) {
+            items.put(item.getIndexString(), item);
+            return item;
+        } else {
+            throw new ParserException(settings.getMoveFile(), lineNo, "This item already exists!");
+        }
     }
 
     private void initLocations() throws ParserException {
@@ -460,65 +522,6 @@ public class RouterData {
             }
             return team;
         }
-    }
-
-    // TODO Change this
-    private void initTms() {
-        tms.put("TM_01", moves.get("MEGA_PUNCH"));
-        tms.put("TM_02", moves.get("RAZOR_WIND"));
-        tms.put("TM_03", moves.get("SWORDS_DANCE"));
-        tms.put("TM_04", moves.get("WHIRLWIND"));
-        tms.put("TM_05", moves.get("MEGA_KICK"));
-        tms.put("TM_06", moves.get("TOXIC"));
-        tms.put("TM_07", moves.get("HORN_DRILL"));
-        tms.put("TM_08", moves.get("BODY_SLAM"));
-        tms.put("TM_09", moves.get("TAKE_DOWN"));
-        tms.put("TM_10", moves.get("DOUBLE_EDGE"));
-        tms.put("TM_11", moves.get("BUBBLEBEAM"));
-        tms.put("TM_12", moves.get("WATER_GUN"));
-        tms.put("TM_13", moves.get("ICE_BEAM"));
-        tms.put("TM_14", moves.get("BLIZZARD"));
-        tms.put("TM_15", moves.get("HYPER_BEAM"));
-        tms.put("TM_16", moves.get("PAY_DAY"));
-        tms.put("TM_17", moves.get("SUBMISSION"));
-        tms.put("TM_18", moves.get("COUNTER"));
-        tms.put("TM_19", moves.get("SEISMIC_TOSS"));
-        tms.put("TM_20", moves.get("RAGE"));
-        tms.put("TM_21", moves.get("MEGA_DRAIN"));
-        tms.put("TM_22", moves.get("SOLARBEAM"));
-        tms.put("TM_23", moves.get("DRAGON_RAGE"));
-        tms.put("TM_24", moves.get("THUNDERBOLT"));
-        tms.put("TM_25", moves.get("THUNDER"));
-        tms.put("TM_26", moves.get("EARTHQUAKE"));
-        tms.put("TM_27", moves.get("FISSURE"));
-        tms.put("TM_28", moves.get("DIG"));
-        tms.put("TM_29", moves.get("PSYCHIC_M"));
-        tms.put("TM_30", moves.get("TELEPORT"));
-        tms.put("TM_31", moves.get("MIMIC"));
-        tms.put("TM_32", moves.get("DOUBLE_TEAM"));
-        tms.put("TM_33", moves.get("REFLECT"));
-        tms.put("TM_34", moves.get("BIDE"));
-        tms.put("TM_35", moves.get("METRONOME"));
-        tms.put("TM_36", moves.get("SELFDESTRUCT"));
-        tms.put("TM_37", moves.get("EGG_BOMB"));
-        tms.put("TM_38", moves.get("FIRE_BLAST"));
-        tms.put("TM_39", moves.get("SWIFT"));
-        tms.put("TM_40", moves.get("SKULL_BASH"));
-        tms.put("TM_41", moves.get("SOFTBOILED"));
-        tms.put("TM_42", moves.get("DREAM_EATER"));
-        tms.put("TM_43", moves.get("SKY_ATTACK"));
-        tms.put("TM_44", moves.get("REST"));
-        tms.put("TM_45", moves.get("THUNDER_WAVE"));
-        tms.put("TM_46", moves.get("PSYWAVE"));
-        tms.put("TM_47", moves.get("EXPLOSION"));
-        tms.put("TM_48", moves.get("ROCK_SLIDE"));
-        tms.put("TM_49", moves.get("TRI_ATTACK"));
-        tms.put("TM_50", moves.get("SUBSTITUTE"));
-        tms.put("HM_01", moves.get("CUT"));
-        tms.put("HM_02", moves.get("FLY"));
-        tms.put("HM_03", moves.get("SURF"));
-        tms.put("HM_04", moves.get("STRENGTH"));
-        tms.put("HM_05", moves.get("FLASH"));
     }
 
     public static List<String> getLinesFromResourceFile(String fileName) throws ParserException {

@@ -30,6 +30,11 @@ public class Range {
         this.max = max;
     }
 
+    public Range(Range range) {
+        this.min = range.min;
+        this.max = range.max;
+    }
+
     public void combine(Range range) {
         if (range.min < this.min) {
             this.min = range.min;
@@ -38,11 +43,11 @@ public class Range {
             this.max = range.max;
         }
     }
-    
+
     public int getMin() {
         return this.min;
     }
-    
+
     public int getMax() {
         return this.max;
     }
@@ -56,12 +61,12 @@ public class Range {
                 || (range.min <= this.min && this.min <= range.max);
     }
 
-    public Range devideBy(int d) {
-        return new Range(min / d, max / d);
+    public Range divideBy(int d) {
+        return new Range((d > 0 ? min : max) / d, (d > 0 ? max : min) / d);
     }
 
     public Range multiplyBy(int m) {
-        return new Range(min * m, max * m);
+        return new Range((m > 0 ? min : max) * m, (m > 0 ? max : min) * m);
     }
 
     public Range add(int a) {

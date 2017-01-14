@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import be.marcowillems.redrouter.io.ParserException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  *
@@ -175,6 +177,17 @@ public class Pokemon {
         return this.tmMoves;
     }
 
+    public Set<Move> getAllMoves() {
+        Set<Move> allMoves = new HashSet<>();
+        for (List<Move> moves : learnedMoves.values()) {
+            allMoves.addAll(moves);
+        }
+        for (Move move : tmMoves) {
+            allMoves.add(move);
+        }
+        return allMoves;
+    }
+
     public String getIndexString() {
         return getIndexString(name);
     }
@@ -197,7 +210,6 @@ public class Pokemon {
 
     @Override
     public String toString() {
-//        return species + " [" + name + "]: " + hp + "," + atk + "," + def + "," + spd + "," + spc;
         return name;
     }
 

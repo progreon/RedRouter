@@ -21,7 +21,7 @@ Route: <title>
 		[D:] <description> // Directions entry
 		GetP: [#]<pokemon>:<level> [..] // Get Pokemon entry: the first one with '#' = preference
 			[[<title> ::] [<description>]]
-		M: <encounter area> :: <slot> :: <atk> <def> <spd> <spc> // RNG Manip'd catch entry
+		Manip: <encounter area> :: <slot> :: <atk> <def> <spd> <spc> // RNG Manip'd catch entry
 			[[<title> ::] [<description>]]
 		Swap: <party id1> <party id1> // Swap Party Pokemon entry
 			[[<title> ::] [<description>]]
@@ -38,6 +38,12 @@ Route: <title>
 			[[<title> ::] [<description>]]
 		Candy: <amount> // Use Rare Candies entry (TEMPORARY)
 			[[<title> ::] [<description>]]
+		Menu: [<description>]
+			<description>
+			SWAP: <item1> :: <item2|item2Idx>
+			TM: <tm|move> :: <partyIdx> [:: <replaced move>]
+			TOSS: <item> [:: <count>]
+			USE: <item> [:: <count> [:: <partyIdx> [:: <move>]]]
 
 //		Shop: <..> // TODO: Shopping entry
 //		I: <alias> // TODO: Image entry?

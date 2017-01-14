@@ -39,9 +39,6 @@ public class Move {
     public final int accuracy;
     public final int pp;
 
-    private int[] multipliers = new int[]{25, 28, 33, 40, 50, 66, 1, 15, 2, 25, 3, 35, 4};
-    private int[] divisors = new int[]{100, 100, 100, 100, 100, 100, 1, 10, 1, 10, 1, 10, 1};
-
     public final List<Pokemon> pokemon; // Pokemon that learn this move
 
     public Move(RouterData rd, String name, Types.Type type, boolean isAttack, int power, int accuracy, int pp) {
@@ -105,28 +102,29 @@ public class Move {
         if (power == 0) {
             return new Range(0, 0); // TODO: special cases?
         }
-        int atkBadge = 0;
-        int defBadge = 0;
-        if (playerA != null && Types.isPhysical(type) && playerA.atkBadge) {
-            atkBadge = 1;
+        int atkBB = 0;
+        int defBB = 0;
+        int spcBB = 0;
+        if (playerA != null && Types.isPhysical(type) && playerA.atkBadge && !isCrit) {
+            atkBB = 1;
         }
-        if (playerA != null && !Types.isPhysical(type) && playerA.spcBadge) {
-            atkBadge = 1;
+        if (playerA != null && !Types.isPhysical(type) && playerA.spcBadge && !isCrit) {
+            spcBB = 1;
         }
-        if (playerB != null && Types.isPhysical(type) && playerB.defBadge) {
-            defBadge = 1;
+        if (playerB != null && Types.isPhysical(type) && playerB.defBadge && !isCrit) {
+            defBB = 1;
         }
-        if (playerB != null && !Types.isPhysical(type) && playerB.spcBadge) {
-            defBadge = 1;
+        if (playerB != null && !Types.isPhysical(type) && playerB.spcBadge && !isCrit) {
+            spcBB = 1;
         }
         // (1), (2), (4)
-        Range atkRange = Types.isPhysical(type) ? attacker.getAtk() : attacker.getSpc();
-        int minAttack = isCrit ? atkRange.getMin() : getStatWithBoosts(atkRange.getMin(), atkBadge, 0);
-        int maxAttack = isCrit ? atkRange.getMax() : getStatWithBoosts(atkRange.getMax(), atkBadge, 0);
+        Range atkRange = Types.isPhysical(type) ? attacker.getAtk(atkBB, 0) : attacker.getSpc(spcBB, 0);
+        int minAttack = atkRange.getMin();
+        int maxAttack = atkRange.getMax();
         // TODO: (3) attacker is burned
-        Range defRange = Types.isPhysical(type) ? defender.getDef() : defender.getSpc();
-        int minDefense = getStatWithBoosts(defRange.getMin(), defBadge, 0);
-        int maxDefense = getStatWithBoosts(defRange.getMax(), defBadge, 0);
+        Range defRange = Types.isPhysical(type) ? defender.getDef(defBB, 0) : defender.getSpc(spcBB, 0);
+        int minDefense = defRange.getMin();
+        int maxDefense = defRange.getMax();
         // TODO: (5) Selfdestruct & Explosion
         // (6) ??
         if (minAttack > 255) {
@@ -171,15 +169,6 @@ public class Move {
         }
 
         return new Range(minDamage, maxDamage);
-    }
-
-    // TODO get this from Battler (and fix its method)
-    private int getStatWithBoosts(int stat, int badgeBoostCount, int xItemCount) {
-        stat *= multipliers[xItemCount + 6] / divisors[xItemCount + 6];
-        for (int bb = 0; bb < badgeBoostCount; bb++) {
-            stat = (int) (9 * stat / 8);
-        }
-        return stat;
     }
 
     public static String getIndexString(String name) {

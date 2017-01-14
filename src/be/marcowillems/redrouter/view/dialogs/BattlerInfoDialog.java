@@ -53,7 +53,7 @@ public class BattlerInfoDialog extends InfoDialog {
         if (!isPlayerBattler) {
             info += "Given experience: " + battler.getExp(1) + "<br>";
         } else {
-            info += "Redbar: &lt;" + battler.getHP().multiplyBy(53).devideBy(256).add(1) + " HP<br>";
+            info += "Redbar: &lt;" + battler.getHP().multiplyBy(53).divideBy(256).add(1) + " HP<br>";
         }
         // TODO: check & move to Pokemon class
         info += "Critical hit ratio: " + (((battler.getPokemon().spd / 2) / 256.0) * 100.0) + "% ";
@@ -75,7 +75,7 @@ public class BattlerInfoDialog extends InfoDialog {
             // TODO
             int max = battler.pokemon.expGroup.getDeltaExp(battler.getLevel(), battler.getLevel() + 1, battler.getLevelExp().getMax());
             int min = battler.pokemon.expGroup.getDeltaExp(battler.getLevel(), battler.getLevel() + 1, battler.getLevelExp().getMin());
-            info += "Exp. to next level: " + new Range(min, max);
+            info += "Exp. to next level: " + new Range(min, max) + " left (of " + battler.pokemon.expGroup.getDeltaExp(battler.getLevel(), battler.getLevel() + 1) + ")";
         }
         info += "</body></html>";
 

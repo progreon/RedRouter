@@ -103,10 +103,10 @@ Trainer: Rival 7 :: Victory Road :: rival7 pidgeot:61 alakazam:59 rhydon:61 gyar
 
 // Moves replaced when leveling (if needed) // TODO
 // MoveReplace: <pokemon> :: <old move> <new move>
-MoveReplace: Parasect :: scratch spore
+MoveReplace: Rattata :: tackle hyper_fang
 
 // Route
-Route: Red Any% Glitchless - Paras%
+Route: Red Any% Glitchless - Raticate%
 	S: Early game
 		GetP: #squirtle:5
 		B: rival1
@@ -114,75 +114,119 @@ Route: Red Any% Glitchless - Paras%
 		D: Do parcel stuff
 		E: Route 1 :: 1:0 3:1 4:0 5:0
 			Kill an encounter
+	S: Route 2
+		Manip: Route 2 :: 7 :: 15 14 9 15
+			Manip a Rattata Lv.5, DVs should be 11/15/14/9/15
+	S: Viridian Forest
+		D: Avoid the trainers and walk on the encounterless tiles. Pick up the Antidote on your way up.
 		B: bug1
 			Tail Whip x2, then Tackle until it faints.
+		D: After the battle, exit the grass and open the menu: Squirtle <-> Nidoran, [use potion], [use antidote]
+		Swap: 0 1
+			Swap Squirtle with Nidoran
+		D: Exit Viridian Forest and head north to Pewter City.
 	S: Pewter City
-		B: brock
-			Bubble all
+		D: Head straight into Brock's Gym, go left to avoid the Gym trainer and battle Brock.
+		B: brock :: 0:0 0:1 1:0 1:1
+			Geodude: switch to Squirtle, B x2-3, same for Onix
+		D: -- Pewter Mart --
 	S: Route 3
 		B: bug2
+			Tail Whip, Quick Attack x3/4, repeat, repeat
+		D: Switch Squirtle to first, heal Squirtle if at 14 HP or less.
 		B: jrtrmshorts
-			Shorts Guy :: Live
+			Shorts Guy :: Spam Tail Whip until dead, Quick Attack x1/2, Quick Attack x4
 		B: bug3
+			Spam Quick Attack
 		B: bug4
+			Tail Whip, Tackle/Quick Attack x2/3, Quick Attack x5/6
 		C: Route 3 :: #1
+			Get Spearow/Pidgey
+		D: Heal at center?
 	S: Mt Moon
-		Manip: Mt. Moon B2F :: 6 :: 14 15 14 3
-			Manip a Paras Lv.12, DVs should be 14/15/14/3
-		Swap: 0 2
-		Menu: Teach TM34 Bide
-			TM: Bide :: 0
+		D: Grab Water Gun
 		B: nerd1
-		E: Mt. Moon 1F :: 0:0 1:0 2:0 3:1 4:0
-			You need 98 total exp, kill two 6-9 Zubats or one 8 Geodude (98 exactly) before Hiker
-		B: lassmoon
+			Quick Attack x4 or Tail Whip, Quick Attack x2/3, Tail Whip, Quick Attack x2
+//		E: Mt. Moon 1F :: 0:0 1:0 2:0 3:1 4:0
+//			You need 98 total exp, kill two 6-9 Zubats or one 8 Geodude (98 exactly) before Hiker
+		D: Grab Rare Candy
+		TM: Water_Gun
+//		B: lassmoon
 		B: hikermoon
-		E: Mt. Moon B2F :: 3:1
+			Water Gun
+//		E: Mt. Moon B2F :: 3:1
+		C: Mt. Moon B2F :: #6
+			Catch Paras
 		B: rocketmoon
+			Hyper Fang, (Quick Attack if no kill), repeat.
 		B: nerd2
+			Hyper Fang, (Quick Attack if no kill), repeat, repeat.
 	S: Cerulean City
+		D: Get Hidden Rare Candy
+		D: Switch Squirtle into first
 		B: rival2
+			Spam Tail Whip, Hyper Fang x6/7
 	S: Nugget Bridge
 		B: bug5
-		Menu: Rare Candy to level 20
-			USE: Rare_Candy :: 2
+			Hyper Fang x2/3/4
 		B: lass1
+			Hyper Fang, Quick Attack, Hyper Fang, Quick Attack
+//		Candy: 2
+//			Rare Candy to level 20 and evolve // TEMPORARY
+		D: Take center
 		B: youngster1
+			Hyper Fang x3
 		B: lass2
+			Hyper Fang x2
 		B: jrtrm1
+			Hyper Fang
 		B: rocket1
+			Hyper Fang x2
 	S: Route 25
 		B: hiker1
+			Quick Attack x2, Water Gun
+		D: Grab Elixer
 		B: lass3
+			Hyper Fang x2
 		B: jrtrm2
+			Hyper Fang x2
 		B: lass4
+			Hyper Fang x3, or Hyper Fang, Quick Attack x2, Hyper Fang, or Quick Attack x6?
+		D: Grab Ether
+		D: Save Bill, Escape Rope out, then Ether on Hyper Fang
 	S: Cerulean City (Gym)
-		B: rocketdig
-		Menu: Teach Dig over Bide
-			TM: Dig :: 0 :: Bide
 		B: jrtrfmisty
+			Hyper Fang, (Quick Attack if no kill)
 		B: misty
+			Hyper Fang x3/4/5/6
 	S: Underground & Route 6
+		B: rocketdig
+			Hyper Fang x2
 		D: Pick up full restore
-		C: Route 6 :: #0
-			Catch an oddish if you need to
 		B: jrtrf1
+			Quick Attack x6
 		B: jrtrm3
+			Hyper Fang x2, or Quick Attack x2, Hyper Fang
+	S: Vermilion
+		D: -- Vermilion Mart --
 	S: SS Anne
 		D: Go to the left and go in the fourth room
 		B: youngster2
+			Spam Quick Attack
 		D: Grab TM08 behind him, then leave and go upstairs, go in the fourth room on the right
-		Menu: ... // TODO
-			TM: Body_Slam :: 0 :: Stun_Spore
-		B: gentleman1
+		D: Menu ...
+		TM: Body_Slam :: Hyper_Fang
+//		TM: Bubblebeam :: Water_Gun
+		TM: Dig :: Tail_Whip
 		B: rival3
-//		Swap: 0 3 // temporary hack
-//		TM: Cut // do this?
-//		Swap: 0 3
-		Menu: ... // TODO
-			TM: Cut :: 3
+			Spam Body Slam (if Ivysaur not dead, Bubblebeam or Body Slam it)
+		Swap: 0 3 // temporary hack
+		TM: Cut // do this?
+		Swap: 0 3
 	S: Vermilion Gym
 		B: surge
+			Body Slam x2, Dig
+		D: Get Bike Voucher, Dig out, Get Bike, Switch Items, Teach Tbolt Over Tail Whip/Quick Attack
 	S: Route 9
 		B: jrtrf2
 		B: bug6
@@ -214,11 +258,9 @@ Route: Red Any% Glitchless - Paras%
 		B: juggler1
 		B: juggler2
 		B: koga
-		Menu:
-			USE: Rare_Candy :: 3
+		Candy: 3
 	S: Cinnabar Mansion
-		Menu:
-			USE: Rare_Candy :: 4
+		Candy: 4
 	S: Blaine
 		B: blaine
 	S: Sabrina

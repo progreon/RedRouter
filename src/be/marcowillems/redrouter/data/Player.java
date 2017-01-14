@@ -198,7 +198,7 @@ public class Player {
         } else {
             items = bagItems;
         }
-        if (index < 0 || index >= items.length || items[index] == null || (!items[index].item.isTossable() && !fromToPC)) {
+        if (index < 0 || index >= items.length || items[index] == null || (!items[index].item.tossable && !fromToPC)) {
             return false;
         } else {
             if (quantity == -1) {

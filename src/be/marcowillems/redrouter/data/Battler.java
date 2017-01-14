@@ -27,11 +27,14 @@ import be.marcowillems.redrouter.util.Range;
  * @author Marco Willems
  */
 public abstract class Battler implements Cloneable {
-    
+
     public final RouterData rd;
 
     public final Pokemon pokemon;
     public final EncounterArea catchLocation;
+
+    private final int[] multipliers = new int[]{25, 28, 33, 40, 50, 66, 1, 15, 2, 25, 3, 35, 4};
+    private final int[] divisors = new int[]{100, 100, 100, 100, 100, 100, 1, 10, 1, 10, 1, 10, 1};
 
     public Battler(RouterData rd, Pokemon pokemon, EncounterArea catchLocation) {
         this.pokemon = pokemon;
@@ -55,6 +58,12 @@ public abstract class Battler implements Cloneable {
         return addXP(b.getExp(participants).getMin());
     }
 
+    /**
+     * Tries to evolve the battler with the specified item.
+     *
+     * @param item The item which triggers the evolution
+     * @return Returns the evolved battler or null if it couldn't evolve
+     */
     public abstract Battler evolve(Item item);
 
     public abstract void addStatXP(int hp, int atk, int def, int spd, int spc, int nrOfPkmn);
@@ -83,6 +92,16 @@ public abstract class Battler implements Cloneable {
      */
     public abstract Battler useCandy(int count);
 
+    public abstract boolean useHPUp(int count);
+
+    public abstract boolean useProtein(int count);
+
+    public abstract boolean useIron(int count);
+
+    public abstract boolean useCarbos(int count);
+
+    public abstract boolean useCalcium(int count);
+
     /**
      * TODO
      *
@@ -105,31 +124,93 @@ public abstract class Battler implements Cloneable {
         return ranges;
     }
 
+    /**
+     * Gets the current HP stat value
+     *
+     * @return
+     */
     public abstract Range getHP();
 
-    public Range getAtk() {
-        return getAtk(0, 0);
+    /**
+     * Gets the current Attack stat value
+     *
+     * @return
+     */
+    public abstract Range getAtk();
+
+    /**
+     * Gets the current Defense stat value
+     *
+     * @return
+     */
+    public abstract Range getDef();
+
+    /**
+     * Gets the current Speed stat value
+     *
+     * @return
+     */
+    public abstract Range getSpd();
+
+    /**
+     * Gets the current Special stat value
+     *
+     * @return
+     */
+    public abstract Range getSpc();
+
+    /**
+     * Gets the current Attack stat value with boosts
+     *
+     * @param badgeBoosts
+     * @param stage
+     * @return
+     */
+    public Range getAtk(int badgeBoosts, int stage) {
+        return getBoostedStat(getAtk(), badgeBoosts, stage);
     }
 
-    public Range getDef() {
-        return getDef(0, 0);
+    /**
+     * Gets the current Defense stat value with boosts
+     *
+     * @param badgeBoosts
+     * @param stage
+     * @return
+     */
+    public Range getDef(int badgeBoosts, int stage) {
+        return getBoostedStat(getDef(), badgeBoosts, stage);
     }
 
-    public Range getSpd() {
-        return getSpd(0, 0);
+    /**
+     * Gets the current Speed stat value with boosts
+     *
+     * @param badgeBoosts
+     * @param stage
+     * @return
+     */
+    public Range getSpd(int badgeBoosts, int stage) {
+        return getBoostedStat(getSpd(), badgeBoosts, stage);
     }
 
-    public Range getSpc() {
-        return getSpc(0, 0);
+    /**
+     * Gets the current Special stat value with boosts
+     *
+     * @param badgeBoosts
+     * @param stage
+     * @return
+     */
+    public Range getSpc(int badgeBoosts, int stage) {
+        return getBoostedStat(getSpc(), badgeBoosts, stage);
     }
 
-    public abstract Range getAtk(int badgeBoosts, int stage);
-
-    public abstract Range getDef(int badgeBoosts, int stage);
-
-    public abstract Range getSpd(int badgeBoosts, int stage);
-
-    public abstract Range getSpc(int badgeBoosts, int stage);
+    private Range getBoostedStat(Range statRange, int badgeBoostCount, int xItemCount) {
+        Range boostedRange = new Range(statRange);
+        boostedRange = boostedRange.multiplyBy(multipliers[xItemCount + 6]).divideBy(divisors[xItemCount + 6]);
+        for (int bb = 0; bb < badgeBoostCount; bb++) {
+            boostedRange = boostedRange.multiplyBy(9).divideBy(8);
+        }
+        return boostedRange;
+    }
 
     public abstract Range getHPStatIfDV(int DV);
 
@@ -140,16 +221,6 @@ public abstract class Battler implements Cloneable {
     public abstract Range getSpdStatIfDV(int DV);
 
     public abstract Range getSpcStatIfDV(int DV);
-
-    // TODO: calculation with badge boosts & stages
-    protected int getStat(int level, int base, int DV, int XP, int badgeBoosts, int stage) {
-        double extraStats = 0;
-        if (XP - 1 >= 0) {
-            extraStats = Math.floor(Math.floor(Math.sqrt(XP - 1) + 1) / 4);
-        }
-        double statValue = Math.floor((((base + DV) * 2 + extraStats) * level / 100) + 5);
-        return (int) statValue;
-    }
 
     public Pokemon getPokemon() {
         return this.pokemon;
