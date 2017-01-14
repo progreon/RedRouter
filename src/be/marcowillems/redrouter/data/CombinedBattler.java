@@ -204,14 +204,6 @@ public class CombinedBattler extends Battler {
     }
 
     @Override
-    protected boolean checkEvolve() {
-        for (SingleBattler sb : possibleBattlers) {
-            sb.checkEvolve();
-        }
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public List<Move> getMoveset() {
         List<Move> moves = new ArrayList<>();
         for (SingleBattler sb : possibleBattlers) {

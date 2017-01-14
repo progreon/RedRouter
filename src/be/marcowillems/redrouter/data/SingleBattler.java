@@ -363,11 +363,6 @@ public class SingleBattler extends Battler {
     }
 
     @Override
-    protected boolean checkEvolve() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public List<Move> getMoveset() {
         List<Move> moves = new ArrayList<>();
         for (Move m : moveset) {

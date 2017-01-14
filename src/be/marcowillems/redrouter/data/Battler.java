@@ -102,13 +102,6 @@ public abstract class Battler implements Cloneable {
 
     public abstract boolean useCalcium(int count);
 
-    /**
-     * TODO
-     *
-     * @return
-     */
-    protected abstract boolean checkEvolve();
-
     public abstract List<Move> getMoveset();
 
     // TODO: range!

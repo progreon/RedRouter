@@ -22,7 +22,7 @@ Trainer: Bug Catcher 2 :: Route 3 :: bug2 caterpie:10 weedle:10 caterpie:10
 Trainer: Jr.TrainerM Shorts :: Route 3 :: jrtrmshorts rattata:11 ekans:11
 Trainer: Bug Catcher 3 :: Route 3 :: bug3 weedle:9 kakuna:9 caterpie:9 metapod:9
 Trainer: Bug Catcher 4 :: Route 3 :: bug4 caterpie:11 metapod:11
-// Mt.Moon
+// Mt. Moon
 Trainer: Super Nerd 1 :: Mt. Moon 1F :: nerd1 magnemite:11 voltorb:11
 Trainer: Lass Moon :: Mt. Moon 1F :: lassmoon oddish:11 bellsprout:11
 Trainer: Hiker Moon :: Mt. Moon 1F :: hikermoon geodude:10 geodude:10 onix:10
@@ -63,7 +63,8 @@ Trainer: PokeManiac 2 :: Rock Tunnel :: maniac2 slowpoke:25
 Trainer: Jr.TrainerF 3 :: Rock Tunnel :: jrtrf3 oddish:22 bulbasaur:22
 Trainer: Hiker 2 :: Rock Tunnel :: hiker2 geodude:21 geodude:21 graveler:21
 Trainer: Jr.TrainerF 4 :: Rock Tunnel :: jrtrf4 meowth:20 oddish:20 pidgey:20
-Trainer: Gambler 1 :: Route 10 :: gambler1 growlithe:24 vulpix:24
+// Route 8
+Trainer: Gambler 1 :: Route 8 :: gambler1 growlithe:24 vulpix:24
 // Pokemon Tower
 Trainer: Rival 4 :: Pokemon Tower :: rival4 pidgeotto:25 gyarados:23 growlithe:22 kadabra:20 ivysaur:25
 Trainer: Channeler 1 :: Pokemon Tower :: channeler1 gastly:23 gastly:23
@@ -103,7 +104,7 @@ Trainer: Rival 7 :: Victory Road :: rival7 pidgeot:61 alakazam:59 rhydon:61 gyar
 
 
 // Route
-// This is a clean route (no items etc) with the usual minimum battles (no optionals)
+// This is a clean route (no items etc) with the usual minimum battles (no optionals), with Squirtle as starter
 Route: Red Any% Glitchless - Clean
 	S: Early game
 		GetP: #squirtle:5
@@ -119,7 +120,7 @@ Route: Red Any% Glitchless - Clean
 		B: jrtrmshorts
 		B: bug3
 		B: bug4
-	S: Mt Moon
+	S: Mt. Moon
 		B: nerd1
 //		B: lassmoon
 //		B: hikermoon
@@ -160,7 +161,7 @@ Route: Red Any% Glitchless - Clean
 		B: jrtrf3
 		B: hiker2
 		B: jrtrf4
-	S: Route 11
+	S: Route 8
 		B: gambler1
 			Or the other one
 	S: Pokemon Tower

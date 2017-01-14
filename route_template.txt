@@ -34,16 +34,12 @@ Route: <title>
 			C: <encounter area> :: [#]<slot> [..] // Catch Pokemon entry: the first one with '#' = preference
 				[[<title> ::] [<description>]]
 	S: <title>
-		TM: <tm move> [:: <old move>] // Learn TM Move entry (TEMPORARY)
-			[[<title> ::] [<description>]]
-		Candy: <amount> // Use Rare Candies entry (TEMPORARY)
-			[[<title> ::] [<description>]]
-		Menu: [<description>]
+		Menu: [<description>] // Menu entry
 			<description>
-			SWAP: <item1> :: <item2|item2Idx>
-			TM: <tm|move> :: <partyIdx> [:: <replaced move>]
-			TOSS: <item> [:: <count>]
-			USE: <item> [:: <count> [:: <partyIdx> [:: <move>]]]
+			SWAP: <item1> :: <item2|item2Idx> // Swap items
+			TM: <tm|move> :: <partyIdx> [:: <replaced move>] // Teach a TM/HM to a pokemon
+			TOSS: <item> [:: <count>] // Toss an item
+			USE: <item> [:: <count> [:: <partyIdx> [:: <move>]]] // Use an item (not fully implemented yet)
 
 //		Shop: <..> // TODO: Shopping entry
 //		I: <alias> // TODO: Image entry?

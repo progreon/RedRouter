@@ -21,7 +21,7 @@ Trainer: Bug Catcher 2 :: bug2 caterpie:10 weedle:10 caterpie:10
 Trainer: Jr.TrainerM Shorts :: Route 3 :: jrtrmshorts rattata:11 ekans:11
 Trainer: Bug Catcher 3 :: Route 3 :: bug3 weedle:9 kakuna:9 caterpie:9 metapod:9
 Trainer: Bug Catcher 4 :: Route 3 :: bug4 caterpie:11 metapod:11
-// Mt.Moon
+// Mt. Moon
 Trainer: Super Nerd 1 :: Mt. Moon 1F :: nerd1 magnemite:11 voltorb:11
 Trainer: Lass Moon :: Mt. Moon 1F :: lassmoon oddish:11 bellsprout:11
 Trainer: Hiker Moon :: Mt. Moon 1F :: hikermoon geodude:10 geodude:10 onix:10
@@ -114,12 +114,13 @@ Route: Red Any% Glitchless - Exarion Route
 		B: bug3
 		B: bug4
 		C: Route 3 :: #1
-	S: Mt Moon
+	S: Mt. Moon
 		B: nerd1
 		E: Mt. Moon 1F :: 0:0 1:0 2:0 3:2 4:0
 			You need .. total exp, kill two 6-9 Zubats
 		B: lassmoon
-//		B: hikermoon
+		Menu: Evolve to Nidoking
+			USE: Moon_Stone
 		Manip: Mt. Moon B2F :: 6 :: 14 15 14 3
 			Paras manip
 		B: rocketmoon
@@ -131,8 +132,8 @@ Route: Red Any% Glitchless - Exarion Route
 		B: lass1
 		B: youngster1
 		B: lass2
-		Candy: 2
-			Rare Candy to level 23 // TEMPORARY
+		Menu: Rare Candy to level 23
+			USE: Rare_Candy :: 2
 		B: jrtrm1
 		B: rocket1
 	S: Route 25

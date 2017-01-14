@@ -52,8 +52,6 @@ public class RouteParser {
     private final String menuPrefix = "Menu:";
     private final String sectionPrefix = "S:";
     private final String swapPokemonPrefix = "Swap:";
-    private final String learnTMMovePrefix = "TM:";
-    private final String useCandiesPrefix = "Candy:";
 
 //    private RouterData rd = null;
     private HashMap<String, Trainer> trainers; // alias => trainer
@@ -263,17 +261,11 @@ public class RouteParser {
             case menuPrefix:
                 addNewMenu(route, parent, lines, lineNo);
                 break;
-            case learnTMMovePrefix:
-                addNewLearnTmMove(route, parent, lines, lineNo);
-                break;
             case sectionPrefix:
                 addNewSection(route, parent, lines, lineNo);
                 break;
             case swapPokemonPrefix:
                 addNewSwapPokemon(route, parent, lines, lineNo);
-                break;
-            case useCandiesPrefix:
-                addNewUseCandies(route, parent, lines, lineNo);
                 break;
             default: // directionsPrefix
                 addNewDirections(route, parent, lines, lineNo);
@@ -786,63 +778,6 @@ public class RouteParser {
         return rm;
     }
 
-    // TEMPORARY
-    private RouteLearnTmMove addNewLearnTmMove(Route route, RouteSection parent, String[] lines, int lineNo) throws ParserException {
-        lines = getNonEmptyLines(lines);
-        if (lines.length > 2) {
-            throw new ParserException(currentFile, lineNo, "A tm entry can only have 1 extra description line", false);
-        }
-
-        // TM: <tm move> [:: <old move>]
-        //      [[<title> ::] [<description>]]
-        String tmLine = lines[0].replaceFirst(learnTMMovePrefix, "").trim();
-
-        RouteEntryInfo info = null;
-        Move newMove;
-        Move oldMove = null;
-
-        // Handle tm line
-        String[] params = tmLine.split("::");
-        String moveName1 = params[0].trim();
-        newMove = route.rd.getMove(moveName1);
-        if (newMove == null) {
-            throw new ParserException(currentFile, lineNo, "Could not find the move \"" + moveName1 + "\"", false);
-        }
-        if (params.length > 1) {
-            String moveName2 = params[1].trim();
-            oldMove = route.rd.getMove(moveName2);
-            if (oldMove == null) {
-                throw new ParserException(currentFile, lineNo, "Could not find the move \"" + moveName2 + "\"", false);
-            }
-        }
-
-        // Handle description line
-        String title = null;
-        String description = "Teach TM " + newMove;
-        if (oldMove != null) {
-            description += " over " + oldMove;
-        }
-        if (lines.length == 2) {
-            String descrLine = lines[1].trim();
-            String[] descrArgs = descrLine.split("::");
-            if (descrArgs.length > 1) {
-                if (!descrArgs[0].trim().isEmpty()) {
-                    title = descrArgs[0];
-                }
-                if (!descrArgs[1].trim().isEmpty()) {
-                    description = descrLine.replaceFirst(".*?::", "").trim();
-                }
-            } else {
-                description = descrLine;
-            }
-        }
-        info = new RouteEntryInfo(title, description);
-
-        RouteLearnTmMove rtm = new RouteLearnTmMove(route, info, newMove, oldMove);
-        parent.addEntry(rtm);
-        return rtm;
-    }
-
     private RouteImage getNewImage(Route route, String line, int lineNo) throws ParserException {
         return null;
     }
@@ -932,53 +867,6 @@ public class RouteParser {
         RouteSwapPokemon rsp = new RouteSwapPokemon(route, info, index1, index2);
         parent.addEntry(rsp);
         return rsp;
-    }
-
-    // TEMPORARY
-    private RouteUseCandies addNewUseCandies(Route route, RouteSection parent, String[] lines, int lineNo) throws ParserException {
-        lines = getNonEmptyLines(lines);
-        if (lines.length > 2) {
-            throw new ParserException(currentFile, lineNo, "A candy entry can only have 1 extra description line", false);
-        }
-
-        // TODO: optional amount?
-        // Candy: <amount>
-        //      [[<title> ::] [<description>]]
-        String candyLine = lines[0].replaceFirst(useCandiesPrefix, "").trim();
-
-        RouteEntryInfo info = null;
-        int candyCount = 1;
-
-        // Handle candy line
-        String count = candyLine.trim();
-        try {
-            candyCount = Integer.parseInt(count);
-        } catch (NumberFormatException nfe) {
-            throw new ParserException(currentFile, lineNo, "Could not parse candy amount", false);
-        }
-
-        // Handle description line
-        String title = null;
-        String description = "Use " + candyCount + " candies";
-        if (lines.length == 2) {
-            String descrLine = lines[1].trim();
-            String[] descrArgs = descrLine.split("::");
-            if (descrArgs.length > 1) {
-                if (!descrArgs[0].trim().isEmpty()) {
-                    title = descrArgs[0];
-                }
-                if (!descrArgs[1].trim().isEmpty()) {
-                    description = descrLine.replaceFirst(".*?::", "").trim();
-                }
-            } else {
-                description = descrLine;
-            }
-        }
-        info = new RouteEntryInfo(title, description);
-
-        RouteUseCandies ruc = new RouteUseCandies(route, info, candyCount);
-        parent.addEntry(ruc);
-        return ruc;
     }
 
     private String[] getRelatedLineBundle(String[] lines, int startLine) {
