@@ -86,6 +86,9 @@ public abstract class RouteEntry extends Writable {
 
         if (this.playerBefore != null) {
             newPlayer = this.playerBefore.getDeepCopy();
+            if (location != null) {
+                newPlayer.setCurrentLocation(location);
+            }
             this.wildEncounters.apply(newPlayer); // Defeat wild encounters
         } else {
             showMessage(RouterMessage.Type.ERROR, "There is no player set!");
