@@ -104,25 +104,26 @@ public class Move {
         }
         int atkBB = 0;
         int defBB = 0;
-        int spcBB = 0;
+        int spcBBA = 0;
+        int spcBBB = 0;
         if (playerA != null && Types.isPhysical(type) && playerA.atkBadge && !isCrit) {
             atkBB = 1;
         }
         if (playerA != null && !Types.isPhysical(type) && playerA.spcBadge && !isCrit) {
-            spcBB = 1;
+            spcBBA = 1;
         }
         if (playerB != null && Types.isPhysical(type) && playerB.defBadge && !isCrit) {
             defBB = 1;
         }
         if (playerB != null && !Types.isPhysical(type) && playerB.spcBadge && !isCrit) {
-            spcBB = 1;
+            spcBBB = 1;
         }
         // (1), (2), (4)
-        Range atkRange = Types.isPhysical(type) ? attacker.getAtk(atkBB, 0) : attacker.getSpc(spcBB, 0);
+        Range atkRange = Types.isPhysical(type) ? attacker.getAtk(atkBB, 0) : attacker.getSpc(spcBBA, 0);
         int minAttack = atkRange.getMin();
         int maxAttack = atkRange.getMax();
         // TODO: (3) attacker is burned
-        Range defRange = Types.isPhysical(type) ? defender.getDef(defBB, 0) : defender.getSpc(spcBB, 0);
+        Range defRange = Types.isPhysical(type) ? defender.getDef(defBB, 0) : defender.getSpc(spcBBB, 0);
         int minDefense = defRange.getMin();
         int maxDefense = defRange.getMax();
         // TODO: (5) Selfdestruct & Explosion
