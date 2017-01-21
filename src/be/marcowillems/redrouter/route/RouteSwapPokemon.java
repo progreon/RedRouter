@@ -67,7 +67,7 @@ public class RouteSwapPokemon extends RouteEntry {
 
     @Override
     public String toString() {
-        return super.info.toString();
+        return info.toString();
     }
 
     @Override
@@ -75,10 +75,15 @@ public class RouteSwapPokemon extends RouteEntry {
         if (ps == null) {
             ps = new PrintSettings();
         }
-        String str = "SwapP: " + index1 + " " + index2;
+        String str = "Swap: " + index1 + " " + index2;
         // TODO boxes!
-        // TODO description
-        return lineToDepth(str, depth);
+        str = lineToDepth(str, depth);
+
+        if (info != null && info.description != null) {
+            str += "\n" + lineToDepth(info.description, depth + 1);
+        }
+
+        return str;
     }
 
 }

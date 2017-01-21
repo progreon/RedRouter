@@ -22,6 +22,7 @@ import be.marcowillems.redrouter.data.Player;
 import be.marcowillems.redrouter.data.SingleBattler;
 import be.marcowillems.redrouter.data.Trainer;
 import be.marcowillems.redrouter.io.PrintSettings;
+import java.util.Locale;
 
 /**
  * TODO: share exp!
@@ -88,12 +89,12 @@ public class RouteBattle extends RouteEntry {
             SingleBattler sb = opponent.team.get(i);
             int n = 0;
             for (int j = 0; j < entries[i].length; j++) {
-                if (!entries[i][j].isFainted()) {
+                if (entries[i][j].getsExperience()) {
                     n++;
                 }
             }
             for (int j = 0; j < entries[i].length; j++) {
-                if (!entries[i][j].isFainted()) {
+                if (entries[i][j].getsExperience()) {
                     Battler updatedBattler = newPlayer.team.get(entries[i][j].partyIndex).defeatBattler(sb, n);
                     if (i == opponent.team.size() - 1) { // Only evolve at the end of the battle
                         newPlayer.team.set(entries[i][j].partyIndex, updatedBattler);
@@ -138,12 +139,7 @@ public class RouteBattle extends RouteEntry {
 
     @Override
     public String toString() {
-        String s = info.toString() + "\n\t";
-        s += opponent.toString();
-//        if (info != null) {
-//            s += "\n\n\t" + info;
-//        }
-        return s;
+        return "Battle " + opponent;
     }
 
     @Override
@@ -152,7 +148,7 @@ public class RouteBattle extends RouteEntry {
             ps = new PrintSettings();
         }
         String str = "B: ";
-        String alias = opponent.getIndexString().replaceAll(" ", "");
+        String alias = opponent.getIndexString().replaceAll(" ", "").toLowerCase(Locale.ROOT); // TODO: TEMP
         str += alias;
         String options = "";
         for (int i = 0; i < entries.length; i++) {
@@ -167,34 +163,36 @@ public class RouteBattle extends RouteEntry {
         if (!options.isEmpty()) {
             str += " ::" + options;
         }
-        // TODO optional description
-        str += " :: " + info.description;
+        str = lineToDepth(str, depth);
 
-        return lineToDepth(str, depth);
+        if (info != null && info.description != null && !info.description.isEmpty()) {
+            String description = "";
+            if (info.title != null && !info.title.isEmpty()) {
+                description = info.title + " :: ";
+            }
+            description += info.description;
+            str += "\n" + lineToDepth(description, depth + 1);
+        }
+
+        return str;
     }
 
     public class RouteBattleEntry {
 
         public final int partyIndex;
         private final int[] xItems = new int[5]; // xAtk, xDef, xSpd, xSpc, xAcc
+        private final int[] badgeBoosts = new int[4]; // apply these if badge available
 
-        private int extraBadgeBoosts = 0;
-        private boolean fainted = false;
+        private boolean getsExp = true;
 
         public RouteBattleEntry(int partyIndex) {
             this.partyIndex = partyIndex;
-        }
-
-        public RouteBattleEntry(int partyIndex, int[] xItems) {
-            this(partyIndex);
-            if (xItems.length == this.xItems.length) {
-                for (int i = 0; i < xItems.length; i++) {
-                    this.xItems[i] = xItems[i];
-                }
+            for (int i = 0; i < badgeBoosts.length; i++) {
+                this.badgeBoosts[i] = 1;
             }
         }
 
-        public int[] getXItems() {
+        public int[] getXItemsUsed() {
             return this.xItems.clone();
         }
 
@@ -207,29 +205,24 @@ public class RouteBattle extends RouteEntry {
             // TODO: refresh?
         }
 
-        public int getExtraBadgeBoosts() {
-            return this.extraBadgeBoosts;
+        public int[] getBadgeBoosts() {
+            return this.badgeBoosts.clone();
         }
 
-        public void setExtraBadgeBoosts(int extraBadgeBoosts) {
-            this.extraBadgeBoosts = extraBadgeBoosts;
+        public void setBadgeBoosts(int bbAtk, int bbDef, int bbSpd, int bbSpc) {
+            badgeBoosts[0] = bbAtk;
+            badgeBoosts[1] = bbDef;
+            badgeBoosts[2] = bbSpd;
+            badgeBoosts[3] = bbSpc;
+            // TODO: refresh?
         }
 
-        public int getTotalExtraBadgeBoosts() {
-            int tot = 0;
-            for (int i = 0; i < 5; i++) {
-                tot += xItems[i];
-            }
-            tot += extraBadgeBoosts;
-            return tot;
+        public boolean getsExperience() {
+            return this.getsExp;
         }
 
-        public boolean isFainted() {
-            return this.fainted;
-        }
-
-        public void setFainted(boolean isFainted) {
-            this.fainted = isFainted;
+        public void setGetsExperience(boolean getsExp) {
+            this.getsExp = getsExp;
         }
 
     }

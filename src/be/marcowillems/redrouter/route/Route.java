@@ -155,13 +155,19 @@ public class Route extends RouteSection {
         return allMessages;
     }
 
+    public String entriesToString() {
+        updateEntryList();
+        String str = "";
+        for (RouteEntry entry : entryList) {
+            str += entry + "\n";
+        }
+        str = str.substring(0, str.length() - 1); // remove newline at the end
+        return str;
+    }
+
     @Override
     public String toString() {
-        String route = "";
-        for (RouteEntry entry : super.children) {
-            route += entry + "\n\n";
-        }
-        return route;
+        return "[[" + info + "]]";
     }
 
     @Override
@@ -169,21 +175,21 @@ public class Route extends RouteSection {
         if (ps == null) {
             ps = new PrintSettings();
         }
-        String str = "Route: ";
+        String str = "Game: ";
         switch (rd.settings.game) {
             case Settings.GAME_BLUE:
-                str += "B";
+                str += "Blue";
                 break;
             case Settings.GAME_RED:
-                str += "R";
+                str += "Red";
                 break;
             case Settings.GAME_YELLOW:
-                str += "Y";
+                str += "Yellow";
                 break;
             default:
                 throw new RuntimeException("Error while writing route to file: invalid game \"" + rd.settings.game + "\"");
         }
-        str += " :: " + info;
+        str += "\nRoute: " + info;
 
         for (RouteEntry child : children) {
             str += "\n" + child.writeToString(depth + 1, ps);

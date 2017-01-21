@@ -177,10 +177,7 @@ Route: Red Any% Glitchless - Paras%
 			TM: Body_Slam :: 0 :: Stun_Spore
 		B: gentleman1
 		B: rival3
-//		Swap: 0 3 // temporary hack
-//		TM: Cut // do this?
-//		Swap: 0 3
-		Menu: ... // TODO
+		Menu: Cut menu // TODO
 			TM: Cut :: 3
 	S: Vermilion Gym
 		B: surge
@@ -215,10 +212,10 @@ Route: Red Any% Glitchless - Paras%
 		B: juggler1
 		B: juggler2
 		B: koga
-		Menu:
+		Menu: Candy x3
 			USE: Rare_Candy :: 3
 	S: Cinnabar Mansion
-		Menu:
+		Menu: Candy x4
 			USE: Rare_Candy :: 4
 	S: Blaine
 		B: blaine

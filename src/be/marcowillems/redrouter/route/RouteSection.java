@@ -97,14 +97,7 @@ public class RouteSection extends RouteEntry {
 
     @Override
     public String toString() {
-        String str = "--" + info.title + "--";
-
-        for (RouteEntry re : super.children) {
-            str += "\n";
-            str += re.toString();
-        }
-
-        return str;
+        return "<" + info.title + ">";
     }
 
     @Override
@@ -116,7 +109,7 @@ public class RouteSection extends RouteEntry {
         for (RouteEntry child : children) {
             String childStr = child.writeToString(depth + 1, ps);
             if (childStr != null) {
-                str += "\n" + child.writeToString(depth + 1, ps);
+                str += "\n" + childStr;
             }
         }
         return str;

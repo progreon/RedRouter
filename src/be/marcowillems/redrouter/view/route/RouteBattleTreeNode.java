@@ -103,7 +103,8 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
             if (i % 2 == 1) {
                 bg = new Color(165, 165, 165, 150);
             }
-            JPanel pnlMoves = new JPanel(new GridLayout(0, 2));
+//            JPanel pnlMoves = new JPanel(new GridLayout(0, 2));
+            JPanel pnlMoves = new JPanel(new GridLayout(0, 1));
             Battler opp = rb.opponent.team.get(i);
             for (int j = 0; j < rb.entries[i].length; j++) {
                 Battler myBat = null;
@@ -113,10 +114,11 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
 //                    myBat = new SingleBattler(tree.route.rd.getPokemon("Nidoking"), null, 25);
                 }
 
-//                pnlMoves.add(getBattlerCell(opp, true));
-                pnlMoves.add(getMovesCell(opp, myBat, false));
-                pnlMoves.add(getMovesCell(myBat, opp, true));
-//                pnlMoves.add(getBattlerCell(myBat, false));
+////                pnlMoves.add(getBattlerCell(opp, true));
+//                pnlMoves.add(getMovesCell(opp, myBat, false));
+//                pnlMoves.add(getMovesCell(myBat, opp, true));
+////                pnlMoves.add(getBattlerCell(myBat, false));
+                pnlMoves.add(new BattlePanel(rb.getPlayersBeforeEvery()[i], opp, myBat, true));
             }
 //            pnlMoves.setOpaque(false);
             pnlMoves.setBackground(bg);

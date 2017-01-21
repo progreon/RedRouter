@@ -49,7 +49,7 @@ public class RouteEncounter extends RouteEntry {
     public RouteEncounter(Route route, RouteEntryInfo info, EncounterArea area, IntPair[] slotPreferences) {
         this(route, info, area);
         for (IntPair ip : slotPreferences) {
-            if (ip.int1 > 0 && ip.int1 < area.slots.length) {
+            if (ip.int1 >= 0 && ip.int1 < area.slots.length) {
                 this.preferences.add(new PokemonCountPair(area.slots[ip.int1], ip.int2));
             }
         }
@@ -106,12 +106,16 @@ public class RouteEncounter extends RouteEntry {
         if (ps == null) {
             ps = new PrintSettings();
         }
-        String str = "E: " + this.area.toString() + " ::";
+        String str = "E: " + this.area.getIndexString() + " ::";
         for (PokemonCountPair pcp : preferences) {
             str += " " + area.getSlots(pcp.plp)[0] + ":" + pcp.getCount();
         }
-        // TODO description
         str = lineToDepth(str, depth);
+
+        if (info != null && info.description != null) {
+            str += "\n" + lineToDepth(info.description, depth + 1);
+        }
+
         return str;
     }
 

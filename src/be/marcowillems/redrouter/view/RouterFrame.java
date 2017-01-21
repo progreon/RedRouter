@@ -106,6 +106,7 @@ public class RouterFrame extends JFrame {
                 }
                 if (close()) {
                     openRoute(route);
+                    System.out.println(route.writeToString(0, null));
                     return true;
                 }
             } catch (ParserException ex) {

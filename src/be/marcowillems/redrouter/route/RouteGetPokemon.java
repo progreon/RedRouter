@@ -89,20 +89,9 @@ public class RouteGetPokemon extends RouteEntry {
     @Override
     public String toString() {
         String str = "";
-        if (super.info != null && (super.info.title != null || super.info.description != null)) {
-            if (super.info.title != null) {
-                str = super.info.title;
-                if (super.info.description != null) {
-                    str += "\n\t";
-                }
-            }
-            if (super.info.description != null) {
-                str += super.info.description;
-            } else if (choices.size() > 0) {
-                str += "\n\t";
-            }
-        }
-        if (super.info == null || super.info.description == null) {
+        if (info != null) {
+            str = info.toString();
+        } else {
             SingleBattler pref = getPreference();
             if (choices.size() > 1) {
                 str += "Pick 1 of: ";
@@ -130,8 +119,13 @@ public class RouteGetPokemon extends RouteEntry {
             }
             str += choices.get(i).pokemon.name + ":" + choices.get(i).level;
         }
-        // TODO description
-        return lineToDepth(str, depth);
+        str = lineToDepth(str, depth);
+
+        if (info != null && info.description != null) {
+            str += "\n" + lineToDepth(info.description, depth + 1);
+        }
+
+        return str;
     }
 
 }

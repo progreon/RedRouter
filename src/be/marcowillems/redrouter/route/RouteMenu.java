@@ -114,7 +114,7 @@ public class RouteMenu extends RouteEntry {
     public String writeToString(int depth, PrintSettings ps) {
         String s = lineToDepth(info.toString(), depth);
         for (Entry e : entries) {
-            s += e.writeToString(depth + 1, ps);
+            s += "\n" + e.writeToString(depth + 1, ps);
         }
         return s;
     }

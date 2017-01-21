@@ -235,7 +235,7 @@ public abstract class RouteEntryTreeNode extends DefaultMutableTreeNode {
         return null;
     }
 
-    public JButton makeBattlerInfoButton(Battler b, boolean isPlayerBattler) {
+    public static JButton makeBattlerInfoButton(Battler b, boolean isPlayerBattler) {
         JButton btn = new JButton(b.toString() + " (" + b.getHP() + " hp)");
         btn.addMouseListener(new MouseAdapter() {
             BattlerInfoDialog bif = null;

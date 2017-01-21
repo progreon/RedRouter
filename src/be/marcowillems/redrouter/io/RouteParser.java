@@ -340,7 +340,7 @@ public class RouteParser {
             String[] descrArgs = descrLine.split("::");
             if (descrArgs.length > 1) {
                 if (!descrArgs[0].trim().isEmpty()) {
-                    title = descrArgs[0];
+                    title = descrArgs[0].trim();
                 }
                 if (!descrArgs[1].trim().isEmpty()) {
                     description = descrLine.replaceFirst(".*?::", "").trim();
