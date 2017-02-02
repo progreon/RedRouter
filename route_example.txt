@@ -45,6 +45,10 @@ Trainer: Rocket Dig :: Cerulean City :: rocketdig machop:17 drowzee:17
 Trainer: Jr.TrainerF Misty :: Cerulean City :: jrtrfmisty goldeen:19
 Trainer: Misty :: Cerulean City :: misty staryu:18 starmie:21
 
+// Moves replaced when leveling (if needed) // TODO
+// MoveReplace: <pokemon> :: <old move> <new move>
+MoveReplace: Nidoking :: leer thrash
+
 // Route
 Route: Red Any% Glitchless - Exarion Route
 	S: New Game

@@ -148,7 +148,7 @@ public class Types {
             chart.get(Type.FLYING).put(Type.BUG, 2.0); // #blameneslon
             chart.get(Type.FLYING).put(Type.ELECTRIC, 0.5);
             chart.get(Type.FLYING).put(Type.GRASS, 2.0);
-            chart.get(Type.FLYING).put(Type.GROUND, 2.0);
+            chart.get(Type.FLYING).put(Type.FIGHTING, 2.0); // #blameneslon
             chart.get(Type.FLYING).put(Type.ROCK, 0.5);
             //GHOST
             chart.get(Type.GHOST).put(Type.GHOST, 2.0);

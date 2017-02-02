@@ -76,19 +76,23 @@ public class CombinedBattler extends Battler {
     @Override
     public Battler evolve(Item item) {
         SingleBattler newB = (SingleBattler) possibleBattlers.get(0).evolve(item);
-        Pokemon p = newB.pokemon;
-        CombinedBattler newBattler = new CombinedBattler(newB);
-        int combinedCount = 1;
-        for (int i = 1; i < possibleBattlers.size(); i++) {
-            newB = (SingleBattler) possibleBattlers.get(i).evolve(item);
-            if (p == newB.pokemon) {
-                if (newBattler.combine(newB)) {
-                    combinedCount++;
+        if (newB != null) {
+            Pokemon p = newB.pokemon;
+            CombinedBattler newBattler = new CombinedBattler(newB);
+            int combinedCount = 1;
+            for (int i = 1; i < possibleBattlers.size(); i++) {
+                newB = (SingleBattler) possibleBattlers.get(i).evolve(item);
+                if (p == newB.pokemon) {
+                    if (newBattler.combine(newB)) {
+                        combinedCount++;
+                    }
                 }
             }
-        }
-        if (super.pokemon != p && combinedCount == possibleBattlers.size()) {
-            return newBattler;
+            if (super.pokemon != p && combinedCount == possibleBattlers.size()) {
+                return newBattler;
+            } else {
+                return null;
+            }
         } else {
             return null;
         }

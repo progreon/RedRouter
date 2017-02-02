@@ -19,11 +19,14 @@ package be.marcowillems.redrouter.view.route;
 
 import be.marcowillems.redrouter.data.Battler;
 import be.marcowillems.redrouter.data.Move;
-import be.marcowillems.redrouter.data.Player;
+import be.marcowillems.redrouter.util.BadgeBoosts;
+import be.marcowillems.redrouter.util.BattleEntry;
 import be.marcowillems.redrouter.util.Range;
+import be.marcowillems.redrouter.util.Stages;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -37,43 +40,32 @@ import javax.swing.border.Border;
  */
 public class BattlePanel extends JPanel {
 
-    private Player player;
-    private Battler opponent, partyMember;
-    private final boolean isTrainer;
-
     private JPanel pnlOpponent;
     private JPanel pnlParty;
 
-    /**
-     *
-     * @param player The player object before this battle
-     * @param opponent The opponent pokemon
-     * @param partyMember The party pokemon
-     * @param isTrainer Is this a trainer battle?
-     */
-    public BattlePanel(Player player, Battler opponent, Battler partyMember, boolean isTrainer) {
+    private final BattleEntry be;
+
+    public BattlePanel(BattleEntry battleEntry) {
         super(new GridLayout(0, 2, 0, 0));
         super.setOpaque(false);
-        this.player = player;
-        this.opponent = opponent;
-        this.partyMember = partyMember;
-        this.isTrainer = isTrainer;
+        this.be = battleEntry;
         initPanels();
         this.add(pnlOpponent);
         this.add(pnlParty);
     }
 
     private void initPanels() {
-        pnlOpponent = getMovesCell(opponent, partyMember, false);
-        pnlParty = getMovesCell(partyMember, opponent, true);
+        pnlOpponent = getMovesCell(be.battlerOpp, be.battlerPl, false);
+        pnlParty = getMovesCell(be.battlerPl, be.battlerOpp, true);
     }
 
+    // TODO: some more cleanup (ranges)
     private JPanel getMovesCell(Battler attacker, Battler defender, boolean isPlayerAttacker) {
         JPanel pnlCell = new JPanel(new BorderLayout(2, 2));
         if (attacker != null && defender != null) {
             // Who is faster?
-            int spdBBA = (isPlayerAttacker ? (player.spdBadge ? 1 : 0) : 0);
-            int spdBBB = (!isPlayerAttacker ? (player.spdBadge ? 1 : 0) : 0);
+            int spdBBA = (isPlayerAttacker ? be.getBadgeBoosts().getSpd() : 0);
+            int spdBBB = (!isPlayerAttacker ? be.getBadgeBoosts().getSpd() : 0);
             Range rSpdA = attacker.getSpd(spdBBA, 0);
             Range rSpdB = defender.getSpd(spdBBB, 0);
             boolean isFaster = false;
@@ -95,11 +87,10 @@ public class BattlePanel extends JPanel {
             pnlCell.add(btnBattlerInfo, BorderLayout.NORTH);
 
             String text = "<html><body>";
-            for (Move m : attacker.getMoveset()) {
+            Map<Move, Move.DamageRange> ranges = isPlayerAttacker ? be.getPlayerRanges() : be.getOpponentRanges();
+            for (Move m : ranges.keySet()) {
                 text += m;
-                Player playerA = (isPlayerAttacker ? player : null);
-                Player playerB = (!isPlayerAttacker ? player : null);
-                Move.DamageRange dr = m.getDamageRange(playerA, playerB, attacker, defender);
+                Move.DamageRange dr = ranges.get(m);
                 if (dr.critMax != 0) {
                     text += ": " + dr;
                 }
@@ -110,7 +101,6 @@ public class BattlePanel extends JPanel {
             pnlCell.add(lbl);
         }
         pnlCell.setOpaque(false);
-//        Border lineBorder = BorderFactory.createLineBorder(Color.black, 1);
         Border lineBorder = BorderFactory.createMatteBorder(1, 1, 2, 0, Color.black);
         Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
         pnlCell.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));

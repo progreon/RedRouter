@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import be.marcowillems.redrouter.io.ParserException;
+import be.marcowillems.redrouter.util.BadgeBoosts;
 import be.marcowillems.redrouter.util.Range;
+import be.marcowillems.redrouter.util.Stages;
 
 /**
  *
@@ -88,42 +90,24 @@ public class Move {
         }
     }
 
-    // TODO boosts!
-    public DamageRange getDamageRange(Player playerA, Player playerB, Battler attacker, Battler defender) {
-        Range damageRange = getDamageRange(playerA, playerB, attacker, defender, false);
-        Range critRange = getDamageRange(playerA, playerB, attacker, defender, true);
+    public DamageRange getDamageRange(Battler attacker, Battler defender, Stages stagesA, Stages stagesB, BadgeBoosts bbA, BadgeBoosts bbB) {
+        Range damageRange = getDamageRange(attacker, defender, stagesA, stagesB, bbA, bbB, false);
+        Range critRange = getDamageRange(attacker, defender, stagesA, stagesB, bbA, bbB, true);
         return new DamageRange(damageRange.getMin(), damageRange.getMax(), critRange.getMin(), critRange.getMax());
     }
 
     // TODO: confusion & night shade damage
-    // TODO: boosts
     // See: http://upcarchive.playker.info/0/upokecenter/content/pokemon-red-version-blue-version-and-yellow-version-damage-calculation-process.html
-    private Range getDamageRange(Player playerA, Player playerB, Battler attacker, Battler defender, boolean isCrit) {
+    private Range getDamageRange(Battler attacker, Battler defender, Stages stagesA, Stages stagesB, BadgeBoosts bbA, BadgeBoosts bbB, boolean isCrit) {
         if (power == 0) {
             return new Range(0, 0); // TODO: special cases?
         }
-        int atkBB = 0;
-        int defBB = 0;
-        int spcBBA = 0;
-        int spcBBB = 0;
-        if (playerA != null && Types.isPhysical(type) && playerA.atkBadge && !isCrit) {
-            atkBB = 1;
-        }
-        if (playerA != null && !Types.isPhysical(type) && playerA.spcBadge && !isCrit) {
-            spcBBA = 1;
-        }
-        if (playerB != null && Types.isPhysical(type) && playerB.defBadge && !isCrit) {
-            defBB = 1;
-        }
-        if (playerB != null && !Types.isPhysical(type) && playerB.spcBadge && !isCrit) {
-            spcBBB = 1;
-        }
         // (1), (2), (4)
-        Range atkRange = Types.isPhysical(type) ? attacker.getAtk(atkBB, 0) : attacker.getSpc(spcBBA, 0);
+        Range atkRange = Types.isPhysical(type) ? attacker.getAtk(isCrit ? 0 : bbA.getAtk(), isCrit ? 0 : stagesA.getAtk()) : attacker.getSpc(isCrit ? 0 : bbA.getSpc(), isCrit ? 0 : stagesA.getSpc());
         int minAttack = atkRange.getMin();
         int maxAttack = atkRange.getMax();
         // TODO: (3) attacker is burned
-        Range defRange = Types.isPhysical(type) ? defender.getDef(defBB, 0) : defender.getSpc(spcBBB, 0);
+        Range defRange = Types.isPhysical(type) ? defender.getDef(isCrit ? 0 : bbB.getDef(), isCrit ? 0 : stagesB.getDef()) : defender.getSpc(isCrit ? 0 : bbB.getSpc(), isCrit ? 0 : stagesB.getSpc());
         int minDefense = defRange.getMin();
         int maxDefense = defRange.getMax();
         // TODO: (5) Selfdestruct & Explosion

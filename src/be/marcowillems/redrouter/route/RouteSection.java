@@ -60,7 +60,7 @@ public class RouteSection extends RouteEntry {
     }
 
     public RouteBattle addNewBattle(RouteEntryInfo info, Trainer opponent, int[][] competingPartyMon) {
-        RouteBattle r = new RouteBattle(route, info, opponent, competingPartyMon);
+        RouteBattle r = new RouteBattle(route, info, opponent, competingPartyMon, null);
         addEntry(r);
         return r;
     }

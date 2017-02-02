@@ -24,14 +24,9 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.Border;
-import be.marcowillems.redrouter.data.Battler;
-import be.marcowillems.redrouter.data.Move;
-import be.marcowillems.redrouter.data.Move.DamageRange;
-import be.marcowillems.redrouter.data.Player;
 import be.marcowillems.redrouter.route.RouteBattle;
-import be.marcowillems.redrouter.util.Range;
-import javax.swing.JButton;
+import be.marcowillems.redrouter.util.BattleEntry;
+import java.util.List;
 import javax.swing.JComponent;
 
 /**
@@ -98,107 +93,23 @@ public class RouteBattleTreeNode extends RouteEntryTreeNode {
         RouteBattle rb = (RouteBattle) routeEntry;
         pnlOpponents = new JPanel();
         pnlOpponents.setLayout(new BoxLayout(pnlOpponents, BoxLayout.Y_AXIS));
-        for (int i = 0; i < rb.opponent.team.size(); i++) {
+        List<List<BattleEntry>> battleEntries = rb.getBattleEntriesPerOpponent();
+        for (int i = 0; i < battleEntries.size(); i++) {
             Color bg = new Color(215, 215, 215, 150);
             if (i % 2 == 1) {
                 bg = new Color(165, 165, 165, 150);
             }
-//            JPanel pnlMoves = new JPanel(new GridLayout(0, 2));
             JPanel pnlMoves = new JPanel(new GridLayout(0, 1));
-            Battler opp = rb.opponent.team.get(i);
-            for (int j = 0; j < rb.entries[i].length; j++) {
-                Battler myBat = null;
-                if (rb.getPlayersBeforeEvery()[i] != null) {
-                    myBat = rb.getPlayersBeforeEvery()[i].team.get(rb.entries[i][j].partyIndex);
-//                } else {
-//                    myBat = new SingleBattler(tree.route.rd.getPokemon("Nidoking"), null, 25);
-                }
-
-////                pnlMoves.add(getBattlerCell(opp, true));
-//                pnlMoves.add(getMovesCell(opp, myBat, false));
-//                pnlMoves.add(getMovesCell(myBat, opp, true));
-////                pnlMoves.add(getBattlerCell(myBat, false));
-                pnlMoves.add(new BattlePanel(rb.getPlayersBeforeEvery()[i], opp, myBat, true));
+            for (BattleEntry be : battleEntries.get(i)) {
+                pnlMoves.add(new BattlePanel(be));
             }
-//            pnlMoves.setOpaque(false);
             pnlMoves.setBackground(bg);
-//            pnlMoves.setBorder(BorderFactory.createLineBorder(Color.black, 1));
             pnlMoves.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 1, Color.black));
             pnlOpponents.add(pnlMoves);
         }
+
         pnlOpponents.setOpaque(false);
-//        pnlOpponents.setBorder(BorderFactory.createLineBorder(Color.black, 1));
         pnlOpponents.setBorder(BorderFactory.createMatteBorder(1, 2, 1, 2, Color.black));
     }
 
-    private JPanel getMovesCell(Battler attacker, Battler defender, boolean isPlayerAttacker) {
-        JPanel pnlCell = new JPanel(new BorderLayout(2, 2));
-        if (attacker != null && defender != null) {
-            // Who is faster?
-            int spdBBA = (isPlayerAttacker ? (routeEntry.getPlayerBefore().spdBadge ? 1 : 0) : 0);
-            int spdBBB = (!isPlayerAttacker ? (routeEntry.getPlayerBefore().spdBadge ? 1 : 0) : 0);
-            Range rSpdA = attacker.getSpd(spdBBA, 0);
-            Range rSpdB = defender.getSpd(spdBBB, 0);
-            boolean isFaster = false;
-            boolean maybeFaster = true;
-            if (rSpdA.getMin() > rSpdB.getMax()) {
-                isFaster = true;
-                maybeFaster = false;
-            } else if (rSpdB.getMin() > rSpdA.getMax()) {
-                maybeFaster = false;
-            }
-
-            // Info button
-            JButton btnBattlerInfo = makeBattlerInfoButton(attacker, isPlayerAttacker);
-            if (maybeFaster) {
-                btnBattlerInfo.setText(btnBattlerInfo.getText() + " (F)");
-            } else if (isFaster) {
-                btnBattlerInfo.setText(btnBattlerInfo.getText() + " F");
-            }
-            pnlCell.add(btnBattlerInfo, BorderLayout.NORTH);
-
-            String text = "<html><body>";
-            for (Move m : attacker.getMoveset()) {
-                text += m;
-                Player playerA = (isPlayerAttacker ? routeEntry.getPlayerBefore() : null);
-                Player playerB = (!isPlayerAttacker ? routeEntry.getPlayerBefore() : null);
-                DamageRange dr = m.getDamageRange(playerA, playerB, attacker, defender);
-                if (dr.critMax != 0) {
-                    text += ": " + dr;
-                }
-                text += "<br>";
-            }
-            text += "</body></html";
-            JLabel lbl = new JLabel(text);
-            pnlCell.add(lbl);
-        }
-        pnlCell.setOpaque(false);
-//        Border lineBorder = BorderFactory.createLineBorder(Color.black, 1);
-        Border lineBorder = BorderFactory.createMatteBorder(1, 1, 2, 0, Color.black);
-        Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
-        pnlCell.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
-
-        return pnlCell;
-    }
-
-//    private JPanel getBattlerCell(Battler b, boolean isOpponent) {
-//        JPanel pnlCell = new JPanel(new BorderLayout(2, 2));
-////        pnlCell.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-//
-//        String text = "<html><body>";
-//        text += b.toString() + "<br>Health: " + b.getHP() + " hp<br>";
-//        if (isOpponent) {
-//            text += "Gives " + b.getExp(1) + " xp<br>";
-//        }
-//        text += "Crit: " + (((b.getPokemon().spd / 2) / 256.0) * 100.0) + "%";
-//        text += "</body></html";
-//        JLabel lbl = new JLabel(text);
-//        pnlCell.add(lbl);
-//        pnlCell.setOpaque(false);
-//        Border lineBorder = BorderFactory.createLineBorder(Color.black, 1);
-//        Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
-//        pnlCell.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
-//
-//        return pnlCell;
-//    }
 }

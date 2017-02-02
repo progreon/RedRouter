@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Marco Willems
+ * Copyright (C) 2017 Marco Willems
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,26 +19,33 @@ package be.marcowillems.redrouter.route;
 
 import be.marcowillems.redrouter.data.Battler;
 import be.marcowillems.redrouter.data.Player;
-import be.marcowillems.redrouter.data.SingleBattler;
 import be.marcowillems.redrouter.data.Trainer;
 import be.marcowillems.redrouter.io.PrintSettings;
+import be.marcowillems.redrouter.util.BadgeBoosts;
+import be.marcowillems.redrouter.util.BattleEntry;
+import be.marcowillems.redrouter.util.Stages;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
- * TODO: share exp!
  *
  * @author Marco Willems
  */
 public class RouteBattle extends RouteEntry {
 
     public final Trainer opponent;
-    public final RouteBattleEntry[][] entries; // TODO: private & getters?
+    private final List<List<RouteBattleEntry>> entries;
 
-    private final Player[] playerBeforeEvery;
-    private final Player[] playerAfterEvery;
+    private final List<Player> playerBeforeEvery;
+    private final List<Player> playerAfterEvery;
 
-    // TODO: description instead of info => new RouteEntryInfo(opponent.name, description) ??
     public RouteBattle(Route route, RouteEntryInfo info, Trainer opponent) {
+        this(route, info, opponent, null, null);
+    }
+
+    // TODO: only description instead of info => new RouteEntryInfo(opponent.name, description) ??
+    public RouteBattle(Route route, RouteEntryInfo info, Trainer opponent, int[][] competingPartyMon, boolean[][] partyMonGetsExp) {
         super(route, info, true);
         if (info == null) {
             super.info = new RouteEntryInfo(opponent.name);
@@ -47,62 +54,92 @@ public class RouteBattle extends RouteEntry {
         }
         this.opponent = opponent;
 
-        entries = new RouteBattleEntry[opponent.team.size()][];
-        for (int i = 0; i < entries.length; i++) {
-            entries[i] = new RouteBattleEntry[1];
-            entries[i][0] = new RouteBattleEntry(0);
-        }
-        playerBeforeEvery = new Player[opponent.team.size()];
-        playerAfterEvery = new Player[opponent.team.size()];
+        this.entries = new ArrayList<>();
+        this.playerBeforeEvery = new ArrayList<>();
+        this.playerAfterEvery = new ArrayList<>();
 
         if (opponent.location != null) {
             setLocation(opponent.location);
         }
-    }
 
-    public RouteBattle(Route route, RouteEntryInfo info, Trainer opponent, int[][] competingPartyMon) {
-        this(route, info, opponent);
-        // TODO: move these checks to apply & showMessage()?
-        if (competingPartyMon != null && competingPartyMon.length == entries.length) {
-            for (int i = 0; i < entries.length; i++) {
-                if (competingPartyMon[i].length == 0) {
-                    entries[i] = new RouteBattleEntry[1];
-                    entries[i][0] = new RouteBattleEntry(0);
-                } else {
-                    entries[i] = new RouteBattleEntry[competingPartyMon[i].length];
-                    for (int j = 0; j < competingPartyMon[i].length; j++) {
-                        entries[i][j] = new RouteBattleEntry(competingPartyMon[i][j]);
-                    }
+        // Safety checks
+        if (competingPartyMon == null) {
+            competingPartyMon = new int[opponent.team.size()][1];
+        }
+        if (partyMonGetsExp == null) {
+            partyMonGetsExp = new boolean[opponent.team.size()][];
+            for (int i = 0; i < partyMonGetsExp.length; i++) {
+                // TODO: other default?
+                partyMonGetsExp[i] = new boolean[competingPartyMon[i].length];
+                for (int j = 0; j < partyMonGetsExp[i].length; j++) {
+                    partyMonGetsExp[i][j] = true;
                 }
             }
         }
+        // Add all
+        for (int i = 0; i < opponent.team.size(); i++) {
+            entries.add(createEntriesForOpponent(i, competingPartyMon[i], partyMonGetsExp[i]));
+        }
+    }
+
+    private List<RouteBattleEntry> createEntriesForOpponent(int opponentIdx, int[] competingPartyMon, boolean[] partyMonGetsExp) {
+        // Safety checks
+        if (competingPartyMon == null || competingPartyMon.length == 0) {
+            competingPartyMon = new int[]{0};
+        }
+        if (partyMonGetsExp == null) {
+            partyMonGetsExp = new boolean[competingPartyMon.length];
+            for (int i = 0; i < partyMonGetsExp.length; i++) {
+                partyMonGetsExp[i] = true;
+            }
+        }
+        if (partyMonGetsExp.length < competingPartyMon.length) {
+            boolean[] temp = new boolean[competingPartyMon.length];
+            System.arraycopy(partyMonGetsExp, 0, temp, 0, partyMonGetsExp.length);
+            partyMonGetsExp = temp;
+        }
+
+        // Adding
+        List<RouteBattleEntry> entries = new ArrayList<>();
+        for (int i = 0; i < competingPartyMon.length; i++) {
+            RouteBattleEntry be = new RouteBattleEntry(opponentIdx, competingPartyMon[i], partyMonGetsExp[i]);
+            entries.add(be);
+        }
+
+        return entries;
     }
 
     @Override
     protected Player apply(Player p) {
         Player newPlayer = super.apply(p);
+        playerBeforeEvery.clear();
+        playerAfterEvery.clear();
 
-        for (int i = 0; i < opponent.team.size(); i++) {
-            playerBeforeEvery[i] = newPlayer;
+        for (List<RouteBattleEntry> rbes : entries) {
+            playerBeforeEvery.add(newPlayer);
 
             newPlayer = newPlayer.getDeepCopy();
-            SingleBattler sb = opponent.team.get(i);
             int n = 0;
-            for (int j = 0; j < entries[i].length; j++) {
-                if (entries[i][j].getsExperience()) {
+            for (RouteBattleEntry be : rbes) {
+                if (be.getsExperience) {
                     n++;
                 }
             }
-            for (int j = 0; j < entries[i].length; j++) {
-                if (entries[i][j].getsExperience()) {
-                    Battler updatedBattler = newPlayer.team.get(entries[i][j].partyIndex).defeatBattler(sb, n);
-                    if (i == opponent.team.size() - 1) { // Only evolve at the end of the battle
-                        newPlayer.team.set(entries[i][j].partyIndex, updatedBattler);
+            for (RouteBattleEntry be : rbes) {
+                if (be.getsExperience) {
+                    if (be.partyIdx < 0 || be.partyIdx >= newPlayer.team.size()) {
+                        showMessage(RouterMessage.Type.ERROR, "Invalid party index: " + be.partyIdx + " (ignoring)");
+                    }
+                    Battler updatedBattler = newPlayer.team.get(be.partyIdx).defeatBattler(be.getBattlerOpponent(), n); // TODO: pass isTrainerBattler boolean here instead!!
+                    if (be.opponentIdx == entries.size() - 1) { // Only evolve at the end of the battle
+                        if (newPlayer.team.set(be.partyIdx, updatedBattler).pokemon != updatedBattler.pokemon) {
+                            showMessage(RouterMessage.Type.INFO, "Evolving to " + updatedBattler.pokemon);
+                        }
                     }
                 }
             }
 
-            playerAfterEvery[i] = newPlayer;
+            playerAfterEvery.add(newPlayer);
         }
 
         if (opponent.name.equals("Brock")) {
@@ -129,12 +166,28 @@ public class RouteBattle extends RouteEntry {
         return newPlayer;
     }
 
-    public Player[] getPlayersBeforeEvery() {
-        return playerBeforeEvery;
+    public List<BattleEntry> getBattleEntries() {
+        List<BattleEntry> allBattleEntries = new ArrayList<>();
+
+        for (List<BattleEntry> bes : getBattleEntriesPerOpponent()) {
+            allBattleEntries.addAll(bes);
+        }
+
+        return allBattleEntries;
     }
 
-    public Player[] getPlayersAfterEvery() {
-        return playerAfterEvery;
+    public List<List<BattleEntry>> getBattleEntriesPerOpponent() {
+        List<List<BattleEntry>> battleEntriesPerOpponent = new ArrayList<>();
+
+        for (List<RouteBattleEntry> rbes : entries) {
+            List<BattleEntry> bes = new ArrayList<>();
+            for (RouteBattleEntry rbe : rbes) {
+                bes.add(new BattleEntry(rbe));
+            }
+            battleEntriesPerOpponent.add(bes);
+        }
+
+        return battleEntriesPerOpponent;
     }
 
     @Override
@@ -151,12 +204,10 @@ public class RouteBattle extends RouteEntry {
         String alias = opponent.getIndexString().replaceAll(" ", "").toLowerCase(Locale.ROOT); // TODO: TEMP
         str += alias;
         String options = "";
-        for (int i = 0; i < entries.length; i++) {
-            if (entries[i].length == 1 && entries[i][0].partyIndex == 0) {
-
-            } else {
-                for (int j = 0; j < entries[i].length; j++) {
-                    options += " " + i + ":" + entries[i][j].partyIndex;
+        for (int i = 0; i < entries.size(); i++) {
+            if (entries.get(i).size() != 1 || entries.get(i).get(0).partyIdx != 0) {
+                for (RouteBattleEntry rbe : entries.get(i)) {
+                    options += " " + i + ":" + rbe.partyIdx;
                 }
             }
         }
@@ -179,52 +230,105 @@ public class RouteBattle extends RouteEntry {
 
     public class RouteBattleEntry {
 
-        public final int partyIndex;
-        private final int[] xItems = new int[5]; // xAtk, xDef, xSpd, xSpc, xAcc
-        private final int[] badgeBoosts = new int[4]; // apply these if badge available
+        private final int opponentIdx;
+        private final int partyIdx;
+        private boolean getsExperience;
 
-        private boolean getsExp = true;
+        private Stages stages = new Stages();
+        private BadgeBoosts badgeBoosts = new BadgeBoosts(1, 1, 1, 1); // default all 1
 
-        public RouteBattleEntry(int partyIndex) {
-            this.partyIndex = partyIndex;
-            for (int i = 0; i < badgeBoosts.length; i++) {
-                this.badgeBoosts[i] = 1;
+        private RouteBattleEntry(int opponentIdx, int partyIdx, boolean getsExperience) {
+            this.opponentIdx = opponentIdx;
+            this.partyIdx = partyIdx;
+            this.getsExperience = getsExperience;
+        }
+//
+//        private void setDefaultBoostsAndStages(boolean[] badges, int[] xItems) {
+//            // TODO: non-hardcoded "4"?
+//            if (badges.length != xItems.length || badges.length != 4) {
+//                throw new IllegalArgumentException("badges and xItems must have a length of " + 4 + "!");
+//            }
+//            int xCount = 0;
+//            int[] xStages = new int[xItems.length];
+//            for (int i = 0; i < xItems.length; i++) {
+//                if (xItems[i] > 0) {
+//                    xStages[i] = Math.min(Stages.MAX, xItems[i]);
+//                    xCount += xStages[i];
+//                } else {
+//                    xStages[i] = 0;
+//                }
+//            }
+//            stages = new Stages(xStages[0], xStages[1], xStages[2], xStages[3]);
+//            int[] xBoosts = new int[xStages.length];
+//            for (int i = 0; i < xStages.length; i++) {
+//                if (badges[i]) {
+//                    xBoosts[i] = 1;
+//                } else {
+//                    xBoosts[i] = 0;
+//                }
+//                if (xStages[i] == 0 && badges[i]) {
+//                    xBoosts[i] += xCount;
+//                }
+//            }
+//            this.badgeBoosts = new BadgeBoosts(xBoosts[0], xBoosts[1], xBoosts[2], xBoosts[3]);
+//        }
+
+        public BadgeBoosts getBadgeBoosts() {
+            if (opponentIdx < playerBeforeEvery.size()) {
+                // Only apply badge boosts when the player has the badge
+                Player p = playerBeforeEvery.get(opponentIdx);
+                int atk = p.atkBadge ? badgeBoosts.getAtk() : 0;
+                int def = p.defBadge ? badgeBoosts.getDef() : 0;
+                int spd = p.spdBadge ? badgeBoosts.getSpd() : 0;
+                int spc = p.spcBadge ? badgeBoosts.getSpc() : 0;
+                return new BadgeBoosts(atk, def, spd, spc);
+            } else {
+                return this.badgeBoosts; // TODO: clone?
             }
         }
 
-        public int[] getXItemsUsed() {
-            return this.xItems.clone();
+        public void setBadgeBoosts(BadgeBoosts badgeBoosts) {
+            this.badgeBoosts = new BadgeBoosts(badgeBoosts);
+            notifyDataUpdated();
+            notifyRoute();
         }
 
-        public void setXItemsUsed(int xAtk, int xDef, int xSpd, int xSpc, int xAcc) {
-            xItems[0] = xAtk;
-            xItems[1] = xDef;
-            xItems[2] = xSpd;
-            xItems[3] = xSpc;
-            xItems[4] = xAcc;
-            // TODO: refresh?
+        public Battler getBattlerOpponent() {
+            return opponent.team.get(opponentIdx);
         }
 
-        public int[] getBadgeBoosts() {
-            return this.badgeBoosts.clone();
-        }
-
-        public void setBadgeBoosts(int bbAtk, int bbDef, int bbSpd, int bbSpc) {
-            badgeBoosts[0] = bbAtk;
-            badgeBoosts[1] = bbDef;
-            badgeBoosts[2] = bbSpd;
-            badgeBoosts[3] = bbSpc;
-            // TODO: refresh?
+        public Battler getBattlerPlayer() {
+            if (opponentIdx < playerBeforeEvery.size()) {
+                Player p = playerBeforeEvery.get(opponentIdx);
+                if (partyIdx < p.team.size()) {
+                    return p.team.get(partyIdx);
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
         }
 
         public boolean getsExperience() {
-            return this.getsExp;
+            return this.getsExperience;
         }
 
-        public void setGetsExperience(boolean getsExp) {
-            this.getsExp = getsExp;
+        public void setGetsExperience(boolean getsExperience) {
+            this.getsExperience = getsExperience;
+            notifyDataUpdated();
+            notifyRoute();
+        }
+
+        public Stages getStagesPlayer() {
+            return this.stages; // TODO: clone?
+        }
+
+        public void setStagesPlayer(Stages stages) {
+            this.stages = new Stages(stages);
+            notifyDataUpdated();
+            notifyRoute();
         }
 
     }
-
 }

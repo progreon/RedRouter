@@ -25,7 +25,6 @@ import be.marcowillems.redrouter.Settings;
 import be.marcowillems.redrouter.data.*;
 import be.marcowillems.redrouter.route.*;
 import be.marcowillems.redrouter.util.IntPair;
-import java.util.Locale;
 
 /**
  * TODO: error messages push system, TODO: handle multiple (white)spaces, TODO:
@@ -351,7 +350,7 @@ public class RouteParser {
         }
         info = new RouteEntryInfo(title, description);
 
-        RouteBattle rb = new RouteBattle(route, info, opponent, competingPartyMon);
+        RouteBattle rb = new RouteBattle(route, info, opponent, competingPartyMon, null);
         parent.addEntry(rb);
         return rb;
     }
