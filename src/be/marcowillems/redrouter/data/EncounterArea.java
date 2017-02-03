@@ -17,13 +17,13 @@
  */
 package be.marcowillems.redrouter.data;
 
+import be.marcowillems.redrouter.io.ParserException;
+import be.marcowillems.redrouter.util.PokemonLevelPair;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
-import be.marcowillems.redrouter.io.ParserException;
-import be.marcowillems.redrouter.util.PokemonLevelPair;
 
 /**
  * TODO fishing
@@ -83,13 +83,13 @@ public class EncounterArea implements Comparable<EncounterArea> {
         return contains;
     }
 
-    public SingleBattler getBattler(int slot) {
-        return new SingleBattler(rd, this, slot);
+    public Battler getBattler(int slot) {
+        return new BattlerImpl(rd, this, slot);
     }
 
-    public int[] getSlots(SingleBattler battler) {
+    public int[] getSlots(Battler battler) {
         List<Integer> slotIDs = new ArrayList<>();
-        PokemonLevelPair dummy = new PokemonLevelPair(battler.getPokemon(), battler.level);
+        PokemonLevelPair dummy = new PokemonLevelPair(battler.pokemon, battler.level);
         for (int i = 0; i < slots.length; i++) {
             if (dummy.equals(slots[i])) {
                 slotIDs.add(i);
@@ -116,10 +116,10 @@ public class EncounterArea implements Comparable<EncounterArea> {
         return ids;
     }
 
-    public int[] getSlots(List<SingleBattler> battlers) {
+    public int[] getSlots(List<Battler> battlers) {
         List<Integer> slotIDs = new ArrayList<>();
         for (int i = 0; i < battlers.size(); i++) {
-            PokemonLevelPair dummy = new PokemonLevelPair(battlers.get(i).getPokemon(), battlers.get(i).level);
+            PokemonLevelPair dummy = new PokemonLevelPair(battlers.get(i).pokemon, battlers.get(i).level);
             for (int j = 0; j < slots.length; j++) {
                 if (dummy.equals(slots[j])) {
                     slotIDs.add(j);
@@ -133,7 +133,7 @@ public class EncounterArea implements Comparable<EncounterArea> {
         return ids;
     }
 
-    public List<SingleBattler> getUniqueBattlers() {
+    public List<Battler> getUniqueBattlers() {
         int[] slotIDs = new int[slots.length];
         for (int i = 0; i < slotIDs.length; i++) {
             slotIDs[i] = i;
@@ -141,10 +141,10 @@ public class EncounterArea implements Comparable<EncounterArea> {
         return getUniqueBattlers(slotIDs);
     }
 
-    public List<SingleBattler> getUniqueBattlers(int[] slots) {
-        List<SingleBattler> uniqueBattlers = new ArrayList<>();
+    public List<Battler> getUniqueBattlers(int[] slots) {
+        List<Battler> uniqueBattlers = new ArrayList<>();
         for (PokemonLevelPair plp : getUniqueSlots(slots)) {
-            uniqueBattlers.add(new SingleBattler(rd, plp.pkmn, this, plp.level));
+            uniqueBattlers.add(new BattlerImpl(rd, plp.pkmn, this, plp.level));
         }
         return uniqueBattlers;
     }

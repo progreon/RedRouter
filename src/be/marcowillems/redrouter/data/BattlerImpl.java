@@ -17,25 +17,18 @@
  */
 package be.marcowillems.redrouter.data;
 
-import java.util.ArrayList;
+import be.marcowillems.redrouter.util.DVRange;
+import be.marcowillems.redrouter.util.Range;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import be.marcowillems.redrouter.util.DVRange;
-import be.marcowillems.redrouter.util.Range;
 
 /**
  * TODO: cleanup!
  *
  * @author Marco Willems
  */
-public class SingleBattler extends Battler {
-
-    public Move[] moveset; // TODO: private or final?
-
-    public int level;
-    private int levelExp = 0;
-//    public int totalXP = 0;
+public class BattlerImpl extends Battler {
 
 //    private int[] statXP = new int[5]; // hpXP, atkXP, defXP, spdXP, spcXP
     private int hpXP = 0;
@@ -48,21 +41,24 @@ public class SingleBattler extends Battler {
 
     // TODO: DV-range & interacting with DVCalculator?
     public boolean[][] possibleDVs; // [hp, atk, def, spd, spc][0..15] -> true/false
-    private final boolean isTrainerMon; // TODO do this more properly?
     private static int[] trainerDVs = new int[]{8, 9, 8, 8, 8};
+
+    private static final int DELTA_STATEXP = 2560;
+    private static final int MAX_STATEXP = 25600;
+    private final int[] multipliers = new int[]{25, 28, 33, 40, 50, 66, 1, 15, 2, 25, 3, 35, 4};
+    private final int[] divisors = new int[]{100, 100, 100, 100, 100, 100, 1, 10, 1, 10, 1, 10, 1};
 
     /**
      * Use this constructor if it's a trainer pokemon.
      *
+     * @param rd
      * @param pokemon
      * @param level
      * @param moveset
      */
-    public SingleBattler(RouterData rd, Pokemon pokemon, int level, Move[] moveset) {
-        super(rd, pokemon, null);
-        this.level = level;
+    public BattlerImpl(RouterData rd, Pokemon pokemon, int level, Move[] moveset) {
+        super(rd, pokemon, null, true, level);
         this.moveset = moveset;
-        this.isTrainerMon = true;
         if (this.moveset == null) {
             initDefaultMoveSet(pokemon, level);
         }
@@ -73,14 +69,13 @@ public class SingleBattler extends Battler {
     /**
      * Use this constructor if it's a caught pokemon, or a given one.
      *
+     * @param rd
      * @param pokemon
      * @param catchLocation null if pokemon was a given one
      * @param level
      */
-    public SingleBattler(RouterData rd, Pokemon pokemon, EncounterArea catchLocation, int level) {
-        super(rd, pokemon, catchLocation);
-        this.level = level;
-        this.isTrainerMon = false;
+    public BattlerImpl(RouterData rd, Pokemon pokemon, EncounterArea catchLocation, int level) {
+        super(rd, pokemon, catchLocation, false, level);
         initDefaultMoveSet(pokemon, level);
         initPossibleDVs();
         updateCurrentStats();
@@ -89,13 +84,12 @@ public class SingleBattler extends Battler {
     /**
      * Use this constructor if it's a caught pokemon.
      *
+     * @param rd
      * @param catchLocation
      * @param slot
      */
-    public SingleBattler(RouterData rd, EncounterArea catchLocation, int slot) {
-        super(rd, catchLocation.slots[slot].pkmn, catchLocation);
-        this.level = catchLocation.slots[slot].level;
-        this.isTrainerMon = true;
+    public BattlerImpl(RouterData rd, EncounterArea catchLocation, int slot) {
+        super(rd, catchLocation.slots[slot].pkmn, catchLocation, false, catchLocation.slots[slot].level);
         initDefaultMoveSet(pokemon, level);
         initPossibleDVs();
         updateCurrentStats();
@@ -104,6 +98,7 @@ public class SingleBattler extends Battler {
     /**
      * Use this constructor if it's a RNG manip'd pokemon
      *
+     * @param rd
      * @param catchLocation
      * @param pokemon
      * @param level
@@ -112,10 +107,8 @@ public class SingleBattler extends Battler {
      * @param spdDV
      * @param spcDV
      */
-    public SingleBattler(RouterData rd, EncounterArea catchLocation, Pokemon pokemon, int level, int atkDV, int defDV, int spdDV, int spcDV) {
-        super(rd, pokemon, catchLocation);
-        this.level = level;
-        this.isTrainerMon = false;
+    public BattlerImpl(RouterData rd, EncounterArea catchLocation, Pokemon pokemon, int level, int atkDV, int defDV, int spdDV, int spcDV) {
+        super(rd, pokemon, catchLocation, false, level);
         initDefaultMoveSet(pokemon, level);
         initPossibleDVs(atkDV, defDV, spdDV, spcDV);
         updateCurrentStats();
@@ -155,7 +148,7 @@ public class SingleBattler extends Battler {
 
     @Override
     public Battler getDeepCopy() {
-        SingleBattler newBattler = new SingleBattler(rd, pokemon, catchLocation, level);
+        BattlerImpl newBattler = new BattlerImpl(rd, pokemon, catchLocation, level);
 
         newBattler.moveset = this.moveset.clone();
         newBattler.levelExp = this.levelExp;
@@ -179,13 +172,15 @@ public class SingleBattler extends Battler {
     }
 
     @Override
-    public SingleBattler evolve(Item item) {
-        return evolve(new Evolution.Item(item));
+    public Battler defeatBattler(Battler b, int participants) {
+        addStatXP(b.pokemon.hp, b.pokemon.atk, b.pokemon.def, b.pokemon.spd, b.pokemon.spc, participants);
+        return addXP(b.getExp(participants));
     }
 
-    private SingleBattler evolve(Evolution.Key key) {
+    @Override
+    protected Battler evolve(Evolution.Key key) {
         if (pokemon.evolution != null && pokemon.evolution.get(key) != null) {
-            SingleBattler evo = new SingleBattler(rd, pokemon.evolution.get(key), catchLocation, level);
+            BattlerImpl evo = new BattlerImpl(rd, pokemon.evolution.get(key), catchLocation, level);
             // TODO: evolution moves?
             evo.moveset = moveset;
             evo.possibleDVs = possibleDVs;
@@ -202,7 +197,6 @@ public class SingleBattler extends Battler {
         }
     }
 
-    @Override
     public void addStatXP(int hp, int atk, int def, int spd, int spc, int nrOfPkmn) {
         hpXP += hp / nrOfPkmn;
         atkXP += atk / nrOfPkmn;
@@ -211,7 +205,6 @@ public class SingleBattler extends Battler {
         spcXP += spc / nrOfPkmn;
     }
 
-    @Override
     public void resetStatXP() {
         hpXP = 0;
         atkXP = 0;
@@ -259,7 +252,7 @@ public class SingleBattler extends Battler {
                 }
             }
         }
-        SingleBattler evolution = evolve(new Evolution.Level(level));
+        Battler evolution = evolve(new Evolution.Level(level));
         if (evolution != null) {
             return evolution;
         } else {
@@ -268,41 +261,11 @@ public class SingleBattler extends Battler {
     }
 
     @Override
-    public boolean learnTmMove(Move newMove, Move oldMove) {
-        boolean success = false;
-        List<Move> moves = getMoveset();
-        if (pokemon.getTmMoves().contains(newMove) && !moves.contains(newMove)) {
-            if (oldMove == null || moves.contains(oldMove)) {
-                int i = 0;
-                while (i < moveset.length && oldMove != moveset[i] && moveset[i] != null) {
-                    i++;
-                } // only remove the move if no more room!
-                if (i < moveset.length) {
-                    moveset[i] = newMove;
-                    success = true;
-                }
-            }
-        }
-        return success;
-    }
-
-    @Override
-    public Battler useCandy(int count) {
-        SingleBattler newBattler = this;
-        for (int i = 0; i < count; i++) {
-            if (level < 100) {
-                newBattler = (SingleBattler) newBattler.addXP(pokemon.expGroup.getDeltaExp(level, level + 1, levelExp));
-            }
-        }
-        return newBattler;
-    }
-
-    @Override
     public boolean useHPUp(int count) {
         boolean success = true;
         for (int i = 0; i < count; i++) {
-            if (hpXP < 25600) {
-                hpXP = Math.min(hpXP + 2560, 25600);
+            if (hpXP < MAX_STATEXP) {
+                hpXP = Math.min(hpXP + DELTA_STATEXP, MAX_STATEXP);
             } else {
                 success = false;
             }
@@ -314,8 +277,8 @@ public class SingleBattler extends Battler {
     public boolean useProtein(int count) {
         boolean success = true;
         for (int i = 0; i < count; i++) {
-            if (atkXP < 25600) {
-                atkXP = Math.min(atkXP + 2560, 25600);
+            if (atkXP < MAX_STATEXP) {
+                atkXP = Math.min(atkXP + DELTA_STATEXP, MAX_STATEXP);
             } else {
                 success = false;
             }
@@ -327,8 +290,8 @@ public class SingleBattler extends Battler {
     public boolean useIron(int count) {
         boolean success = true;
         for (int i = 0; i < count; i++) {
-            if (defXP < 25600) {
-                defXP = Math.min(defXP + 2560, 25600);
+            if (defXP < MAX_STATEXP) {
+                defXP = Math.min(defXP + DELTA_STATEXP, MAX_STATEXP);
             } else {
                 success = false;
             }
@@ -340,8 +303,8 @@ public class SingleBattler extends Battler {
     public boolean useCarbos(int count) {
         boolean success = true;
         for (int i = 0; i < count; i++) {
-            if (spdXP < 25600) {
-                spdXP = Math.min(spdXP + 2560, 25600);
+            if (spdXP < MAX_STATEXP) {
+                spdXP = Math.min(spdXP + DELTA_STATEXP, MAX_STATEXP);
             } else {
                 success = false;
             }
@@ -353,8 +316,8 @@ public class SingleBattler extends Battler {
     public boolean useCalcium(int count) {
         boolean success = true;
         for (int i = 0; i < count; i++) {
-            if (spcXP < 25600) {
-                spcXP = Math.min(spcXP + 2560, 25600);
+            if (spcXP < MAX_STATEXP) {
+                spcXP = Math.min(spcXP + DELTA_STATEXP, MAX_STATEXP);
             } else {
                 success = false;
             }
@@ -362,23 +325,6 @@ public class SingleBattler extends Battler {
         return success;
     }
 
-    @Override
-    public List<Move> getMoveset() {
-        List<Move> moves = new ArrayList<>();
-        for (Move m : moveset) {
-            if (m != null) {
-                moves.add(m);
-            }
-        }
-        return moves;
-    }
-
-    @Override
-    public int getLevel() {
-        return this.level;
-    }
-
-    @Override
     public DVRange getDVRange(int stat) {
         DVRange range = new DVRange();
         if (isTrainerMon) {
@@ -391,6 +337,14 @@ public class SingleBattler extends Battler {
             }
         }
         return range;
+    }
+
+    public DVRange[] getDVRanges() {
+        DVRange[] ranges = new DVRange[5];
+        for (int s = 0; s < 5; s++) {
+            ranges[s] = getDVRange(s);
+        }
+        return ranges;
     }
 
     private void updateCurrentStats() {
@@ -440,11 +394,6 @@ public class SingleBattler extends Battler {
         return new Range(min, max);
     }
 
-    @Override
-    public Range getHP() {
-        return currentStats[0];
-    }
-
     private int calculateStat(int level, int base, int DV, int XP) {
         double extraStats = 0;
         if (XP - 1 >= 0) {
@@ -452,6 +401,11 @@ public class SingleBattler extends Battler {
         }
         double statValue = Math.floor((((base + DV) * 2 + extraStats) * level / 100) + 5);
         return (int) statValue;
+    }
+
+    @Override
+    public Range getHP() {
+        return currentStats[0];
     }
 
     @Override
@@ -475,54 +429,48 @@ public class SingleBattler extends Battler {
     }
 
     @Override
-    public Range getHPStatIfDV(int DV) {
+    protected Range getBoostedStat(Range statRange, int badgeBoostCount, int xItemCount) {
+        Range boostedRange = new Range(statRange);
+        boostedRange = boostedRange.multiplyBy(multipliers[xItemCount + 6]).divideBy(divisors[xItemCount + 6]);
+        for (int bb = 0; bb < badgeBoostCount; bb++) {
+            boostedRange = boostedRange.multiplyBy(9).divideBy(8);
+        }
+        return boostedRange;
+    }
+
+    public int getHPStatIfDV(int DV) {
         double extraStats = 0;
         if (hpXP - 1 >= 0) {
             extraStats = Math.floor(Math.floor((Math.sqrt(hpXP - 1) + 1)) / 4);
         }
         double statValue = Math.floor((((pokemon.hp + DV + 50) * 2 + extraStats) * level / 100) + 10);
-        return new Range((int) statValue, (int) statValue);
+        return (int) statValue;
     }
 
-    @Override
-    public Range getAtkStatIfDV(int DV) {
+    public int getAtkStatIfDV(int DV) {
         int stat = calculateStat(level, pokemon.atk, DV, atkXP);
-        return new Range(stat, stat);
+        return stat;
     }
 
-    @Override
-    public Range getDefStatIfDV(int DV) {
+    public int getDefStatIfDV(int DV) {
         int stat = calculateStat(level, pokemon.def, DV, defXP);
-        return new Range(stat, stat);
+        return stat;
     }
 
-    @Override
-    public Range getSpdStatIfDV(int DV) {
+    public int getSpdStatIfDV(int DV) {
         int stat = calculateStat(level, pokemon.spd, DV, spdXP);
-        return new Range(stat, stat);
+        return stat;
     }
 
-    @Override
-    public Range getSpcStatIfDV(int DV) {
+    public int getSpcStatIfDV(int DV) {
         int stat = calculateStat(level, pokemon.spc, DV, spcXP);
-        return new Range(stat, stat);
-    }
-
-    @Override
-    public Range getExp(int participants) {
-        int exp = pokemon.getExp(level, participants, false, catchLocation == null);
-        return new Range(exp, exp);
-    }
-
-    @Override
-    public Range getLevelExp() {
-        return new Range(levelExp, levelExp);
+        return stat;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof SingleBattler) {
-            SingleBattler b = (SingleBattler) obj;
+        if (obj instanceof BattlerImpl) {
+            BattlerImpl b = (BattlerImpl) obj;
             return rd == b.rd
                     && pokemon == b.pokemon
                     && Arrays.equals(moveset, b.moveset)

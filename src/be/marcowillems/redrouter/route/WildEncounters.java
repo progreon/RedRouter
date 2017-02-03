@@ -17,18 +17,19 @@
  */
 package be.marcowillems.redrouter.route;
 
+import be.marcowillems.redrouter.data.Battler;
+import be.marcowillems.redrouter.data.BattlerImpl;
+import be.marcowillems.redrouter.data.EncounterArea;
+import be.marcowillems.redrouter.data.Location;
+import be.marcowillems.redrouter.data.Player;
+import be.marcowillems.redrouter.util.PokemonCountPair;
+import be.marcowillems.redrouter.util.PokemonLevelPair;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.TreeMap;
-import be.marcowillems.redrouter.data.EncounterArea;
-import be.marcowillems.redrouter.data.Location;
-import be.marcowillems.redrouter.data.Player;
-import be.marcowillems.redrouter.data.SingleBattler;
-import be.marcowillems.redrouter.util.PokemonCountPair;
-import be.marcowillems.redrouter.util.PokemonLevelPair;
 
 /**
  *
@@ -51,7 +52,7 @@ public final class WildEncounters {
         if (old != location) {
             reset();
         }
-        for (SingleBattler sb : getBattledBattlers()) {
+        for (Battler sb : getBattledBattlers()) {
             if (p.getFrontBattler() != null) {
                 p.getFrontBattler().defeatBattler(sb);
             } else {
@@ -91,13 +92,13 @@ public final class WildEncounters {
         }
     }
 
-    public List<SingleBattler> getBattledBattlers() {
-        List<SingleBattler> bbs = new ArrayList<>();
+    public List<Battler> getBattledBattlers() {
+        List<Battler> bbs = new ArrayList<>();
         for (EncounterArea ea : encounterCounts.keySet()) {
             Set<PokemonCountPair> spcp = encounterCounts.get(ea);
             for (PokemonCountPair pcp : spcp) {
                 for (int i = 0; i < pcp.getCount(); i++) {
-                    bbs.add(new SingleBattler(routeEntry.route.rd, pcp.plp.pkmn, ea, pcp.plp.level));
+                    bbs.add(new BattlerImpl(routeEntry.route.rd, pcp.plp.pkmn, ea, pcp.plp.level));
                 }
             }
         }

@@ -17,14 +17,14 @@
  */
 package be.marcowillems.redrouter.data;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
 import be.marcowillems.redrouter.io.ParserException;
 import be.marcowillems.redrouter.util.BadgeBoosts;
 import be.marcowillems.redrouter.util.Range;
 import be.marcowillems.redrouter.util.Stages;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 /**
  *
@@ -146,8 +146,8 @@ public class Move {
         minDamage = attacker.isType(type) ? minDamage * 3 / 2 : minDamage; // STAB
         maxDamage = attacker.isType(type) ? maxDamage * 3 / 2 : maxDamage; // STAB
         // (14)
-        minDamage *= Types.getTypeChart().getFactor(type, defender.getPokemon().type1, defender.getPokemon().type2);
-        maxDamage *= Types.getTypeChart().getFactor(type, defender.getPokemon().type1, defender.getPokemon().type2);
+        minDamage *= Types.getTypeChart().getFactor(type, defender.pokemon.type1, defender.pokemon.type2);
+        maxDamage *= Types.getTypeChart().getFactor(type, defender.pokemon.type1, defender.pokemon.type2);
         // (15)
         if (minDamage != 0) {
             minDamage = Math.max(minDamage * 217 / 255, 1);

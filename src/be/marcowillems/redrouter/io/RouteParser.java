@@ -17,14 +17,14 @@
  */
 package be.marcowillems.redrouter.io;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import be.marcowillems.redrouter.Settings;
 import be.marcowillems.redrouter.data.*;
 import be.marcowillems.redrouter.route.*;
 import be.marcowillems.redrouter.util.IntPair;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * TODO: error messages push system, TODO: handle multiple (white)spaces, TODO:
@@ -145,7 +145,7 @@ public class RouteParser {
         String name;
         Location location = null;
         String alias;
-        List<SingleBattler> team = new ArrayList<>();
+        List<Battler> team = new ArrayList<>();
 
         String[] trArgs = line.split("::");
         if (trArgs.length > 3) {
@@ -182,7 +182,7 @@ public class RouteParser {
             if (level <= 1) {
                 throw new ParserException(currentFile, lineNo, "The pokemon level must be greater than 1", false);
             }
-            team.add(new SingleBattler(rd, p, level, null));
+            team.add(new BattlerImpl(rd, p, level, null));
         }
 
         Trainer trainer = new Trainer(location, name, null, team);
@@ -423,7 +423,7 @@ public class RouteParser {
 
         RouteEntryInfo info = null;
         EncounterArea ea; // TODO handle location = area + sub area!!
-        List<SingleBattler> choices = new ArrayList<>();
+        List<Battler> choices = new ArrayList<>();
         int preference = -1;
 
         // Handle encounter line
@@ -494,7 +494,7 @@ public class RouteParser {
         String getpLine = lines[0].replaceFirst(getPokemonPrefix, "").trim();
 
         RouteEntryInfo info = null;
-        List<SingleBattler> choices = new ArrayList<>();
+        List<Battler> choices = new ArrayList<>();
         int preference = -1;
 
         // Handle get pokemon line
@@ -523,7 +523,7 @@ public class RouteParser {
             if (level < 2 || level > 100) {
                 throw new ParserException(currentFile, lineNo, "Invalid level \"" + pokeArgs[1] + "\", must be between 2 and 100 (included)", false);
             }
-            choices.add(new SingleBattler(route.rd, p, level, null));
+            choices.add(new BattlerImpl(route.rd, p, level, null));
         }
 
         // Handle description line
@@ -564,7 +564,7 @@ public class RouteParser {
 
         RouteEntryInfo info = null;
         EncounterArea ea; // TODO handle location = area + sub area!!
-        SingleBattler sb;
+        Battler sb;
         int atk, def, spd, spc;
 
         // Handle manip line
@@ -595,7 +595,7 @@ public class RouteParser {
         } catch (NumberFormatException nfe) {
             throw new ParserException(currentFile, lineNo, "Please provide integers for DV values!", false);
         }
-        sb = new SingleBattler(route.rd, ea, sb.pokemon, sb.level, atk, def, spd, spc);
+        sb = new BattlerImpl(route.rd, ea, sb.pokemon, sb.getLevel(), atk, def, spd, spc);
 
         // Handle description line
         String title = "Manip " + sb;

@@ -17,6 +17,12 @@
  */
 package be.marcowillems.redrouter.view.dvcalculator;
 
+import be.marcowillems.redrouter.data.BattlerImpl;
+import be.marcowillems.redrouter.data.DVCalculator;
+import be.marcowillems.redrouter.data.EncounterArea;
+import be.marcowillems.redrouter.data.Location;
+import be.marcowillems.redrouter.data.Pokemon;
+import be.marcowillems.redrouter.util.DVRange;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -44,12 +50,6 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
-import be.marcowillems.redrouter.data.DVCalculator;
-import be.marcowillems.redrouter.data.EncounterArea;
-import be.marcowillems.redrouter.data.Location;
-import be.marcowillems.redrouter.data.Pokemon;
-import be.marcowillems.redrouter.data.SingleBattler;
-import be.marcowillems.redrouter.util.DVRange;
 
 /**
  *
@@ -117,13 +117,13 @@ public class DVCalculatorPanel extends JPanel {
     }
 
     private void setPokemon(Pokemon poke) {
-        this.calc.setBattler(new SingleBattler(this.calc.getRd(), poke, null, (int) spnLevel.getValue()));
+        this.calc.setBattler(new BattlerImpl(this.calc.getRd(), poke, null, (int) spnLevel.getValue()));
         fillEncounterAreas();
         updateButtons();
     }
 
     private void setCatchLocation(EncounterArea catchLocation) {
-        this.calc.setBattler(new SingleBattler(this.calc.getRd(), this.calc.getBattler().getPokemon(), catchLocation, (int) spnLevel.getValue()));
+        this.calc.setBattler(new BattlerImpl(this.calc.getRd(), this.calc.getBattler().pokemon, catchLocation, (int) spnLevel.getValue()));
         updateButtons();
     }
 
@@ -244,7 +244,7 @@ public class DVCalculatorPanel extends JPanel {
         cmbPokemon = new JComboBox<>(calc.getRd().getAllPokemon());
         cmbPokemon.setPreferredSize(new Dimension(settingsPanelWidth, cmbPokemon.getMinimumSize().height));
         cmbPokemon.setMaximumSize(new Dimension(settingsPanelWidth, cmbPokemon.getMinimumSize().height));
-        cmbPokemon.setSelectedItem(calc.getBattler().getPokemon());
+        cmbPokemon.setSelectedItem(calc.getBattler().pokemon);
         cmbPokemon.addItemListener(new ItemListener() {
 
             @Override

@@ -17,12 +17,13 @@
  */
 package be.marcowillems.redrouter.data;
 
+import be.marcowillems.redrouter.util.Range;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import be.marcowillems.redrouter.util.DVRange;
-import be.marcowillems.redrouter.util.Range;
 
 /**
+ * TODO: Change useCandy, useHPUP, ... to useItem?
  *
  * @author Marco Willems
  */
@@ -32,14 +33,29 @@ public abstract class Battler implements Cloneable {
 
     public final Pokemon pokemon;
     public final EncounterArea catchLocation;
+    public final boolean isTrainerMon; // TODO do this more properly?
 
-    private final int[] multipliers = new int[]{25, 28, 33, 40, 50, 66, 1, 15, 2, 25, 3, 35, 4};
-    private final int[] divisors = new int[]{100, 100, 100, 100, 100, 100, 1, 10, 1, 10, 1, 10, 1};
+    protected Move[] moveset; // TODO: make final
 
-    public Battler(RouterData rd, Pokemon pokemon, EncounterArea catchLocation) {
+    protected int level;
+    protected int levelExp = 0;
+//    public int totalXP = 0;
+
+    /**
+     * Self explanatory constructor, catchLocation can be null.
+     *
+     * @param rd
+     * @param pokemon
+     * @param catchLocation
+     * @param isTrainerMon
+     * @param level
+     */
+    public Battler(RouterData rd, Pokemon pokemon, EncounterArea catchLocation, boolean isTrainerMon, int level) {
+        this.rd = rd;
         this.pokemon = pokemon;
         this.catchLocation = catchLocation;
-        this.rd = rd;
+        this.isTrainerMon = isTrainerMon;
+        this.level = level;
     }
 
     @Override
@@ -49,14 +65,24 @@ public abstract class Battler implements Cloneable {
 
     public abstract Battler getDeepCopy();
 
+    /**
+     * Defeat given battler, this battler is modified but not evolved.
+     *
+     * @param b Battler to defeat
+     * @return Returns the modified/evolved battler (not a deep copy)
+     */
     public Battler defeatBattler(Battler b) {
         return defeatBattler(b, 1);
     }
 
-    public Battler defeatBattler(Battler b, int participants) {
-        addStatXP(b.pokemon.hp, b.pokemon.atk, b.pokemon.def, b.pokemon.spd, b.pokemon.spc, participants);
-        return addXP(b.getExp(participants).getMin());
-    }
+    /**
+     * Defeat given battler, this battler is modified but not evolved.
+     *
+     * @param b Battler to defeat
+     * @param participants Amount of participants in the battle
+     * @return Returns the modified/evolved battler (not a deep copy)
+     */
+    public abstract Battler defeatBattler(Battler b, int participants);
 
     /**
      * Tries to evolve the battler with the specified item.
@@ -64,33 +90,60 @@ public abstract class Battler implements Cloneable {
      * @param item The item which triggers the evolution
      * @return Returns the evolved battler or null if it couldn't evolve
      */
-    public abstract Battler evolve(Item item);
+    public Battler evolve(Item item) {
+        return evolve(new Evolution.Item(item));
+    }
 
-    public abstract void addStatXP(int hp, int atk, int def, int spd, int spc, int nrOfPkmn);
-
-    public abstract void resetStatXP();
+    protected abstract Battler evolve(Evolution.Key key);
 
     /**
+     * Add experience, this battler is modified but not evolved.
      *
      * @param exp
-     * @return modified Battler (not a deep copy)
+     * @return Returns the modified/evolved Battler (not a deep copy)
      */
     public abstract Battler addXP(int exp);
 
     /**
+     * Try to learn a TM or HM move.
      *
-     * @param newMove
+     * @param newMove The TM or HM move
      * @param oldMove can be null
-     * @return
+     * @return true if success
      */
-    public abstract boolean learnTmMove(Move newMove, Move oldMove);
+    public boolean learnTmMove(Move newMove, Move oldMove) {
+        boolean success = false;
+        List<Move> moves = getMoveset();
+        if (pokemon.getTmMoves().contains(newMove) && !moves.contains(newMove)) {
+            if (oldMove == null || moves.contains(oldMove)) {
+                int i = 0;
+                while (i < moveset.length && oldMove != moveset[i] && moveset[i] != null) {
+                    i++;
+                } // only remove the move if no more room!
+                if (i < moveset.length) {
+                    moveset[i] = newMove;
+                    success = true;
+                }
+            }
+        }
+        return success;
+    }
 
     /**
+     * Use some Rare Candies
      *
      * @param count
      * @return modified Battler (not a deep copy)
      */
-    public abstract Battler useCandy(int count);
+    public Battler useCandy(int count) {
+        Battler newBattler = this;
+        for (int i = 0; i < count; i++) {
+            if (level < 100) {
+                newBattler = newBattler.addXP(pokemon.expGroup.getDeltaExp(level, level + 1, levelExp));
+            }
+        }
+        return newBattler;
+    }
 
     public abstract boolean useHPUp(int count);
 
@@ -102,19 +155,18 @@ public abstract class Battler implements Cloneable {
 
     public abstract boolean useCalcium(int count);
 
-    public abstract List<Move> getMoveset();
-
-    // TODO: range!
-    public abstract int getLevel();
-
-    public abstract DVRange getDVRange(int stat);
-
-    public DVRange[] getDVRanges() {
-        DVRange[] ranges = new DVRange[5];
-        for (int s = 0; s < 5; s++) {
-            ranges[s] = getDVRange(s);
+    public List<Move> getMoveset() {
+        List<Move> moves = new ArrayList<>();
+        for (Move m : moveset) {
+            if (m != null) {
+                moves.add(m);
+            }
         }
-        return ranges;
+        return moves;
+    }
+
+    public int getLevel() {
+        return this.level;
     }
 
     /**
@@ -196,36 +248,23 @@ public abstract class Battler implements Cloneable {
         return getBoostedStat(getSpc(), badgeBoosts, stage);
     }
 
-    private Range getBoostedStat(Range statRange, int badgeBoostCount, int xItemCount) {
-        Range boostedRange = new Range(statRange);
-        boostedRange = boostedRange.multiplyBy(multipliers[xItemCount + 6]).divideBy(divisors[xItemCount + 6]);
-        for (int bb = 0; bb < badgeBoostCount; bb++) {
-            boostedRange = boostedRange.multiplyBy(9).divideBy(8);
-        }
-        return boostedRange;
-    }
+    protected abstract Range getBoostedStat(Range statRange, int badgeBoostCount, int xItemCount);
 
-    public abstract Range getHPStatIfDV(int DV);
-
-    public abstract Range getAtkStatIfDV(int DV);
-
-    public abstract Range getDefStatIfDV(int DV);
-
-    public abstract Range getSpdStatIfDV(int DV);
-
-    public abstract Range getSpcStatIfDV(int DV);
-
-    public Pokemon getPokemon() {
-        return this.pokemon;
-    }
+//    public Pokemon getPokemon() {
+//        return this.pokemon;
+//    }
 
     public boolean isType(Types.Type type) {
         return type == pokemon.type1 || (pokemon.type2 != null && type == pokemon.type2);
     }
 
-    public abstract Range getExp(int participants);
+    public int getExp(int participants) {
+        return pokemon.getExp(level, participants, false, isTrainerMon);
+    }
 
-    public abstract Range getLevelExp();
+    public int getLevelExp() {
+        return levelExp;
+    }
 
     @Override
     // TODO: NOT with hash codes!!

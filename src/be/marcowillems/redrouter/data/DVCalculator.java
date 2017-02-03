@@ -17,10 +17,9 @@
  */
 package be.marcowillems.redrouter.data;
 
+import be.marcowillems.redrouter.util.DVRange;
 import java.util.HashMap;
 import java.util.Map;
-import be.marcowillems.redrouter.util.DVRange;
-import be.marcowillems.redrouter.util.Range;
 
 /**
  *
@@ -39,22 +38,22 @@ public class DVCalculator {
 
     public final String defaultPokemon = "NidoranM";
     public final int defaultLevel = 3;
-    private SingleBattler battler;
+    private BattlerImpl battler;
     public final int maxEncounterRate = 255;
-    public final Range[][] stats;
+    public final int[][] stats;
 
-    public DVCalculator(RouterData rd, SingleBattler battler) {
+    public DVCalculator(RouterData rd, BattlerImpl battler) {
         this.rd = rd;
         this.battler = battler;
         if (this.battler == null) {
             this.battler = getDefaultBattler();
         }
-        this.stats = new Range[5][16];
+        this.stats = new int[5][16];
         init();
     }
 
-    private SingleBattler getDefaultBattler() {
-        return new SingleBattler(rd, rd.getPokemon(defaultPokemon), null, defaultLevel);
+    private BattlerImpl getDefaultBattler() {
+        return new BattlerImpl(rd, rd.getPokemon(defaultPokemon), null, defaultLevel);
     }
 
     private void init() {
@@ -92,9 +91,9 @@ public class DVCalculator {
 
     public boolean setDV(int stat, int dv) {
         if (battler.possibleDVs[stat][dv]) {
-            Range val = stats[stat][dv];
+            int val = stats[stat][dv];
             for (int i = 0; i < battler.possibleDVs[stat].length; i++) {
-                if (!stats[stat][i].containsOneOf(val)) {
+                if (stats[stat][i] != val) {
                     battler.possibleDVs[stat][i] = false;
                 }
             }
@@ -123,7 +122,7 @@ public class DVCalculator {
         return battler;
     }
 
-    public void setBattler(SingleBattler battler) {
+    public void setBattler(BattlerImpl battler) {
         this.battler = battler;
         if (this.battler == null) {
             this.battler = getDefaultBattler();

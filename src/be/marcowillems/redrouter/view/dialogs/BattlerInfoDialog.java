@@ -17,11 +17,10 @@
  */
 package be.marcowillems.redrouter.view.dialogs;
 
+import be.marcowillems.redrouter.data.Battler;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import be.marcowillems.redrouter.data.Battler;
-import be.marcowillems.redrouter.util.Range;
 
 /**
  *
@@ -49,15 +48,15 @@ public class BattlerInfoDialog extends InfoDialog {
         mainPanel = new JPanel(new BorderLayout());
         String info = "<html><body>";
         info += "<p style=\"font-size:16px\">" + battler.toString() + "</p>";
-        info += "Experience group: " + battler.getPokemon().expGroup.group + "<br>";
+        info += "Experience group: " + battler.pokemon.expGroup.group + "<br>";
         if (!isPlayerBattler) {
             info += "Given experience: " + battler.getExp(1) + "<br>";
         } else {
             info += "Redbar: &lt;" + battler.getHP().multiplyBy(53).divideBy(256).add(1) + " HP<br>";
         }
         // TODO: check & move to Pokemon class
-        info += "Critical hit ratio: " + (((battler.getPokemon().spd / 2) / 256.0) * 100.0) + "% ";
-        info += "(high: " + Math.min(((battler.getPokemon().spd / 2) / 32.0) * 100.0, 100.0) + "%)<br>";
+        info += "Critical hit ratio: " + (((battler.pokemon.spd / 2) / 256.0) * 100.0) + "% ";
+        info += "(high: " + Math.min(((battler.pokemon.spd / 2) / 32.0) * 100.0, 100.0) + "%)<br>";
         info += "<table border=1>";
 //        info += "<tr><th>Base HP</th><th>Base ATK</th><th>Base DEF</th><th>Base SPD</th><th>Base SPC</th></tr><tr>";
 //        info += "<td align=\"center\">" + battler.getPokemon().hp + "</td>";
@@ -73,9 +72,8 @@ public class BattlerInfoDialog extends InfoDialog {
         info += "<td align=\"center\">" + battler.getSpc() + "</td></tr></table>";
         if (isPlayerBattler) {
             // TODO
-            int max = battler.pokemon.expGroup.getDeltaExp(battler.getLevel(), battler.getLevel() + 1, battler.getLevelExp().getMax());
-            int min = battler.pokemon.expGroup.getDeltaExp(battler.getLevel(), battler.getLevel() + 1, battler.getLevelExp().getMin());
-            info += "Exp. to next level: " + new Range(min, max) + " left (of " + battler.pokemon.expGroup.getDeltaExp(battler.getLevel(), battler.getLevel() + 1) + ")";
+            int dExp = battler.pokemon.expGroup.getDeltaExp(battler.getLevel(), battler.getLevel() + 1, battler.getLevelExp());
+            info += "Exp. to next level: " + dExp + " left (of " + battler.pokemon.expGroup.getDeltaExp(battler.getLevel(), battler.getLevel() + 1) + ")";
         }
         info += "</body></html>";
 

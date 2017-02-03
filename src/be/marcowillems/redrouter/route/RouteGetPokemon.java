@@ -17,12 +17,11 @@
  */
 package be.marcowillems.redrouter.route;
 
+import be.marcowillems.redrouter.data.Player;
+import be.marcowillems.redrouter.data.Battler;
+import be.marcowillems.redrouter.io.PrintSettings;
 import java.util.ArrayList;
 import java.util.List;
-import be.marcowillems.redrouter.data.CombinedBattler;
-import be.marcowillems.redrouter.data.Player;
-import be.marcowillems.redrouter.data.SingleBattler;
-import be.marcowillems.redrouter.io.PrintSettings;
 
 /**
  * TODO split Get and Catch Pokémon? optional pokemon?
@@ -31,10 +30,10 @@ import be.marcowillems.redrouter.io.PrintSettings;
  */
 public class RouteGetPokemon extends RouteEntry {
 
-    private final List<SingleBattler> choices;
+    private final List<Battler> choices;
     private int preference;
 
-    public RouteGetPokemon(Route route, RouteEntryInfo info, SingleBattler choice) {
+    public RouteGetPokemon(Route route, RouteEntryInfo info, Battler choice) {
         this(route, info, new ArrayList<>());
         choices.add(choice);
         this.preference = 0;
@@ -43,11 +42,11 @@ public class RouteGetPokemon extends RouteEntry {
         }
     }
 
-    public RouteGetPokemon(Route route, RouteEntryInfo info, List<SingleBattler> choices) {
+    public RouteGetPokemon(Route route, RouteEntryInfo info, List<Battler> choices) {
         this(route, info, choices, -1);
     }
 
-    public RouteGetPokemon(Route route, RouteEntryInfo info, List<SingleBattler> choices, int preference) {
+    public RouteGetPokemon(Route route, RouteEntryInfo info, List<Battler> choices, int preference) {
         super(route, info, true);
         if (choices == null) {
             this.choices = new ArrayList<>();
@@ -70,15 +69,15 @@ public class RouteGetPokemon extends RouteEntry {
     protected Player apply(Player p) {
         Player newPlayer = super.apply(p);
 
-        SingleBattler pref = getPreference();
+        Battler pref = getPreference();
         if (pref != null) {
-            newPlayer.addBattler(new CombinedBattler(pref));
+            newPlayer.addBattler(pref);
         }
 
         return newPlayer;
     }
 
-    public SingleBattler getPreference() {
+    public Battler getPreference() {
         if (preference >= 0) {
             return choices.get(preference);
         } else {
@@ -92,10 +91,10 @@ public class RouteGetPokemon extends RouteEntry {
         if (info != null) {
             str = info.toString();
         } else {
-            SingleBattler pref = getPreference();
+            Battler pref = getPreference();
             if (choices.size() > 1) {
                 str += "Pick 1 of: ";
-                for (SingleBattler b : choices) {
+                for (Battler b : choices) {
                     str += b + (b == pref ? " (preferece)" : "") + ", ";
                 }
                 str = str.substring(0, str.length() - 2) + (pref == null ? " (optional)" : "");
@@ -117,7 +116,7 @@ public class RouteGetPokemon extends RouteEntry {
             if (i == preference) {
                 str += "#";
             }
-            str += choices.get(i).pokemon.name + ":" + choices.get(i).level;
+            str += choices.get(i).pokemon.name + ":" + choices.get(i).getLevel();
         }
         str = lineToDepth(str, depth);
 

@@ -17,6 +17,9 @@
  */
 package be.marcowillems.redrouter.data;
 
+import be.marcowillems.redrouter.Settings;
+import be.marcowillems.redrouter.io.ParserException;
+import be.marcowillems.redrouter.util.PokemonLevelPair;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,9 +37,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import be.marcowillems.redrouter.Settings;
-import be.marcowillems.redrouter.io.ParserException;
-import be.marcowillems.redrouter.util.PokemonLevelPair;
 
 /**
  * The main factory class for the route
@@ -489,36 +489,35 @@ public class RouterData {
     private void initTrainers() {
         // TODO: input file!
         // rival 1
-        List<SingleBattler> teamRival1 = makeTeam(new Pokemon[]{getPokemon("Bulbasaur")}, new int[]{5});
+        List<Battler> teamRival1 = makeTeam(new Pokemon[]{getPokemon("Bulbasaur")}, new int[]{5});
         Trainer trRival1 = new Trainer(getLocation("Pallet Town"), "Rival 1", null, teamRival1);
         trainers.put(trRival1.getIndexString(), trRival1);
         // bug catcher 1 (forest)
-        List<SingleBattler> teamBug1 = makeTeam(new Pokemon[]{getPokemon("Weedle")}, new int[]{9});
+        List<Battler> teamBug1 = makeTeam(new Pokemon[]{getPokemon("Weedle")}, new int[]{9});
         Trainer trBug1 = new Trainer(getLocation("Viridian Forest"), "Bug 1", null, teamBug1);
         trainers.put(trBug1.getIndexString(), trBug1);
         // brock
-        List<SingleBattler> teamBrock = makeTeam(new Pokemon[]{getPokemon("Geodude"), getPokemon("Onix")}, new int[]{12, 14});
+        List<Battler> teamBrock = makeTeam(new Pokemon[]{getPokemon("Geodude"), getPokemon("Onix")}, new int[]{12, 14});
         Trainer trBrock = new Trainer(getLocation("Pewter City"), "Brock", null, teamBrock);
         trainers.put(trBrock.getIndexString(), trBrock);
         // bug catcher 2 (r3)
-        List<SingleBattler> teamBug2 = makeTeam(new Pokemon[]{getPokemon("Caterpie"), getPokemon("Weedle"), getPokemon("Caterpie")}, new int[]{10, 10, 10});
+        List<Battler> teamBug2 = makeTeam(new Pokemon[]{getPokemon("Caterpie"), getPokemon("Weedle"), getPokemon("Caterpie")}, new int[]{10, 10, 10});
         Trainer trBug2 = new Trainer(getLocation("Route 3"), "Bug 2", null, teamBug2);
         trainers.put(trBug2.getIndexString(), trBug2);
         // shorts guy (r3)
-        List<SingleBattler> teamShorts = makeTeam(new Pokemon[]{getPokemon("Rattata"), getPokemon("Ekans")}, new int[]{11, 11});
+        List<Battler> teamShorts = makeTeam(new Pokemon[]{getPokemon("Rattata"), getPokemon("Ekans")}, new int[]{11, 11});
         Trainer trShorts = new Trainer(getLocation("Route 3"), "Shorts guy", null, teamShorts);
         trainers.put(trShorts.getIndexString(), trShorts);
     }
 
     // TODO: TEMP
-    private List<SingleBattler> makeTeam(Pokemon[] pokemon, int[] levels) {
+    private List<Battler> makeTeam(Pokemon[] pokemon, int[] levels) {
         if (pokemon.length != levels.length) {
             return null;
         } else {
-            List<SingleBattler> team = new ArrayList<>();
+            List<Battler> team = new ArrayList<>();
             for (int i = 0; i < pokemon.length; i++) {
-                SingleBattler b = new SingleBattler(this, pokemon[i], levels[i], null);
-                team.add(b);
+                team.add(new BattlerImpl(this, pokemon[i], levels[i], null));
             }
             return team;
         }
