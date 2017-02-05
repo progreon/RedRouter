@@ -63,5 +63,15 @@ public class Stages {
     public int getSpc() {
         return values[3];
     }
+    
+    /**
+     * Bounds are not checked
+     *
+     * @param idx
+     * @return
+     */
+    public int getValue(int idx) {
+        return values[idx];
+    }
 
 }

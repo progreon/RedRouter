@@ -1,0 +1,47 @@
+/*
+ * Empty Stylesheet file.
+ */
+
+.route-entry > .title {
+    -fx-border-color: #ff6600;
+}
+
+.route-section {
+    -fx-font-weight: bold;
+}
+
+.route-entry > .description {
+    -fx-border-color: #66cc00;
+}
+
+.route-entry {
+    -fx-border-color: #996600;
+}
+
+.control-button {
+    -fx-padding: 0 2 0 2;
+}
+
+.route-entry-tree-view {
+    -fx-border-color: blue;
+}
+
+.battle-entry-grid {
+    /*-fx-max-width: 10000;*/
+}
+
+.battle-entry-grid > * {
+    -fx-max-width: 10000;
+    -fx-padding: 2 3 2 3;
+    /*-fx-border-color: black;*/
+    /*-fx-border-color: transparent black transparent black;*/
+}
+
+.battle-entry-grid > .battle-grid-header {
+    /*-fx-border-color: transparent black black black;*/
+}
+
+// TODO?
+/*.table-row-cell:odd {
+    -fx-background-color: lightgray;
+}*/

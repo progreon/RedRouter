@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<MenuBar xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="be.marcowillems.redrouter.viewfx.ApplicationController"
+         id="mainMenu" useSystemMenuBar="true" >
+    <stylesheets>
+        <URL value="@MainMenu.css" />
+    </stylesheets>
+    <menus>
+        <Menu text="_File">
+            <items>
+                <MenuItem text="_New... [TODO]" accelerator="CTRL+N" onAction="#onNew" />
+                <SeparatorMenuItem />
+                <MenuItem text="_Open..." accelerator="CTRL+O" onAction="#onOpen" />
+                <MenuItem text="_Close" accelerator="CTRL+W" onAction="#onClose" />
+                <MenuItem text="_Close All" onAction="#onCloseAll" />
+                <SeparatorMenuItem />
+                <MenuItem text="_Save [TODO]" accelerator="CTRL+S" onAction="#onSave" />
+                <MenuItem text="Sa_ve As... [TODO]" accelerator="CTRL+SHIFT+S" onAction="#onSaveAs" />
+                <SeparatorMenuItem />
+                <MenuItem text="Print... [TODO]" accelerator="CTRL+P" onAction="#onPrint" />
+                <MenuItem text="Print to HTML... [TODO]" onAction="#onPrintToHTML" />
+                <MenuItem text="Print to PDF... [TODO]" onAction="#onPrintToPDF" />
+                <SeparatorMenuItem />
+                <MenuItem text="E_xit" accelerator="CTRL+Q" onAction="#onExit" />
+            </items>
+        </Menu>
+        <Menu text="_Edit">
+            <items>
+                <CheckMenuItem text="Editing Mode [TODO]" />
+            </items>
+        </Menu>
+        <Menu text="_Tools">
+            <items>
+                <MenuItem text="_Database [TODO]" />
+                <MenuItem text="DV _Calculator [TODO]" />
+            </items>
+        </Menu>
+        <Menu text="_Help">
+            <items>
+                <MenuItem text="_About [TODO]" />
+            </items>
+        </Menu>
+    </menus>
+</MenuBar>

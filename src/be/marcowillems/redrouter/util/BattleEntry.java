@@ -19,6 +19,7 @@ package be.marcowillems.redrouter.util;
 
 import be.marcowillems.redrouter.data.Battler;
 import be.marcowillems.redrouter.data.Move;
+import be.marcowillems.redrouter.data.Player;
 import be.marcowillems.redrouter.route.RouteBattle;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -34,6 +35,7 @@ public class BattleEntry {
     public final boolean getsExperience;
     public final boolean isTrainerBattle;
 
+    private Player player = null;
     private Stages stagesOpp = new Stages();
     private Stages stagesPl = new Stages();
     private BadgeBoosts badgeBoosts = new BadgeBoosts();
@@ -55,12 +57,31 @@ public class BattleEntry {
 
     public BattleEntry(RouteBattle.RouteBattleEntry rbe) {
         this(rbe.getBattlerOpponent(), rbe.getBattlerPlayer(), rbe.getsExperience(), true);
+        this.player = rbe.getPlayer();
         this.stagesPl = rbe.getStagesPlayer();
         this.badgeBoosts = rbe.getBadgeBoosts();
     }
 
     public BadgeBoosts getBadgeBoosts() {
         return badgeBoosts;
+    }
+
+    /**
+     * Taking the active badges of the player into account.
+     *
+     * @return
+     */
+    public BadgeBoosts getActualBadgeBoosts() {
+        if (player != null) {
+            // Only apply badge boosts when the player has the badge
+            int atk = player.atkBadge ? badgeBoosts.getAtk() : 0;
+            int def = player.defBadge ? badgeBoosts.getDef() : 0;
+            int spd = player.spdBadge ? badgeBoosts.getSpd() : 0;
+            int spc = player.spcBadge ? badgeBoosts.getSpc() : 0;
+            return new BadgeBoosts(atk, def, spd, spc);
+        } else {
+            return badgeBoosts;
+        }
     }
 
     public void setBadgeBoosts(int bbAtk, int bbDef, int bbSpd, int bbSpc) {
@@ -87,7 +108,7 @@ public class BattleEntry {
         Map<Move, Move.DamageRange> ranges = new LinkedHashMap<>();
 
         for (Move m : battlerOpp.getMoveset()) {
-            ranges.put(m, m.getDamageRange(battlerOpp, battlerPl, stagesOpp, stagesPl, new BadgeBoosts(), badgeBoosts));
+            ranges.put(m, m.getDamageRange(battlerOpp, battlerPl, stagesOpp, stagesPl, new BadgeBoosts(), getActualBadgeBoosts()));
         }
 
         return ranges;
@@ -97,7 +118,7 @@ public class BattleEntry {
         Map<Move, Move.DamageRange> ranges = new LinkedHashMap<>();
 
         for (Move m : battlerPl.getMoveset()) {
-            ranges.put(m, m.getDamageRange(battlerPl, battlerOpp, stagesPl, stagesOpp, badgeBoosts, new BadgeBoosts()));
+            ranges.put(m, m.getDamageRange(battlerPl, battlerOpp, stagesPl, stagesOpp, getActualBadgeBoosts(), new BadgeBoosts()));
         }
 
         return ranges;

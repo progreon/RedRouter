@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="be.marcowillems.redrouter.viewfx.ApplicationController"
+            prefHeight="600" prefWidth="800">
+    <stylesheets>
+        <URL value="@application.css" />
+        <URL value="@route/css/routetree.css" />
+    </stylesheets>
+    <center>
+        <TabPane id="tabPaneRoutes" tabClosingPolicy="ALL_TABS" />
+    </center>
+</BorderPane>

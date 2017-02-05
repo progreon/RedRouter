@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--TODO: no FXML for performance?-->
+<fx:root xmlns:fx="http://javafx.com/fxml/1"
+         type="be.marcowillems.redrouter.viewfx.util.LabeledSpinner"
+         styleClass="labeled-spinner" alignment="CENTER_RIGHT" >
+    <stylesheets>
+        <URL value="@labeledspinner.css"/>
+    </stylesheets>
+    <!--<HBox >-->
+    <Label fx:id="label" />
+    <Spinner fx:id="spinner" editable="true" prefWidth="60" />
+     <!--scaleX=".8" scaleY=".8"-->
+    <!--</HBox>-->
+</fx:root>

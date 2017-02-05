@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import be.marcowillems.redrouter.viewfx.util.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--TODO: less FXML more code for performance!!-->
+<fx:root xmlns:fx="http://javafx.com/fxml/1"
+         type="be.marcowillems.redrouter.viewfx.route.BattleEntryPane"
+         styleClass="battle-entry-grid" >
+    <columnConstraints>
+        <ColumnConstraints /> 
+        <ColumnConstraints prefWidth="10000" />
+        <ColumnConstraints prefWidth="10000" /> 
+        <ColumnConstraints /> 
+        <ColumnConstraints /> 
+    </columnConstraints>
+    <Label styleClass="battle-grid-header" text="Stages" GridPane.rowIndex="0" GridPane.columnIndex="0" alignment="CENTER" />
+<!--    <LabeledSpinner fx:id="atkA" text="Atk" GridPane.rowIndex="1" GridPane.columnIndex="0" min="-6" max="6" value="0" />
+    <LabeledSpinner fx:id="defA" text="Def" GridPane.rowIndex="2" GridPane.columnIndex="0" min="-6" max="6" value="0" />
+    <LabeledSpinner fx:id="spdA" text="Spd" GridPane.rowIndex="3" GridPane.columnIndex="0" min="-6" max="6" value="0" />
+    <LabeledSpinner fx:id="spcA" text="Spc" GridPane.rowIndex="4" GridPane.columnIndex="0" min="-6" max="6" value="0" />-->
+
+    <Button fx:id="btnBattlerA" styleClass="battle-grid-header" text="Battler 1" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+<!--    <Label fx:id="movA1" text="Move1: 32-40 (45-70)" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+    <Label fx:id="movA2" text="Move2" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+    <Label fx:id="movA3" text="Move3: 32-40 (45-70)" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+    <Label fx:id="movA4" text="Move4" GridPane.rowIndex="4" GridPane.columnIndex="1" />-->
+
+    <Button fx:id="btnBattlerB" styleClass="battle-grid-header" text="Battler 2" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+<!--    <Label fx:id="movB1" text="Move_Name1: 32-40 (45-70)" GridPane.rowIndex="1" GridPane.columnIndex="2" />
+    <Label fx:id="movB2" text="Move2" GridPane.rowIndex="2" GridPane.columnIndex="2" />
+    <Label fx:id="movB3" text="Move3: 32-40 (45-70)" GridPane.rowIndex="3" GridPane.columnIndex="2" />
+    <Label fx:id="movB4" text="-" GridPane.rowIndex="4" GridPane.columnIndex="2" />-->
+
+    <Label styleClass="battle-grid-header" text="Stages" GridPane.rowIndex="0" GridPane.columnIndex="3" alignment="CENTER" />
+<!--    <LabeledSpinner fx:id="atkB" text="Atk" GridPane.rowIndex="1" GridPane.columnIndex="3" min="-6" max="6" value="0" />
+    <LabeledSpinner fx:id="defB" text="Def" GridPane.rowIndex="2" GridPane.columnIndex="3" min="-6" max="6" value="0" />
+    <LabeledSpinner fx:id="spdB" text="Spd" GridPane.rowIndex="3" GridPane.columnIndex="3" min="-6" max="6" value="0" />
+    <LabeledSpinner fx:id="spcB" text="Spc" GridPane.rowIndex="4" GridPane.columnIndex="3" min="-6" max="6" value="0" />-->
+
+    <Label styleClass="battle-grid-header" text="BB" GridPane.rowIndex="0" GridPane.columnIndex="4" alignment="CENTER" />
+<!--    <LabeledSpinner fx:id="atkBB" text="Atk" GridPane.rowIndex="1" GridPane.columnIndex="4" min="0" max="99" value="0" />
+    <LabeledSpinner fx:id="defBB" text="Def" GridPane.rowIndex="2" GridPane.columnIndex="4" min="0" max="99" value="0" />
+    <LabeledSpinner fx:id="spdBB" text="Spd" GridPane.rowIndex="3" GridPane.columnIndex="4" min="0" max="99" value="0" />
+    <LabeledSpinner fx:id="spcBB" text="Spc" GridPane.rowIndex="4" GridPane.columnIndex="4" min="0" max="99" value="0" />-->
+</fx:root>
+
+<!--<fx:root xmlns:fx="http://javafx.com/fxml/1"
+         type="be.marcowillems.redrouter.viewfx.route.BattleEntryPane"
+         styleClass="battle-entry-pane" GridPane.fillWidth="true" gridLinesVisible="true" >
+    <columnConstraints>
+        <ColumnConstraints hgrow="NEVER" /> 
+        <ColumnConstraints hgrow="ALWAYS" /> 
+        <ColumnConstraints hgrow="ALWAYS" /> 
+        <ColumnConstraints hgrow="NEVER" /> 
+        <ColumnConstraints hgrow="NEVER" /> 
+    </columnConstraints>
+
+    <Label text="Stages" GridPane.rowIndex="0" GridPane.columnIndex="0" alignment="CENTER" />
+    <GridPane GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.rowSpan="4" >
+        <LabeledSpinner fx:id="atkA" text="Atk" GridPane.rowIndex="1" min="-6" max="6" value="0" />
+        <LabeledSpinner fx:id="defA" text="Def" GridPane.rowIndex="2" min="-6" max="6" value="0" />
+        <LabeledSpinner fx:id="spdA" text="Spd" GridPane.rowIndex="3" min="-6" max="6" value="0" />
+        <LabeledSpinner fx:id="spcA" text="Spc" GridPane.rowIndex="4" min="-6" max="6" value="0" />
+    </GridPane>
+    
+    <Button text="Battler 1" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+    <GridPane GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.rowSpan="4" >
+        <Label fx:id="movA1" text="Move1: 32-40 (45-70)" GridPane.rowIndex="1" />
+        <Label fx:id="movA2" text="Move2:" GridPane.rowIndex="2" />
+        <Label fx:id="movA3" text="Move3:" GridPane.rowIndex="3" />
+        <Label fx:id="movA4" text="Move4:" GridPane.rowIndex="4" />
+    </GridPane>
+
+    <Button text="Battler 2" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+    <GridPane GridPane.rowIndex="1" GridPane.columnIndex="2" GridPane.rowSpan="4" >
+        <Label fx:id="movB1" text="Move_Name1: 32-40 (45-70)" GridPane.rowIndex="1" />
+        <Label fx:id="movB2" text="Move2:" GridPane.rowIndex="2" />
+        <Label fx:id="movB3" text="Move3:" GridPane.rowIndex="3" />
+        <Label fx:id="movB4" text="Move4:" GridPane.rowIndex="4" />
+    </GridPane>
+
+    <Label text="Stages" GridPane.rowIndex="0" GridPane.columnIndex="3" alignment="CENTER" />
+    <GridPane GridPane.rowIndex="1" GridPane.columnIndex="3" GridPane.rowSpan="4" >
+        <LabeledSpinner fx:id="atkB" text="Atk" GridPane.rowIndex="1" min="-6" max="6" value="0" />
+        <LabeledSpinner fx:id="defB" text="Def" GridPane.rowIndex="2" min="-6" max="6" value="0" />
+        <LabeledSpinner fx:id="spdB" text="Spd" GridPane.rowIndex="3" min="-6" max="6" value="0" />
+        <LabeledSpinner fx:id="spcB" text="Spc" GridPane.rowIndex="4" min="-6" max="6" value="0" />
+    </GridPane>
+
+    <Label text="BB" GridPane.rowIndex="0" GridPane.columnIndex="4" alignment="CENTER" />
+    <GridPane GridPane.rowIndex="1" GridPane.columnIndex="4" GridPane.rowSpan="4" >
+        <LabeledSpinner fx:id="atkBB" text="Atk" GridPane.rowIndex="1" min="0" max="99" value="0" />
+        <LabeledSpinner fx:id="defBB" text="Def" GridPane.rowIndex="2" min="0" max="99" value="0" />
+        <LabeledSpinner fx:id="spdBB" text="Spd" GridPane.rowIndex="3" min="0" max="99" value="0" />
+        <LabeledSpinner fx:id="spcBB" text="Spc" GridPane.rowIndex="4" min="0" max="99" value="0" />
+    </GridPane>
+</fx:root>-->

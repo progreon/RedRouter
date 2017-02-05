@@ -274,17 +274,18 @@ public class RouteBattle extends RouteEntry {
 //        }
 
         public BadgeBoosts getBadgeBoosts() {
-            if (opponentIdx < playerBeforeEvery.size()) {
-                // Only apply badge boosts when the player has the badge
-                Player p = playerBeforeEvery.get(opponentIdx);
-                int atk = p.atkBadge ? badgeBoosts.getAtk() : 0;
-                int def = p.defBadge ? badgeBoosts.getDef() : 0;
-                int spd = p.spdBadge ? badgeBoosts.getSpd() : 0;
-                int spc = p.spcBadge ? badgeBoosts.getSpc() : 0;
-                return new BadgeBoosts(atk, def, spd, spc);
-            } else {
-                return this.badgeBoosts; // TODO: clone?
-            }
+            // TODO move to BattleEntry
+//            if (opponentIdx < playerBeforeEvery.size()) {
+//                // Only apply badge boosts when the player has the badge
+//                Player p = playerBeforeEvery.get(opponentIdx);
+//                int atk = p.atkBadge ? badgeBoosts.getAtk() : 0;
+//                int def = p.defBadge ? badgeBoosts.getDef() : 0;
+//                int spd = p.spdBadge ? badgeBoosts.getSpd() : 0;
+//                int spc = p.spcBadge ? badgeBoosts.getSpc() : 0;
+//                return new BadgeBoosts(atk, def, spd, spc);
+//            } else {
+            return this.badgeBoosts; // TODO: clone?
+//            }
         }
 
         public void setBadgeBoosts(BadgeBoosts badgeBoosts) {
@@ -298,13 +299,9 @@ public class RouteBattle extends RouteEntry {
         }
 
         public Battler getBattlerPlayer() {
-            if (opponentIdx < playerBeforeEvery.size()) {
-                Player p = playerBeforeEvery.get(opponentIdx);
-                if (partyIdx < p.team.size()) {
-                    return p.team.get(partyIdx);
-                } else {
-                    return null;
-                }
+            Player p = getPlayer();
+            if (p != null && partyIdx < p.team.size()) {
+                return p.team.get(partyIdx);
             } else {
                 return null;
             }
@@ -318,6 +315,14 @@ public class RouteBattle extends RouteEntry {
             this.getsExperience = getsExperience;
             notifyDataUpdated();
             notifyRoute();
+        }
+
+        public Player getPlayer() {
+            if (opponentIdx < playerBeforeEvery.size()) {
+                return playerBeforeEvery.get(opponentIdx);
+            } else {
+                return null;
+            }
         }
 
         public Stages getStagesPlayer() {
