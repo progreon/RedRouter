@@ -3,11 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package be.marcowillems.redrouter.viewfx.route;
+package be.marcowillems.redrouter.viewfx.panes;
 
 import be.marcowillems.redrouter.data.Move;
 import be.marcowillems.redrouter.util.BadgeBoosts;
 import be.marcowillems.redrouter.util.BattleEntry;
+import be.marcowillems.redrouter.util.Range;
 import be.marcowillems.redrouter.util.Stages;
 import be.marcowillems.redrouter.viewfx.util.LabeledSpinner;
 import java.io.IOException;
@@ -58,6 +59,76 @@ public class BattleEntryPane extends GridPane implements LabeledSpinner.SpinnerC
         super.setGridLinesVisible(true);
     }
 
+    private void init() {
+        // TODO: non-hardcoded "4"
+        int statCount = 4;
+
+        spnStagesA = new LabeledSpinner[statCount];
+        for (int i = 0; i < statCount; i++) {
+            spnStagesA[i] = new LabeledSpinner(STRINGS[i], Stages.MIN, Stages.MAX, battleEntry.getStagesOpponent().getValue(i));
+            spnStagesA[i].addListener(this);
+            super.add(spnStagesA[i], 0, i + 1);
+        }
+        Map<Move, Move.DamageRange> rangesA = battleEntry.getOpponentRanges();
+        lblMovesA = new Label[rangesA.size()];
+        int k = 0;
+        for (Move m : rangesA.keySet()) {
+            Move.DamageRange range = rangesA.get(m);
+            if (range.critMax > 0 || range.max > 0) {
+                lblMovesA[k] = new Label(m + ": " + range);
+            } else {
+                lblMovesA[k] = new Label(m.toString());
+            }
+            super.add(lblMovesA[k], 1, k + 1);
+            k++;
+        }
+        Map<Move, Move.DamageRange> rangesB = battleEntry.getPlayerRanges();
+        lblMovesB = new Label[rangesB.size()];
+        int l = 0;
+        for (Move m : rangesB.keySet()) {
+            Move.DamageRange range = rangesB.get(m);
+            if (range.critMax > 0 || range.max > 0) {
+                lblMovesB[l] = new Label(m + ": " + range);
+            } else {
+                lblMovesB[l] = new Label(m.toString());
+            }
+            super.add(lblMovesB[l], 2, l + 1);
+            l++;
+        }
+        spnStagesB = new LabeledSpinner[statCount];
+        for (int i = 0; i < statCount; i++) {
+            spnStagesB[i] = new LabeledSpinner(STRINGS[i], Stages.MIN, Stages.MAX, battleEntry.getStagesPlayer().getValue(i));
+            spnStagesB[i].addListener(this);
+            super.add(spnStagesB[i], 3, i + 1);
+        }
+        spnBadgeBoosts = new LabeledSpinner[statCount];
+        for (int i = 0; i < statCount; i++) {
+            spnBadgeBoosts[i] = new LabeledSpinner(STRINGS[i], BadgeBoosts.MIN, BadgeBoosts.MAX, battleEntry.getActualBadgeBoosts().getValue(i));
+            spnBadgeBoosts[i].addListener(this);
+            super.add(spnBadgeBoosts[i], 4, i + 1);
+        }
+        updateButtonTexts();
+    }
+
+    private void updateButtonTexts() {
+        Range deltaSpd = battleEntry.battlerPl.getSpd(battleEntry.getActualBadgeBoosts().getSpd(), battleEntry.getStagesPlayer().getSpd())
+                .substract(battleEntry.battlerOpp.getSpd(0, battleEntry.getStagesOpponent().getSpd()));
+        String oppSpdStr;
+        String plSpdStr;
+        if (deltaSpd.contains(0)) {
+            oppSpdStr = " (F)";
+            plSpdStr = " (F)";
+        } else if (deltaSpd.getMin() < 0) { // min or max, doesn't matter
+            oppSpdStr = " F";
+            plSpdStr = "";
+        } else {
+            oppSpdStr = "";
+            plSpdStr = " F";
+        }
+        btnBattlerA.setText(battleEntry.battlerOpp + " (" + battleEntry.battlerOpp.getHP() + "hp)" + oppSpdStr);
+        btnBattlerB.setText(battleEntry.battlerPl + " (" + battleEntry.battlerPl.getHP() + "hp)" + plSpdStr);
+    }
+
     @Override
     public void changed(LabeledSpinner source, int oldValue, int newValue) {
         // TODO: recalculate all ranges for this battle entry
@@ -87,58 +158,7 @@ public class BattleEntryPane extends GridPane implements LabeledSpinner.SpinnerC
             }
             l++;
         }
-    }
-
-    private void init() {
-        // TODO: non-hardcoded "4"
-        // TODO: hp + who's faster?
-        int statCount = 4;
-        spnStagesA = new LabeledSpinner[statCount];
-        for (int i = 0; i < statCount; i++) {
-            spnStagesA[i] = new LabeledSpinner(STRINGS[i], Stages.MIN, Stages.MAX, battleEntry.getStagesOpponent().getValue(i));
-            spnStagesA[i].addListener(this);
-            super.add(spnStagesA[i], 0, i + 1);
-        }
-        btnBattlerA.setText(battleEntry.battlerOpp.toString());
-        Map<Move, Move.DamageRange> rangesA = battleEntry.getOpponentRanges();
-        lblMovesA = new Label[rangesA.size()];
-        int k = 0;
-        for (Move m : rangesA.keySet()) {
-            Move.DamageRange range = rangesA.get(m);
-            if (range.critMax > 0 || range.max > 0) {
-                lblMovesA[k] = new Label(m + ": " + range);
-            } else {
-                lblMovesA[k] = new Label(m.toString());
-            }
-            super.add(lblMovesA[k], 1, k + 1);
-            k++;
-        }
-        btnBattlerB.setText(battleEntry.battlerPl.toString());
-        Map<Move, Move.DamageRange> rangesB = battleEntry.getPlayerRanges();
-        lblMovesB = new Label[rangesB.size()];
-        int l = 0;
-        for (Move m : rangesB.keySet()) {
-            Move.DamageRange range = rangesB.get(m);
-            if (range.critMax > 0 || range.max > 0) {
-                lblMovesB[l] = new Label(m + ": " + range);
-            } else {
-                lblMovesB[l] = new Label(m.toString());
-            }
-            super.add(lblMovesB[l], 2, l + 1);
-            l++;
-        }
-        spnStagesB = new LabeledSpinner[statCount];
-        for (int i = 0; i < statCount; i++) {
-            spnStagesB[i] = new LabeledSpinner(STRINGS[i], Stages.MIN, Stages.MAX, battleEntry.getStagesPlayer().getValue(i));
-            spnStagesB[i].addListener(this);
-            super.add(spnStagesB[i], 3, i + 1);
-        }
-        spnBadgeBoosts = new LabeledSpinner[statCount];
-        for (int i = 0; i < statCount; i++) {
-            spnBadgeBoosts[i] = new LabeledSpinner(STRINGS[i], BadgeBoosts.MIN, BadgeBoosts.MAX, battleEntry.getActualBadgeBoosts().getValue(i));
-            spnBadgeBoosts[i].addListener(this);
-            super.add(spnBadgeBoosts[i], 4, i + 1);
-        }
+        updateButtonTexts();
     }
 
 }

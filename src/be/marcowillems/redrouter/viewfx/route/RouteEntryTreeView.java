@@ -7,6 +7,7 @@ package be.marcowillems.redrouter.viewfx.route;
 
 import be.marcowillems.redrouter.route.RouteBattle;
 import be.marcowillems.redrouter.route.RouteEntry;
+import be.marcowillems.redrouter.route.RouteMenu;
 import be.marcowillems.redrouter.route.RouteSection;
 import java.io.IOException;
 import javafx.fxml.FXML;
@@ -42,6 +43,8 @@ public class RouteEntryTreeView extends BorderPane implements RouteEntryView.Vie
         RouteEntryView rev;
         if (routeEntry instanceof RouteBattle) {
             rev = new RouteBattleView((RouteBattle) routeEntry);
+        } else if (routeEntry instanceof RouteMenu) {
+            rev = new RouteMenuView((RouteMenu) routeEntry);
         } else if (routeEntry instanceof RouteSection) {
             rev = new RouteSectionView((RouteSection) routeEntry);
         } else {

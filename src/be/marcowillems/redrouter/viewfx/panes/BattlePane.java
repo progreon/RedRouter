@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package be.marcowillems.redrouter.viewfx.route;
+package be.marcowillems.redrouter.viewfx.panes;
 
 import be.marcowillems.redrouter.route.RouteBattle;
 import be.marcowillems.redrouter.util.BattleEntry;

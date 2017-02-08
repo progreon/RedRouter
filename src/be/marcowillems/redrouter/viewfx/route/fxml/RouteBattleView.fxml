@@ -14,7 +14,7 @@
         <Label fx:id="title" styleClass="title" />
     </top>
     <center>
-        <Label fx:id="description" wrapText="true" BorderPane.alignment="CENTER_LEFT" styleClass="description" /> 
+        <Label fx:id="description" wrapText="true" styleClass="description" /> 
     </center>
     <bottom>
         <VBox fx:id="rangesBox">

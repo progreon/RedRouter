@@ -9,7 +9,7 @@
 
 <!--TODO: less FXML more code for performance!!-->
 <fx:root xmlns:fx="http://javafx.com/fxml/1"
-         type="be.marcowillems.redrouter.viewfx.route.BattleEntryPane"
+         type="be.marcowillems.redrouter.viewfx.panes.BattleEntryPane"
          styleClass="battle-entry-grid" >
     <columnConstraints>
         <ColumnConstraints /> 

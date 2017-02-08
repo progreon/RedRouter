@@ -5,14 +5,15 @@
  */
 package be.marcowillems.redrouter.viewfx.route;
 
+import be.marcowillems.redrouter.viewfx.panes.BattlePane;
 import be.marcowillems.redrouter.route.RouteBattle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.TreeItem;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
 /**
@@ -29,14 +30,14 @@ public class RouteBattleView extends RouteEntryView {
     protected VBox rangesBox;
     @FXML
     protected ToggleButton toggle;
-//    @FXML
-//    protected BattlePane battlePane;
+
     private BattlePane battlePane = null;
 
     public RouteBattleView(RouteBattle routeBattle) {
         super(routeBattle, "fxml/RouteBattleView.fxml");
         title.managedProperty().bind(title.textProperty().isNotNull());
         description.managedProperty().bind(description.textProperty().isNotNull());
+        BorderPane.setAlignment(description, Pos.CENTER_LEFT);
         if (routeEntry.info != null) {
             title.setText(routeEntry.info.title);
             description.setText(routeEntry.info.description);
