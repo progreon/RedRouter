@@ -325,6 +325,7 @@ public class BattlerImpl extends Battler {
         return success;
     }
 
+    @Override
     public DVRange getDVRange(int stat) {
         DVRange range = new DVRange();
         if (isTrainerMon) {
@@ -339,6 +340,7 @@ public class BattlerImpl extends Battler {
         return range;
     }
 
+    @Override
     public DVRange[] getDVRanges() {
         DVRange[] ranges = new DVRange[5];
         for (int s = 0; s < 5; s++) {

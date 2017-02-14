@@ -17,6 +17,7 @@
  */
 package be.marcowillems.redrouter.data;
 
+import be.marcowillems.redrouter.util.DVRange;
 import be.marcowillems.redrouter.util.Range;
 import java.util.ArrayList;
 import java.util.List;
@@ -154,6 +155,10 @@ public abstract class Battler implements Cloneable {
     public abstract boolean useCarbos(int count);
 
     public abstract boolean useCalcium(int count);
+    
+    public abstract DVRange getDVRange(int stat);
+    
+    public abstract DVRange[] getDVRanges();
 
     public List<Move> getMoveset() {
         List<Move> moves = new ArrayList<>();

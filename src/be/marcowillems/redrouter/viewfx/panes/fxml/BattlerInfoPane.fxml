@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<fx:root xmlns:fx="http://javafx.com/fxml/1"
+         type="be.marcowillems.redrouter.viewfx.panes.BattlerInfoPane"
+         styleClass="battler-info" >
+    <GridPane fx:id="gridInfo" hgap="5" vgap="2" />
+    <GridPane fx:id="gridDVs" alignment="CENTER" hgap="5" vgap="2" >
+        <columnConstraints>
+            <ColumnConstraints halignment="CENTER" percentWidth="20" />
+            <ColumnConstraints halignment="CENTER" percentWidth="20" />
+            <ColumnConstraints halignment="CENTER" percentWidth="20" />
+            <ColumnConstraints halignment="CENTER" percentWidth="20" />
+            <ColumnConstraints halignment="CENTER" percentWidth="20" />
+        </columnConstraints>
+    </GridPane>
+    <GridPane fx:id="gridStats" alignment="CENTER" hgap="5" vgap="2" >
+        <columnConstraints>
+            <ColumnConstraints halignment="CENTER" percentWidth="20" />
+            <ColumnConstraints halignment="CENTER" percentWidth="20" />
+            <ColumnConstraints halignment="CENTER" percentWidth="20" />
+            <ColumnConstraints halignment="CENTER" percentWidth="20" />
+            <ColumnConstraints halignment="CENTER" percentWidth="20" />
+        </columnConstraints>
+    </GridPane>
+</fx:root>

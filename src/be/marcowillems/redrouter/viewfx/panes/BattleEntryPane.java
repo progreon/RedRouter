@@ -13,11 +13,18 @@ import be.marcowillems.redrouter.util.Stages;
 import be.marcowillems.redrouter.viewfx.util.LabeledSpinner;
 import java.io.IOException;
 import java.util.Map;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 /**
  *
@@ -69,6 +76,22 @@ public class BattleEntryPane extends GridPane implements LabeledSpinner.SpinnerC
             spnStagesA[i].addListener(this);
             super.add(spnStagesA[i], 0, i + 1);
         }
+        btnBattlerA.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent event) {
+                Parent root = new BattlerInfoPane(battleEntry.battlerOpp, false, battleEntry.getStagesOpponent(), new BadgeBoosts());
+                Stage stage = new Stage();
+                stage.setScene(new Scene(root));
+                stage.setTitle(battleEntry.battlerOpp.toString());
+                stage.initModality(Modality.APPLICATION_MODAL);
+                stage.setResizable(false);
+                stage.show();
+                Bounds boundsBtn = btnBattlerA.localToScreen(btnBattlerA.getBoundsInLocal());
+                stage.setX(boundsBtn.getMinX() + boundsBtn.getWidth() / 2 - stage.getWidth() / 2);
+                stage.setY(boundsBtn.getMinY() - stage.getHeight() / 2);
+            }
+        });
         Map<Move, Move.DamageRange> rangesA = battleEntry.getOpponentRanges();
         lblMovesA = new Label[rangesA.size()];
         int k = 0;
@@ -82,6 +105,22 @@ public class BattleEntryPane extends GridPane implements LabeledSpinner.SpinnerC
             super.add(lblMovesA[k], 1, k + 1);
             k++;
         }
+        btnBattlerB.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent event) {
+                Parent root = new BattlerInfoPane(battleEntry.battlerPl, true, battleEntry.getStagesPlayer(), battleEntry.getActualBadgeBoosts());
+                Stage stage = new Stage();
+                stage.setScene(new Scene(root));
+                stage.setTitle(battleEntry.battlerPl.toString());
+                stage.initModality(Modality.APPLICATION_MODAL);
+                stage.setResizable(false);
+                stage.show();
+                Bounds boundsBtn = btnBattlerB.localToScreen(btnBattlerB.getBoundsInLocal());
+                stage.setX(boundsBtn.getMinX() + boundsBtn.getWidth() / 2 - stage.getWidth() / 2);
+                stage.setY(boundsBtn.getMinY() - stage.getHeight() / 2);
+            }
+        });
         Map<Move, Move.DamageRange> rangesB = battleEntry.getPlayerRanges();
         lblMovesB = new Label[rangesB.size()];
         int l = 0;

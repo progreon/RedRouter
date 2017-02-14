@@ -405,7 +405,7 @@ Route: Red Any% Glitchless - God Nido (by PaperGuy)
 		Walk right, up, then open the door to your left, and take the teleporter to 7F
 		Heal?
 		B: rival5
-			X_Accuracy, X_Speed, HD, TB, EQ, EQ, HD (the "safe" option)
+			X_Accuracy + X_Speed + X_Special + HD, TB, EQ, EQ, HD (the "safe" option)
 		Take the teleporter to 11F
 		B: rocket7
 			IB, EQ, IB

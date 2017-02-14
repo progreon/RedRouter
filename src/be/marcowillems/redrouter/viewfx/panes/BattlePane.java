@@ -7,9 +7,7 @@ package be.marcowillems.redrouter.viewfx.panes;
 
 import be.marcowillems.redrouter.route.RouteBattle;
 import be.marcowillems.redrouter.util.BattleEntry;
-import java.io.IOException;
 import java.util.List;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.VBox;
 
 /**
@@ -17,23 +15,12 @@ import javafx.scene.layout.VBox;
  * @author Marco Willems
  */
 public class BattlePane extends VBox {
-    
-    private RouteBattle routeBattle; // final
-    private BattleEntryPane[] battleEntryPanes;
 
-    public BattlePane() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/BattlePane.fxml"));
-        fxmlLoader.setRoot(this);
-        fxmlLoader.setController(this);
-        try {
-            fxmlLoader.load();
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
-    }
-    
+    private final RouteBattle routeBattle;
+    private final BattleEntryPane[] battleEntryPanes;
+
     public BattlePane(RouteBattle routeBattle) {
-        this();
+        super.getStyleClass().add("battle-pane");
         this.routeBattle = routeBattle;
         List<BattleEntry> battleEntries = routeBattle.getBattleEntries();
         this.battleEntryPanes = new BattleEntryPane[battleEntries.size()];
@@ -42,5 +29,5 @@ public class BattlePane extends VBox {
             super.getChildren().add(battleEntryPanes[i]);
         }
     }
-    
+
 }
