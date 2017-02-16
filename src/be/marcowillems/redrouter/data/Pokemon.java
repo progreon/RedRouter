@@ -204,6 +204,14 @@ public class Pokemon {
         return a;
     }
 
+    public double getCritRatio() {
+        return (spd / 2) / 256.0;
+    }
+
+    public double getHighCritRatio() {
+        return Math.min((spd / 2) / 32.0, 1.0);
+    }
+
     public static String getIndexString(String name) {
         return name.toUpperCase(Locale.ROOT);
     }

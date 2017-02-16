@@ -363,37 +363,47 @@ public class BattlerImpl extends Battler {
         if (hpXP - 1 >= 0) {
             extraStats = Math.floor(Math.floor((Math.sqrt(hpXP - 1) + 1)) / 4);
         }
-        double minStatValue = Math.floor((((pokemon.hp + dvRange.getMin() + 50) * 2 + extraStats) * level / 100) + 10);
-        double maxStatValue = Math.floor((((pokemon.hp + dvRange.getMax() + 50) * 2 + extraStats) * level / 100) + 10);
-        return new Range((int) minStatValue, (int) maxStatValue);
+        Range range = new Range();
+        for (int dv : dvRange.getValues()) {
+            range.addValue((int) Math.floor((((pokemon.hp + dv + 50) * 2 + extraStats) * level / 100) + 10));
+        }
+        return range;
     }
 
     private Range calculateAtk() {
         DVRange dvRange = getDVRange(1);
-        int min = calculateStat(level, pokemon.atk, dvRange.getMin(), atkXP);
-        int max = calculateStat(level, pokemon.atk, dvRange.getMax(), atkXP);
-        return new Range(min, max);
+        Range range = new Range();
+        for (int dv : dvRange.getValues()) {
+            range.addValue(calculateStat(level, pokemon.atk, dv, atkXP));
+        }
+        return range;
     }
 
     private Range calculateDef() {
         DVRange dvRange = getDVRange(2);
-        int min = calculateStat(level, pokemon.def, dvRange.getMin(), defXP);
-        int max = calculateStat(level, pokemon.def, dvRange.getMax(), defXP);
-        return new Range(min, max);
+        Range range = new Range();
+        for (int dv : dvRange.getValues()) {
+            range.addValue(calculateStat(level, pokemon.def, dv, defXP));
+        }
+        return range;
     }
 
     private Range calculateSpd() {
         DVRange dvRange = getDVRange(3);
-        int min = calculateStat(level, pokemon.spd, dvRange.getMin(), spdXP);
-        int max = calculateStat(level, pokemon.spd, dvRange.getMax(), spdXP);
-        return new Range(min, max);
+        Range range = new Range();
+        for (int dv : dvRange.getValues()) {
+            range.addValue(calculateStat(level, pokemon.spd, dv, spdXP));
+        }
+        return range;
     }
 
     private Range calculateSpc() {
         DVRange dvRange = getDVRange(4);
-        int min = calculateStat(level, pokemon.spc, dvRange.getMin(), spcXP);
-        int max = calculateStat(level, pokemon.spc, dvRange.getMax(), spcXP);
-        return new Range(min, max);
+        Range range = new Range();
+        for (int dv : dvRange.getValues()) {
+            range.addValue(calculateStat(level, pokemon.spc, dv, spcXP));
+        }
+        return range;
     }
 
     private int calculateStat(int level, int base, int DV, int XP) {

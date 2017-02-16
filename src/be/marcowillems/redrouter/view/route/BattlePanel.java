@@ -91,7 +91,7 @@ public class BattlePanel extends JPanel {
             for (Move m : ranges.keySet()) {
                 text += m;
                 Move.DamageRange dr = ranges.get(m);
-                if (dr.critMax != 0) {
+                if (dr.getCritMax() != 0) {
                     text += ": " + dr;
                 }
                 text += "<br>";

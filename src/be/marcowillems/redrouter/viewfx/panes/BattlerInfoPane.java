@@ -57,9 +57,9 @@ public class BattlerInfoPane extends VBox {
             gridInfo.add(new Label(battler.getExp(1) + " xp"), 1, 1);
         }
         gridInfo.add(new Label("Critical hit ratio:"), 0, 2);
-        gridInfo.add(new Label((((battler.pokemon.spd / 2) / 256.0) * 100.0) + "%"), 1, 2);
+        gridInfo.add(new Label((battler.pokemon.getCritRatio() * 100.0) + "%"), 1, 2);
         gridInfo.add(new Label("\tHigh:"), 0, 3);
-        gridInfo.add(new Label(Math.min(((battler.pokemon.spd / 2) / 32.0) * 100.0, 100.0) + "%"), 1, 3);
+        gridInfo.add(new Label((battler.pokemon.getHighCritRatio() * 100.0) + "%"), 1, 3);
         if (isPlayerBattler) {
             gridInfo.add(new Label("Redbar:"), 0, 4);
             gridInfo.add(new Label("<" + battler.getHP().multiplyBy(53).divideBy(256).add(1) + " hp"), 1, 4);

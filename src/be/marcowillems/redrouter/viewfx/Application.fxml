@@ -8,7 +8,7 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="be.marcowillems.redrouter.viewfx.ApplicationController"
-            prefHeight="600" prefWidth="800">
+            prefHeight="600" prefWidth="1000">
     <stylesheets>
         <URL value="@application.css" />
         <URL value="@route/css/routetree.css" />

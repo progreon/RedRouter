@@ -54,6 +54,14 @@ public class DVRange {
         return max;
     }
 
+    public int[] getValues() {
+        int[] values = new int[dvs.size()];
+        for (int i = 0; i < values.length; i++) {
+            values[i] = dvs.get(i);
+        }
+        return values;
+    }
+
     public void combine(DVRange range) {
         for (int dv : range.dvs) {
             this.add(dv);

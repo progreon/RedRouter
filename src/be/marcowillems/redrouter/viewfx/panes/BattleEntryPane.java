@@ -97,8 +97,8 @@ public class BattleEntryPane extends GridPane implements LabeledSpinner.SpinnerC
         int k = 0;
         for (Move m : rangesA.keySet()) {
             Move.DamageRange range = rangesA.get(m);
-            if (range.critMax > 0 || range.max > 0) {
-                lblMovesA[k] = new Label(m + ": " + range);
+            if (range.getCritMax() > 0 || range.getMax() > 0) {
+                lblMovesA[k] = new Label(m + ": " + range.toString(battleEntry.battlerPl.getHP(), battleEntry.battlerOpp.pokemon.getCritRatio()));
             } else {
                 lblMovesA[k] = new Label(m.toString());
             }
@@ -126,8 +126,8 @@ public class BattleEntryPane extends GridPane implements LabeledSpinner.SpinnerC
         int l = 0;
         for (Move m : rangesB.keySet()) {
             Move.DamageRange range = rangesB.get(m);
-            if (range.critMax > 0 || range.max > 0) {
-                lblMovesB[l] = new Label(m + ": " + range);
+            if (range.getCritMax() > 0 || range.getMax() > 0) {
+                lblMovesB[l] = new Label(m + ": " + range.toString(battleEntry.battlerOpp.getHP(), battleEntry.battlerPl.pokemon.getCritRatio()));
             } else {
                 lblMovesB[l] = new Label(m.toString());
             }
@@ -170,7 +170,6 @@ public class BattleEntryPane extends GridPane implements LabeledSpinner.SpinnerC
 
     @Override
     public void changed(LabeledSpinner source, int oldValue, int newValue) {
-        // TODO: recalculate all ranges for this battle entry
         battleEntry.setStagesOpponent(spnStagesA[0].getValue(), spnStagesA[1].getValue(), spnStagesA[2].getValue(), spnStagesA[3].getValue());
         battleEntry.setStagesPlayer(spnStagesB[0].getValue(), spnStagesB[1].getValue(), spnStagesB[2].getValue(), spnStagesB[3].getValue());
         battleEntry.setBadgeBoosts(spnBadgeBoosts[0].getValue(), spnBadgeBoosts[1].getValue(), spnBadgeBoosts[2].getValue(), spnBadgeBoosts[3].getValue());
@@ -179,8 +178,8 @@ public class BattleEntryPane extends GridPane implements LabeledSpinner.SpinnerC
         int k = 0;
         for (Move m : rangesA.keySet()) {
             Move.DamageRange range = rangesA.get(m);
-            if (range.critMax > 0 || range.max > 0) {
-                lblMovesA[k].setText(m + ": " + range);
+            if (range.getCritMax() > 0 || range.getMax() > 0) {
+                lblMovesA[k].setText(m + ": " + range.toString(battleEntry.battlerPl.getHP(), battleEntry.battlerOpp.pokemon.getCritRatio()));
             } else {
                 lblMovesA[k].setText(m.toString());
             }
@@ -190,8 +189,8 @@ public class BattleEntryPane extends GridPane implements LabeledSpinner.SpinnerC
         int l = 0;
         for (Move m : rangesB.keySet()) {
             Move.DamageRange range = rangesB.get(m);
-            if (range.critMax > 0 || range.max > 0) {
-                lblMovesB[l].setText(m + ": " + range);
+            if (range.getCritMax() > 0 || range.getMax() > 0) {
+                lblMovesB[l].setText(m + ": " + range.toString(battleEntry.battlerOpp.getHP(), battleEntry.battlerPl.pokemon.getCritRatio()));
             } else {
                 lblMovesB[l].setText(m.toString());
             }

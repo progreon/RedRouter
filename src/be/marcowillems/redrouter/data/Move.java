@@ -93,67 +93,58 @@ public class Move {
     public DamageRange getDamageRange(Battler attacker, Battler defender, Stages stagesA, Stages stagesB, BadgeBoosts bbA, BadgeBoosts bbB) {
         Range damageRange = getDamageRange(attacker, defender, stagesA, stagesB, bbA, bbB, false);
         Range critRange = getDamageRange(attacker, defender, stagesA, stagesB, bbA, bbB, true);
-        return new DamageRange(damageRange.getMin(), damageRange.getMax(), critRange.getMin(), critRange.getMax());
+        return new DamageRange(damageRange, critRange);
     }
 
     // TODO: confusion & night shade damage
     // See: http://upcarchive.playker.info/0/upokecenter/content/pokemon-red-version-blue-version-and-yellow-version-damage-calculation-process.html
     private Range getDamageRange(Battler attacker, Battler defender, Stages stagesA, Stages stagesB, BadgeBoosts bbA, BadgeBoosts bbB, boolean isCrit) {
         if (power == 0) {
-            return new Range(0, 0); // TODO: special cases?
+            return new Range(); // TODO: special cases?
         }
+        Range damageRange = new Range();
         // (1), (2), (4)
         Range atkRange = Types.isPhysical(type) ? attacker.getAtk(isCrit ? 0 : bbA.getAtk(), isCrit ? 0 : stagesA.getAtk()) : attacker.getSpc(isCrit ? 0 : bbA.getSpc(), isCrit ? 0 : stagesA.getSpc());
-        int minAttack = atkRange.getMin();
-        int maxAttack = atkRange.getMax();
-        // TODO: (3) attacker is burned
         Range defRange = Types.isPhysical(type) ? defender.getDef(isCrit ? 0 : bbB.getDef(), isCrit ? 0 : stagesB.getDef()) : defender.getSpc(isCrit ? 0 : bbB.getSpc(), isCrit ? 0 : stagesB.getSpc());
-        int minDefense = defRange.getMin();
-        int maxDefense = defRange.getMax();
-        // TODO: (5) Selfdestruct & Explosion
-        // (6) ??
-        if (minAttack > 255) {
-            minAttack = ((((minAttack / 2) % 255) / 2) % 255);
-        }
-        if (maxAttack > 255) {
-            maxAttack = ((((maxAttack / 2) % 255) / 2) % 255);
-        }
-        if (minDefense > 255) {
-            minDefense = ((((minDefense / 2) % 255) / 2) % 255);
-        }
-        if (maxDefense > 255) {
-            maxDefense = ((((maxDefense / 2) % 255) / 2) % 255);
-        }
-        // TODO: (7) Reflect in effect
-        // TODO: (8) Light Screen in effect
-        // (9)
-        minAttack = minAttack == 0 ? 1 : minAttack;
-        maxAttack = maxAttack == 0 ? 1 : maxAttack;
-        minDefense = minDefense == 0 ? 1 : minDefense;
-        maxDefense = maxDefense == 0 ? 1 : maxDefense;
-
-        // (10)
-        int damage = (attacker.getLevel() * (isCrit ? 2 : 1)) % 256;
-        damage = (damage * 2 / 5 + 2);
-        int minDamage = damage * minAttack * power / maxDefense;
-        int maxDamage = damage * maxAttack * power / minDefense;
-        minDamage /= 50;
-        maxDamage /= 50;
-        // (11), (12)
-        minDamage = Math.min(minDamage, 997) + 2;
-        maxDamage = Math.min(maxDamage, 997) + 2;
-        // (13)
-        minDamage = attacker.isType(type) ? minDamage * 3 / 2 : minDamage; // STAB
-        maxDamage = attacker.isType(type) ? maxDamage * 3 / 2 : maxDamage; // STAB
-        // (14)
-        minDamage *= Types.getTypeChart().getFactor(type, defender.pokemon.type1, defender.pokemon.type2);
-        maxDamage *= Types.getTypeChart().getFactor(type, defender.pokemon.type1, defender.pokemon.type2);
-        // (15)
-        if (minDamage != 0) {
-            minDamage = Math.max(minDamage * 217 / 255, 1);
+        for (int atk : atkRange.getValues()) {
+            // TODO: (3) attacker is burned
+            for (int def : defRange.getValues()) {
+                // TODO: (5) Selfdestruct & Explosion
+                // (6) ??
+                int attack = atk;
+                int defense = def;
+                if (attack > 255) {
+                    attack = ((((attack / 2) % 25) / 2) % 255);
+                }
+                if (defense > 255) {
+                    defense = ((((defense / 2) % 255) / 2) % 255);
+                }
+                // TODO: (7) Reflect in effect
+                // TODO: (8) Light Screen in effect
+                // (9)
+                attack = Math.max(1, attack);
+                defense = Math.max(1, defense);
+                // (10)
+                int damage = (attacker.getLevel() * (isCrit ? 2 : 1)) % 256;
+                damage = (damage * 2 / 5 + 2);
+                damage = damage * attack * power / defense;
+                damage /= 50;
+                // (11), (12)
+                damage = Math.min(damage, 997) + 2;
+                // (13)
+                damage = attacker.isType(type) ? damage * 3 / 2 : damage; // STAB
+                // (14)
+                damage *= Types.getTypeChart().getFactor(type, defender.pokemon.type1, defender.pokemon.type2);
+                // (15)
+                if (damage != 0) {
+                    for (int i = 217; i < 256; i++) { // Add all possible damages
+                        damageRange.addValue(Math.max(damage * i / 255, 1));
+                    }
+                }
+            }
         }
 
-        return new Range(minDamage, maxDamage);
+        return damageRange;
     }
 
     public static String getIndexString(String name) {
@@ -188,19 +179,87 @@ public class Move {
 
     public class DamageRange {
 
-        public int min, max, critMin, critMax;
+        private final Range values;
+        private final Range critValues;
 
-        public DamageRange(int min, int max, int critMin, int critMax) {
-            this.min = min;
-            this.max = max;
-            this.critMin = critMin;
-            this.critMax = critMax;
+        public DamageRange() {
+            values = new Range();
+            critValues = new Range();
+        }
+
+        public DamageRange(Range values, Range critValues) {
+            this.values = values;
+            this.critValues = critValues;
+        }
+
+        public void addValue(int value) {
+            values.addValue(value);
+        }
+
+        public void addCritValue(int critValue) {
+            critValues.addValue(critValue);
+        }
+
+        public int getMin() {
+            return values.getMin();
+        }
+
+        public int getMax() {
+            return values.getMax();
+        }
+
+        public int getCritMin() {
+            return critValues.getMin();
+        }
+
+        public int getCritMax() {
+            return critValues.getMax();
+        }
+
+        public int getCount() {
+            return values.getCount() + critValues.getCount();
+        }
+
+        public double getRange(Range hp, double critChance) {
+            double tot = hp.getCount();
+            double c = 0.0;
+            for (int v : hp.getValues()) {
+                c += getRange(v, critChance);
+            }
+            return c / tot;
+        }
+
+        private double getRange(int hp, double critChance) {
+            if (hp <= getMin() && hp <= getCritMin()) {
+                return 1.0;
+            } else if (hp > getMax() && hp > getCritMax()) {
+                return 0.0;
+            } else {
+                double c = 0;
+                for (int v : values.getValues()) {
+                    if (hp <= v) {
+                        c++;
+                    }
+                }
+                double cc = 0;
+                for (int v : critValues.getValues()) {
+                    if (hp <= v) {
+                        cc++;
+                    }
+                }
+                return c * (1.0 - critChance) / values.getCount() + cc * critChance / critValues.getCount();
+            }
         }
 
         @Override
         public String toString() {
-            return min + "-" + max + " (" + critMin + "-" + critMax + ")";
+            return getMin() + "-" + getMax() + " (" + getCritMin() + "-" + getCritMax() + ")";
         }
 
+        public String toString(Range hp, double critChance) {
+            double rangePercent = getRange(hp, critChance);
+            rangePercent = Math.round(rangePercent * 1000) / 10.0;
+            return toString() + (rangePercent > 0 ? " (" + rangePercent + "%)" : "");
+        }
     }
 }
