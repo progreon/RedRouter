@@ -126,13 +126,13 @@ public class Player {
         int index = getItemIndex(item, pc);
         if (index > 0 || (index < 0 && items[19] != null)) {
             if (index > 0) {
-                items[index].count++;
+                items[index].count += quantity;
             } else {
                 index = 0;
                 while (items[index] != null) {
                     index++;
                 }
-                items[index] = new ItemSlot(item, 0);
+                items[index] = new ItemSlot(item, quantity);
             }
             return true;
         } else {

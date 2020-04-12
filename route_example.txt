@@ -86,6 +86,7 @@ Route: Red Any% Glitchless - Exarion Route
 //			C: Route 22 :: 1 #3
 //				Tackle Lvl.3 Nidorans once to make the catch easier, but just throw PokeBalls at Lvl.4 Nidorans.
 			Manip: Route 22 :: 3 :: 15 15 14 15
+//			Manip: Route 22 :: 7 :: 15 15 14 15
 			D: After you have your Nidoran, head back east to Viridian City.
 	S: Viridian City
 		D: Head north, and pick up the Potion hidden in the Cut tree on the left.
@@ -94,6 +95,7 @@ Route: Red Any% Glitchless - Exarion Route
 	S: Viridian Forest
 		D: Avoid the trainers and walk on the encounterless tiles. Pick up the Antidote on your way up.
 //		I: ViridianF
+//		B: bug1 :: 0:0 0:2
 		B: bug1
 			Tail Whip x2, then Tackle until it faints.
 		D: After the battle, exit the grass and open the menu: Squirtle <-> Nidoran, [use potion], [use antidote]
@@ -109,11 +111,14 @@ Route: Red Any% Glitchless - Exarion Route
 		D: Exit the Mart and head east out of the city towards Route 3.
 		D: Menu: go to Options and change your Battle Style from Shift to Set.
 	S: Route 3
+//		Swap: 0 2
 		B: bug2
 			x3: Leer, HA x2
 		D: Heal to full or near full for the next fight
+//		Swap: 0 2
 		B: jrtrmshorts
 			x2: Leer, HA x2
+//		Swap: 0 2
 		D: Potion before the next fight ONLY if you're at 1 HP.
 		B: bug3
 		B: bug4

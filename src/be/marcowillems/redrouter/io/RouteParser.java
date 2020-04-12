@@ -523,7 +523,7 @@ public class RouteParser {
             if (level < 2 || level > 100) {
                 throw new ParserException(currentFile, lineNo, "Invalid level \"" + pokeArgs[1] + "\", must be between 2 and 100 (included)", false);
             }
-            choices.add(new BattlerImpl(route.rd, p, level, null));
+            choices.add(new BattlerImpl(route.rd, p, null, level));
         }
 
         // Handle description line
