@@ -114,6 +114,7 @@ Route: Red Any% Glitchless - Exarion Route
 //		Swap: 0 2
 		B: bug2
 			x3: Leer, HA x2
+===
 		D: Heal to full or near full for the next fight
 //		Swap: 0 2
 		B: jrtrmshorts
