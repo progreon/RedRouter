@@ -353,6 +353,9 @@ public class BattlerImpl extends Battler {
         currentStats[2] = calculateDef();
         currentStats[3] = calculateSpd();
         currentStats[4] = calculateSpc();
+        System.out.printf("updateCurrentStats, %s, %d, [%d, %d, %d, %d, %d], [%s, %s, %S, %s, %s]\n", this.toString(),
+                this.level, this.hpXP, this.atkXP, this.defXP, this.spdXP, this.spcXP,
+                currentStats[0].toString(), currentStats[1].toString(), currentStats[2].toString(), currentStats[3].toString(), currentStats[4].toString());
     }
 
     private Range calculateHP() {

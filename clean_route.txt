@@ -102,7 +102,7 @@ Trainer: Agatha :: Victory Road :: agatha gengar:56 golbat:56 haunter:55 arbok:5
 Trainer: Lance :: Victory Road :: lance gyarados:58 dragonair:56 dragonair:56 aerodactyl:60 dragonite:62
 Trainer: Rival 7 :: Victory Road :: rival7 pidgeot:61 alakazam:59 rhydon:61 gyarados:61 arcanine:63 venusaur:65
 
-
+MoveReplace: Nidoking :: leer thrash
 // Route
 // This is a clean route (no items etc) with the usual minimum battles (no optionals), with Squirtle as starter
 Route: Red Any% Glitchless - Clean
@@ -112,16 +112,18 @@ Route: Red Any% Glitchless - Clean
 		D: Do parcel stuff and kill an encounter
 		E: Route 1 :: 1:0 3:1 4:0 5:0
 			Kill an encounter
+		Manip: Route 22 :: 3 :: 15 15 14 15
 		B: bug1
 	S: Pewter City
-		B: brock
+		Swap: 0 1
+		B: brock :: 0:0 0:1 1:0 1:1
 	S: Route 3
 		B: bug2
 		B: jrtrmshorts
 		B: bug3
 		B: bug4
 	S: Mt. Moon
-		B: nerd1
+//		B: nerd1
 //		B: lassmoon
 //		B: hikermoon
 		B: rocketmoon
